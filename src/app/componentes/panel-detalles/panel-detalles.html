@@ -1,46 +1,67 @@
 <div id="panelDetalles" [class.abierto]="abierto">
   <div id="panelDetallesContent">
-    <button (click)="onCerrar()" class="btn-cerrar">✕</button>
+    <button (click)="onCerrar()" class="btn-cerrar">
+      <i class="fas fa-times"></i>
+    </button>
     <h2>Detalles de Tarea</h2>
-    
+
     <form (ngSubmit)="onSubmit()">
-      <label for="nombre">Nombre: </label>
-      <input 
-        type="text" 
-        id="nombre" 
-        [(ngModel)]="nombre" 
-        name="nombre" 
-        placeholder="+ Agregar una tarea" 
+      <label for="nombre">
+        <i class="fas fa-tag"></i> Nombre:
+      </label>
+      <input
+        type="text"
+        id="nombre"
+        [(ngModel)]="nombre"
+        name="nombre"
+        placeholder="+ Agregar una tarea"
         required>
 
-      <label for="descripcion">Descripción: </label>
-      <input 
-        type="text" 
-        id="descripcion" 
-        [(ngModel)]="descripcion" 
+      <label for="descripcion">
+        <i class="fas fa-align-left"></i> Descripción:
+      </label>
+      <input
+        type="text"
+        id="descripcion"
+        [(ngModel)]="descripcion"
         name="descripcion">
-      
-      <label>Pasos: </label>
+
+      <label>
+        <i class="fas fa-list-ol"></i> Pasos:
+      </label>
       <div id="contenedorPasos">
         <div *ngFor="let paso of pasos; let i = index" class="paso-item">
-          <input 
-            type="text" 
-            [(ngModel)]="pasos[i]" 
-            [name]="'paso-' + i" 
-            placeholder="Agregar un paso" 
+          <i class="fas fa-grip-vertical paso-drag-icon"></i>
+          <input
+            type="text"
+            [(ngModel)]="pasos[i]"
+            [name]="'paso-' + i"
+            placeholder="Agregar un paso"
             class="paso-input">
-          <button type="button" (click)="eliminarPaso(i)" class="btn-eliminar-paso">✕</button>
+          <button type="button" (click)="eliminarPaso(i)" class="btn-eliminar-paso">
+            <i class="fas fa-trash-alt"></i>
+          </button>
         </div>
       </div>
-      <button type="button" (click)="agregarPaso()" class="btn-agregar-paso">+ Agregar paso</button>
+      <button type="button" (click)="agregarPaso()" class="btn-agregar-paso">
+        <i class="fas fa-plus"></i> Agregar paso
+      </button>
       <br><br>
 
-      <label>Agregar a:</label>
-      <input type="checkbox" id="miDia" [(ngModel)]="miDia" name="miDia">
-      <label for="miDia">Mi día</label>
-      <br><br>
+      <label>
+        <i class="fas fa-star"></i> Agregar a:
+      </label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="miDia" [(ngModel)]="miDia" name="miDia">
+        <label for="miDia" class="checkbox-label">
+          <i class="fas fa-sun"></i> Mi día
+        </label>
+      </div>
+      <br>
 
-      <label for="listaSelect">Lista:</label>
+      <label for="listaSelect">
+        <i class="fas fa-layer-group"></i> Lista:
+      </label>
       <select id="listaSelect" [(ngModel)]="idLista" name="listaSelect">
         <option [value]="null">Sin lista</option>
         <option *ngFor="let lista of listas" [value]="lista.idLista">
@@ -48,14 +69,18 @@
         </option>
       </select>
 
-      <label for="prioridad">Prioridad:</label>
+      <label for="prioridad">
+        <i class="fas fa-flag"></i> Prioridad:
+      </label>
       <select id="prioridad" [(ngModel)]="prioridad" name="prioridad">
         <option value="N">Normal</option>
         <option value="A">Alta</option>
         <option value="B">Baja</option>
       </select>
 
-      <label for="recordatorio">Recordarme:</label>
+      <label for="recordatorio">
+        <i class="fas fa-bell"></i> Recordarme:
+      </label>
       <select id="recordatorio" [(ngModel)]="recordatorio" name="recordatorio" (change)="onRecordatorioChange()">
         <option value="0">No recordar</option>
         <option value="1">Más tarde</option>
@@ -63,23 +88,25 @@
         <option value="3">Semana Próxima</option>
         <option value="4">Elegir fecha</option>
       </select>
-      <input 
-        *ngIf="recordatorio === '4'"
-        type="date" 
-        id="fechaRecordatorio" 
-        [(ngModel)]="fechaRecordatorio" 
-        name="fechaRecordatorio">
-      <input 
-        *ngIf="recordatorio === '4'"
-        type="time" 
-        id="horaRecordatorio" 
-        [(ngModel)]="horaRecordatorio" 
-        name="horaRecordatorio">
+      <div class="fecha-hora-group" *ngIf="recordatorio === '4'">
+        <input
+          type="date"
+          id="fechaRecordatorio"
+          [(ngModel)]="fechaRecordatorio"
+          name="fechaRecordatorio">
+        <input
+          type="time"
+          id="horaRecordatorio"
+          [(ngModel)]="horaRecordatorio"
+          name="horaRecordatorio">
+      </div>
 
-      <label for="selectFechaVencimiento">Fecha de vencimiento: </label>
-      <select 
-        id="selectFechaVencimiento" 
-        [(ngModel)]="selectFechaVencimiento" 
+      <label for="selectFechaVencimiento">
+        <i class="far fa-calendar-alt"></i> Fecha de vencimiento:
+      </label>
+      <select
+        id="selectFechaVencimiento"
+        [(ngModel)]="selectFechaVencimiento"
         name="selectFechaVencimiento"
         (change)="onSelectFechaVencimientoChange()">
         <option value="0">Sin fecha</option>
@@ -88,20 +115,24 @@
         <option value="3">Semana Próxima</option>
         <option value="4">Elegir fecha</option>
       </select>
-      <input 
+      <input
         *ngIf="selectFechaVencimiento === '4'"
-        type="date" 
-        id="fechaVencimiento" 
-        [(ngModel)]="fechaVencimiento" 
+        type="date"
+        id="fechaVencimiento"
+        [(ngModel)]="fechaVencimiento"
         name="fechaVencimiento">
 
-      <label for="repetir">Repetir: </label>
-      <input type="checkbox" id="repetir" [(ngModel)]="repetir" name="repetir">
-      <br>
-      <select 
-        id="tipoRepeticion" 
-        [(ngModel)]="tipoRepeticion" 
-        name="tipoRepeticion" 
+      <label for="repetir">
+        <i class="fas fa-redo"></i> Repetir:
+      </label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="repetir" [(ngModel)]="repetir" name="repetir">
+        <label for="repetir" class="checkbox-label"></label>
+      </div>
+      <select
+        id="tipoRepeticion"
+        [(ngModel)]="tipoRepeticion"
+        name="tipoRepeticion"
         [disabled]="!repetir">
         <option value="diario">Diariamente</option>
         <option value="laborales">Días laborales</option>
@@ -112,11 +143,11 @@
 
       <div *ngIf="repetir && tipoRepeticion === 'personalizado'" id="configPersonalizada">
         <label for="repetirCada">Cada:</label>
-        <input 
-          type="number" 
-          id="repetirCada" 
-          [(ngModel)]="repetirCada" 
-          name="repetirCada" 
+        <input
+          type="number"
+          id="repetirCada"
+          [(ngModel)]="repetirCada"
+          name="repetirCada"
           min="1">
         <select id="repetirUnidad" [(ngModel)]="repetirUnidad" name="repetirUnidad">
           <option value="dias">Día(s)</option>
@@ -126,14 +157,19 @@
         </select>
       </div>
 
-      <label for="notas">Notas: </label><br>
+      <label for="notas">
+        <i class="fas fa-sticky-note"></i> Notas:
+      </label>
       <textarea id="notas" [(ngModel)]="notas" name="notas" rows="4"></textarea>
 
       <div class="form-buttons">
         <button type="submit" class="btn-guardar">
-        {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+          <i class="fas fa-save"></i>
+          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
         </button>
-        <button type="button" (click)="onCerrar()" class="btn-cancelar">Cancelar</button>
+        <button type="button" (click)="onCerrar()" class="btn-cancelar">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
       </div>
     </form>
   </div>

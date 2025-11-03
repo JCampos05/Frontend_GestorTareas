@@ -1,56 +1,196 @@
 #sidebar {
-  width: 250px;
-  border-right: 1px solid #ccc;
+  width: 260px;
+  background-color: #f4f5f7;
+  border-right: 1px solid #dfe1e6;
   overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 .sidebar-section {
-  border-bottom: 1px solid #eee;
-  padding: 15px;
+  padding: 16px 0;
+  border-bottom: 1px solid #dfe1e6;
 }
 
 .sidebar-section h3 {
-  margin-bottom: 10px;
-  font-size: 14px;
+  margin: 0 16px 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #5e6c84;
+  letter-spacing: 0.5px;
 }
 
 .sidebar-item {
-  padding: 8px 10px;
+  padding: 8px 16px;
   cursor: pointer;
-  margin: 3px 0;
+  margin: 2px 8px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #172b4d;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.sidebar-item i {
+  width: 16px;
+  font-size: 16px;
+}
+
+/* Iconos de Tools */
+.sidebar-item i.fa-list {
+  color: #6554c0;
+}
+
+.sidebar-item i.fa-star {
+  color: #ffab00;
+}
+
+.sidebar-item i.fa-calendar-alt {
+  color: #00b8d9;
+}
+
+.sidebar-item i.fa-exclamation-circle {
+  color: #ff5630;
+}
+
+.sidebar-item i.fa-sticky-note {
+  color: #36b37e;
+}
+
+/* Iconos de Vistas */
+.sidebar-item i.fa-th-list {
+  color: #505f79;
+}
+
+.sidebar-item i.fa-clock {
+  color: #ff991f;
+}
+
+.sidebar-item i.fa-spinner {
+  color: #0065ff;
+}
+
+.sidebar-item i.fa-check-circle {
+  color: #00875a;
+}
+
+.sidebar-item i.fa-exclamation-triangle {
+  color: #de350b;
 }
 
 .sidebar-item:hover {
-  background-color: #f0f0f0;
+  background-color: #ebecf0;
+}
+
+.sidebar-item.active {
+  background-color: #deebff;
+  color: #0052cc;
+}
+
+.sidebar-item.active i {
+  color: #0052cc;
+}
+
+.sidebar-item.active i.fa-list,
+.sidebar-item.active i.fa-star,
+.sidebar-item.active i.fa-calendar-alt,
+.sidebar-item.active i.fa-exclamation-circle,
+.sidebar-item.active i.fa-sticky-note,
+.sidebar-item.active i.fa-th-list,
+.sidebar-item.active i.fa-clock,
+.sidebar-item.active i.fa-spinner,
+.sidebar-item.active i.fa-check-circle,
+.sidebar-item.active i.fa-exclamation-triangle {
+  filter: brightness(0.8);
 }
 
 .sidebar-categoria {
-  margin-bottom: 10px;
+  margin: 4px 8px;
 }
 
 .sidebar-categoria-header {
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  padding: 8px 10px;
+  padding: 8px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #172b4d;
+  transition: background-color 0.1s ease-in-out;
 }
 
 .sidebar-categoria-header:hover {
-  background-color: #f5f5f5;
+  background-color: #ebecf0;
+}
+
+.sidebar-categoria-header i {
+  margin-right: 8px;
+  color: #5e6c84;
+  font-size: 14px;
+}
+
+.sidebar-categoria-header .count {
+  font-size: 12px;
+  color: #5e6c84;
+  font-weight: 400;
 }
 
 .sidebar-listas {
-  margin-left: 20px;
+  margin-left: 24px;
+  margin-top: 4px;
 }
 
 .sidebar-lista-item {
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 6px 16px;
   margin: 2px 0;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #172b4d;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.sidebar-lista-item i {
+  font-size: 14px;
+  color: #6554c0;
+  width: 14px;
 }
 
 .sidebar-lista-item:hover {
-  background-color: #f0f0f0;
+  background-color: #ebecf0;
+}
+
+.sidebar-lista-item.active {
+  background-color: #deebff;
+  color: #0052cc;
+  font-weight: 500;
+}
+
+.sidebar-lista-item.active i {
+  color: #0052cc;
+}
+
+/* Scrollbar styling for Jira look */
+#sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+  background: #f4f5f7;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+  background: #c1c7d0;
+  border-radius: 4px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a5adba;
 }

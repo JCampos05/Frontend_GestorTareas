@@ -1,16 +1,33 @@
 <div id="header">
   <div id="header-left">
-    <button (click)="toggleSidebar()">☰</button>
-    <span><strong>Gestor de Tareas</strong></span>
+    <button (click)="toggleSidebar()" title="Menú">
+      <i class="fas fa-bars"></i>
+    </button>
+    <span>
+      <strong>Gestor de Tareas</strong>
+    </span>
   </div>
+
   <div id="header-right">
-    <input 
-      type="search" 
-      placeholder="Buscar..." 
+    <input
+      type="search"
+      placeholder="Buscar tareas..."
       [(ngModel)]="searchQuery"
       (keyup.enter)="onSearch()">
-    <button (click)="cambiarVista()">Cambiar de día</button>
-    <span>Usuario</span>
-    <button (click)="loginGoogle()">Google</button>
+
+    <button (click)="cambiarVista()" title="Cambiar vista">
+      <i class="far fa-calendar-alt"></i>
+      <span>Cambiar de día</span>
+    </button>
+
+    <div class="user-profile" title="Mi perfil">
+      <div class="user-avatar">U</div>
+      <span>Usuario</span>
+    </div>
+
+    <button class="btn-google" (click)="loginGoogle()" title="Conectar con Google">
+      <i class="fab fa-google"></i>
+      <span>Google</span>
+    </button>
   </div>
 </div>

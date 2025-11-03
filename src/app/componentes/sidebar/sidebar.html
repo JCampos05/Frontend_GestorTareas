@@ -2,55 +2,69 @@
   <div class="sidebar-section">
     <h3>Tools</h3>
     <div class="sidebar-item" (click)="mostrarAdminSections()">
-      📝 Listas individuales
+      <i class="fas fa-list"></i>
+      <span>Listas individuales</span>
     </div>
     <div class="sidebar-item" (click)="mostrarListasImportantes()">
-      ⭐ Listas importantes
+      <i class="fas fa-star"></i>
+      <span>Listas importantes</span>
     </div>
     <div class="sidebar-item" (click)="mostrarCalendario()">
-      📅 Calendario
+      <i class="far fa-calendar-alt"></i>
+      <span>Calendario</span>
     </div>
     <div class="sidebar-item" (click)="mostrarImportante()">
-      ❗ Importante
+      <i class="fas fa-exclamation-circle"></i>
+      <span>Importante</span>
     </div>
     <div class="sidebar-item" (click)="mostrarNotas()">
-      📋 Notas
+      <i class="far fa-sticky-note"></i>
+      <span>Notas</span>
     </div>
   </div>
-  
+
   <div class="sidebar-section">
     <h3>Vistas</h3>
     <div class="sidebar-item" (click)="cargarTodasLasTareas()">
-      📋 Todas las tareas
+      <i class="fas fa-th-list"></i>
+      <span>Todas las tareas</span>
     </div>
     <div class="sidebar-item" (click)="filtrarPorEstado('P')">
-      ⏳ Pendientes
+      <i class="far fa-clock"></i>
+      <span>Pendientes</span>
     </div>
     <div class="sidebar-item" (click)="filtrarPorEstado('N')">
-      🔄 En progreso
+      <i class="fas fa-spinner"></i>
+      <span>En progreso</span>
     </div>
     <div class="sidebar-item" (click)="filtrarPorEstado('C')">
-      ✅ Completadas
+      <i class="fas fa-check-circle"></i>
+      <span>Completadas</span>
     </div>
     <div class="sidebar-item" (click)="cargarTareasVencidas()">
-      ⚠️ Vencidas
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Vencidas</span>
     </div>
   </div>
-  
+
   <div class="sidebar-section">
     <h3>Categorías</h3>
     <div id="sidebarCategorias">
       <div *ngFor="let categoria of categorias" class="sidebar-categoria">
         <div class="sidebar-categoria-header" (click)="toggleCategoria(categoria.idCategoria)">
-          <span>📁 {{ categoria.nombre }}</span>
-          <span>({{ categoria.listas?.length || 0 }})</span>
+          <span>
+            <i class="fas" [ngClass]="isCategoriaExpandida(categoria.idCategoria) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+            {{ categoria.nombre }}
+          </span>
+          <span class="count">{{ categoria.listas?.length || 0 }}</span>
         </div>
-        <div class="sidebar-listas" 
+        <div class="sidebar-listas"
              [style.display]="isCategoriaExpandida(categoria.idCategoria) ? 'block' : 'none'">
-          <div *ngFor="let lista of categoria.listas" 
-               class="sidebar-lista-item" 
+          <div *ngFor="let lista of categoria.listas"
+               class="sidebar-lista-item"
                (click)="cargarTareasDeLista(lista.idLista)">
-            {{ lista.icono || '📋' }} {{ lista.nombre }}
+            <i class="fas fa-clipboard-list"></i>
+            <span>{{ lista.nombre }}</span>
           </div>
         </div>
       </div>

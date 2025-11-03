@@ -1,24 +1,210 @@
 #header {
-  height: 60px;
-  border-bottom: 1px solid #ccc;
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 2px solid #dfe1e6;
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 24px;
   justify-content: space-between;
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 #header-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+}
+
+#header-left button {
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #44546f;
+  font-size: 20px;
+  padding: 0;
+}
+
+#header-left button:hover {
+  background: #ebecf0;
+  color: #172b4d;
+}
+
+#header-left button i {
+  font-size: 18px;
+}
+
+#header-left span {
+  font-size: 18px;
+  font-weight: 600;
+  color: #172b4d;
+  letter-spacing: -0.2px;
 }
 
 #header-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
 }
 
-#header-right input {
-  padding: 5px 10px;
+/* Buscador estilo Jira */
+#header-right input[type="search"] {
+  padding: 8px 16px 8px 40px;
+  border: 2px solid #dfe1e6;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 220px;
+  transition: all 0.2s;
+  background: #fafbfc;
+  color: #172b4d;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235e6c84' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
+  background-size: 16px;
+}
+
+#header-right input[type="search"]:focus {
+  outline: none;
+  border-color: #0052cc;
+  background: white;
+  box-shadow: 0 0 0 1px #0052cc;
+  width: 280px;
+}
+
+#header-right input[type="search"]::placeholder {
+  color: #8993a4;
+}
+
+/* Botones del header */
+#header-right button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #42526e;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  height: 36px;
+}
+
+#header-right button:hover {
+  background: #f4f5f7;
+  color: #172b4d;
+}
+
+#header-right button:active {
+  background: #ebecf0;
+}
+
+#header-right button i {
+  font-size: 16px;
+}
+
+/* Botón Google con logo de Google */
+#header-right button.btn-google {
+  border: 1px solid #dfe1e6;
+  background: white;
+}
+
+#header-right button.btn-google i {
+  color: #4285f4;
+}
+
+#header-right button.btn-google:hover {
+  background: #f4f5f7;
+  border-color: #4285f4;
+}
+
+/* Usuario con avatar */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #172b4d;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-profile:hover {
+  background: #f4f5f7;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  #header-right button span {
+    display: none;
+  }
+
+  #header-right input[type="search"] {
+    width: 180px;
+  }
+
+  #header-right input[type="search"]:focus {
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  #header {
+    padding: 0 16px;
+  }
+
+  #header-left span {
+    font-size: 16px;
+  }
+
+  #header-right {
+    gap: 4px;
+  }
+
+  #header-right input[type="search"] {
+    width: 150px;
+  }
+
+  #header-right input[type="search"]:focus {
+    width: 200px;
+  }
+
+  .user-profile span {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #header-left span {
+    display: none;
+  }
 }
