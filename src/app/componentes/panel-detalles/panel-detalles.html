@@ -1,0 +1,138 @@
+<div id="panelDetalles" [class.abierto]="abierto">
+  <div id="panelDetallesContent">
+    <button (click)="onCerrar()" class="btn-cerrar">✕</button>
+    <h2>Detalles de Tarea</h2>
+    
+    <form (ngSubmit)="onSubmit()">
+      <label for="nombre">Nombre: </label>
+      <input 
+        type="text" 
+        id="nombre" 
+        [(ngModel)]="nombre" 
+        name="nombre" 
+        placeholder="+ Agregar una tarea" 
+        required>
+
+      <label for="descripcion">Descripción: </label>
+      <input 
+        type="text" 
+        id="descripcion" 
+        [(ngModel)]="descripcion" 
+        name="descripcion">
+      
+      <label>Pasos: </label>
+      <div id="contenedorPasos">
+        <div *ngFor="let paso of pasos; let i = index" class="paso-item">
+          <input 
+            type="text" 
+            [(ngModel)]="pasos[i]" 
+            [name]="'paso-' + i" 
+            placeholder="Agregar un paso" 
+            class="paso-input">
+          <button type="button" (click)="eliminarPaso(i)" class="btn-eliminar-paso">✕</button>
+        </div>
+      </div>
+      <button type="button" (click)="agregarPaso()" class="btn-agregar-paso">+ Agregar paso</button>
+      <br><br>
+
+      <label>Agregar a:</label>
+      <input type="checkbox" id="miDia" [(ngModel)]="miDia" name="miDia">
+      <label for="miDia">Mi día</label>
+      <br><br>
+
+      <label for="listaSelect">Lista:</label>
+      <select id="listaSelect" [(ngModel)]="idLista" name="listaSelect">
+        <option [value]="null">Sin lista</option>
+        <option *ngFor="let lista of listas" [value]="lista.idLista">
+          {{ lista.icono }} {{ lista.nombre }}
+        </option>
+      </select>
+
+      <label for="prioridad">Prioridad:</label>
+      <select id="prioridad" [(ngModel)]="prioridad" name="prioridad">
+        <option value="N">Normal</option>
+        <option value="A">Alta</option>
+        <option value="B">Baja</option>
+      </select>
+
+      <label for="recordatorio">Recordarme:</label>
+      <select id="recordatorio" [(ngModel)]="recordatorio" name="recordatorio" (change)="onRecordatorioChange()">
+        <option value="0">No recordar</option>
+        <option value="1">Más tarde</option>
+        <option value="2">Mañana</option>
+        <option value="3">Semana Próxima</option>
+        <option value="4">Elegir fecha</option>
+      </select>
+      <input 
+        *ngIf="recordatorio === '4'"
+        type="date" 
+        id="fechaRecordatorio" 
+        [(ngModel)]="fechaRecordatorio" 
+        name="fechaRecordatorio">
+      <input 
+        *ngIf="recordatorio === '4'"
+        type="time" 
+        id="horaRecordatorio" 
+        [(ngModel)]="horaRecordatorio" 
+        name="horaRecordatorio">
+
+      <label for="selectFechaVencimiento">Fecha de vencimiento: </label>
+      <select 
+        id="selectFechaVencimiento" 
+        [(ngModel)]="selectFechaVencimiento" 
+        name="selectFechaVencimiento"
+        (change)="onSelectFechaVencimientoChange()">
+        <option value="0">Sin fecha</option>
+        <option value="1">Hoy</option>
+        <option value="2">Mañana</option>
+        <option value="3">Semana Próxima</option>
+        <option value="4">Elegir fecha</option>
+      </select>
+      <input 
+        *ngIf="selectFechaVencimiento === '4'"
+        type="date" 
+        id="fechaVencimiento" 
+        [(ngModel)]="fechaVencimiento" 
+        name="fechaVencimiento">
+
+      <label for="repetir">Repetir: </label>
+      <input type="checkbox" id="repetir" [(ngModel)]="repetir" name="repetir">
+      <br>
+      <select 
+        id="tipoRepeticion" 
+        [(ngModel)]="tipoRepeticion" 
+        name="tipoRepeticion" 
+        [disabled]="!repetir">
+        <option value="diario">Diariamente</option>
+        <option value="laborales">Días laborales</option>
+        <option value="semanal">Semanalmente</option>
+        <option value="mensual">Mensualmente</option>
+        <option value="personalizado">Personalizado</option>
+      </select>
+
+      <div *ngIf="repetir && tipoRepeticion === 'personalizado'" id="configPersonalizada">
+        <label for="repetirCada">Cada:</label>
+        <input 
+          type="number" 
+          id="repetirCada" 
+          [(ngModel)]="repetirCada" 
+          name="repetirCada" 
+          min="1">
+        <select id="repetirUnidad" [(ngModel)]="repetirUnidad" name="repetirUnidad">
+          <option value="dias">Día(s)</option>
+          <option value="semanas">Semana(s)</option>
+          <option value="meses">Mes(es)</option>
+          <option value="años">Año(s)</option>
+        </select>
+      </div>
+
+      <label for="notas">Notas: </label><br>
+      <textarea id="notas" [(ngModel)]="notas" name="notas" rows="4"></textarea>
+
+      <button type="submit" class="btn-guardar">
+        {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+      </button>
+      <button type="button" (click)="onCerrar()" class="btn-cancelar">Cancelar</button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+<div id="contentArea">
+  <div class="columna">
+    <div class="columna-header">
+      Today
+      <button (click)="abrirPanelDetalles()" class="btn-agregar">+</button>
+    </div>
+    <div class="columna-content" id="tareasToday">
+      <p *ngIf="tareasToday.length === 0" class="sin-tareas">Sin tareas para hoy</p>
+      <app-tarea-card 
+        *ngFor="let tarea of tareasToday" 
+        [tarea]="tarea"
+        (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
+        (estadoCambiado)="onEstadoCambiado()">
+      </app-tarea-card>
+    </div>
+  </div>
+  
+  <div class="columna">
+    <div class="columna-header">
+      Tareas
+      <button (click)="abrirPanelDetalles()" class="btn-agregar">+</button>
+    </div>
+    <div class="columna-content" id="tareasPendientes">
+      <p *ngIf="tareasPendientes.length === 0" class="sin-tareas">Sin tareas pendientes</p>
+      <app-tarea-card 
+        *ngFor="let tarea of tareasPendientes" 
+        [tarea]="tarea"
+        (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
+        (estadoCambiado)="onEstadoCambiado()">
+      </app-tarea-card>
+    </div>
+  </div>
+  
+  <div class="columna">
+    <div class="columna-header">Proceso</div>
+    <div class="columna-content" id="tareasEnProceso">
+      <p *ngIf="tareasEnProceso.length === 0" class="sin-tareas">Sin tareas en proceso</p>
+      <app-tarea-card 
+        *ngFor="let tarea of tareasEnProceso" 
+        [tarea]="tarea"
+        (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
+        (estadoCambiado)="onEstadoCambiado()">
+      </app-tarea-card>
+    </div>
+  </div>
+  
+  <div class="columna">
+    <div class="columna-header">Terminado</div>
+    <div class="columna-content" id="tareasTerminadas">
+      <p *ngIf="tareasTerminadas.length === 0" class="sin-tareas">Sin tareas completadas</p>
+      <app-tarea-card 
+        *ngFor="let tarea of tareasTerminadas" 
+        [tarea]="tarea"
+        (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
+        (estadoCambiado)="onEstadoCambiado()">
+      </app-tarea-card>
+    </div>
+  </div>
+</div>
+
+<app-panel-detalles 
+  [abierto]="panelAbierto"
+  [idTarea]="tareaSeleccionada"
+  (cerrar)="cerrarPanelDetalles()"
+  (tareaGuardada)="onTareaGuardada()">
+</app-panel-detalles>
+
+<button class="btn-flotante" (click)="abrirPanelDetalles()">+</button>

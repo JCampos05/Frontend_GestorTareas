@@ -1,0 +1,16 @@
+<div id="header">
+  <div id="header-left">
+    <button (click)="toggleSidebar()">☰</button>
+    <span><strong>Gestor de Tareas</strong></span>
+  </div>
+  <div id="header-right">
+    <input 
+      type="search" 
+      placeholder="Buscar..." 
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()">
+    <button (click)="cambiarVista()">Cambiar de día</button>
+    <span>Usuario</span>
+    <button (click)="loginGoogle()">Google</button>
+  </div>
+</div>

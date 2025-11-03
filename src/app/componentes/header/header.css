@@ -1,0 +1,24 @@
+#header {
+  height: 60px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  justify-content: space-between;
+}
+
+#header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+#header-right input {
+  padding: 5px 10px;
+}

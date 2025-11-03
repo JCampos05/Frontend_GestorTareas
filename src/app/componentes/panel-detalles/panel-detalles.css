@@ -1,0 +1,109 @@
+#panelDetalles {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 0;
+  height: 100vh;
+  border-left: 1px solid #ccc;
+  overflow: hidden;
+  transition: width 0.3s;
+  background: white;
+  z-index: 1000;
+}
+
+#panelDetalles.abierto {
+  width: 400px;
+}
+
+#panelDetallesContent {
+  padding: 20px;
+  width: 400px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.btn-cerrar {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="date"],
+form input[type="time"],
+form input[type="number"],
+form select,
+form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+form input[type="checkbox"] {
+  width: auto;
+  margin-right: 5px;
+}
+
+.paso-item {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.paso-input {
+  flex: 1;
+}
+
+.btn-eliminar-paso {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-agregar-paso {
+  margin-bottom: 10px;
+}
+
+#configPersonalizada {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+#configPersonalizada input[type="number"] {
+  width: 60px;
+  display: inline-block;
+}
+
+#configPersonalizada select {
+  width: auto;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.btn-guardar,
+.btn-cancelar {
+  padding: 10px 20px;
+  margin-top: 10px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.btn-guardar {
+  background-color: #0078d4;
+  color: white;
+  border: none;
+}
+
+.btn-cancelar {
+  background-color: #ccc;
+  border: none;
+}

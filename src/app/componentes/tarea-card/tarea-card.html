@@ -1,0 +1,54 @@
+<div class="tarea-card" [attr.data-tarea-id]="tarea.idTarea" (click)="onTareaClick()">
+  <div class="tarea-content">
+    <input 
+      type="checkbox" 
+      [checked]="tarea.estado === 'C'"
+      (change)="onCheckboxChange($event)"
+      class="tarea-checkbox">
+    
+    <div class="tarea-info">
+      <strong [class.tarea-completada]="tarea.estado === 'C'">
+        {{ tarea.nombre }}
+      </strong>
+      <span *ngIf="tarea.prioridad === 'A'" class="prioridad-alta">⚠️</span>
+      
+      <p *ngIf="tarea.descripcion" class="tarea-descripcion">
+        {{ tarea.descripcion }}
+      </p>
+      
+      <p *ngIf="tarea.fechaVencimiento" class="tarea-fecha">
+        📅 {{ formatearFecha(tarea.fechaVencimiento) }}
+      </p>
+    </div>
+    
+    <div class="tarea-acciones">
+      <button 
+        *ngIf="mostrarBotonIniciar"
+        (click)="cambiarEstado($event, 'N')"
+        class="btn-accion">
+        ▶️ Iniciar
+      </button>
+      
+      <button 
+        *ngIf="mostrarBotonesProceso"
+        (click)="cambiarEstado($event, 'P')"
+        class="btn-accion">
+        ⏸️
+      </button>
+      
+      <button 
+        *ngIf="mostrarBotonesProceso"
+        (click)="cambiarEstado($event, 'C')"
+        class="btn-accion">
+        ✅
+      </button>
+      
+      <button 
+        *ngIf="mostrarBotonReabrir"
+        (click)="cambiarEstado($event, 'P')"
+        class="btn-accion">
+        🔄 Reabrir
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div id="sidebar" [style.display]="visible ? 'block' : 'none'">
+  <div class="sidebar-section">
+    <h3>Tools</h3>
+    <div class="sidebar-item" (click)="mostrarAdminSections()">
+      📝 Listas individuales
+    </div>
+    <div class="sidebar-item" (click)="mostrarListasImportantes()">
+      ⭐ Listas importantes
+    </div>
+    <div class="sidebar-item" (click)="mostrarCalendario()">
+      📅 Calendario
+    </div>
+    <div class="sidebar-item" (click)="mostrarImportante()">
+      ❗ Importante
+    </div>
+    <div class="sidebar-item" (click)="mostrarNotas()">
+      📋 Notas
+    </div>
+  </div>
+  
+  <div class="sidebar-section">
+    <h3>Vistas</h3>
+    <div class="sidebar-item" (click)="cargarTodasLasTareas()">
+      📋 Todas las tareas
+    </div>
+    <div class="sidebar-item" (click)="filtrarPorEstado('P')">
+      ⏳ Pendientes
+    </div>
+    <div class="sidebar-item" (click)="filtrarPorEstado('N')">
+      🔄 En progreso
+    </div>
+    <div class="sidebar-item" (click)="filtrarPorEstado('C')">
+      ✅ Completadas
+    </div>
+    <div class="sidebar-item" (click)="cargarTareasVencidas()">
+      ⚠️ Vencidas
+    </div>
+  </div>
+  
+  <div class="sidebar-section">
+    <h3>Categorías</h3>
+    <div id="sidebarCategorias">
+      <div *ngFor="let categoria of categorias" class="sidebar-categoria">
+        <div class="sidebar-categoria-header" (click)="toggleCategoria(categoria.idCategoria)">
+          <span>📁 {{ categoria.nombre }}</span>
+          <span>({{ categoria.listas?.length || 0 }})</span>
+        </div>
+        <div class="sidebar-listas" 
+             [style.display]="isCategoriaExpandida(categoria.idCategoria) ? 'block' : 'none'">
+          <div *ngFor="let lista of categoria.listas" 
+               class="sidebar-lista-item" 
+               (click)="cargarTareasDeLista(lista.idLista)">
+            {{ lista.icono || '📋' }} {{ lista.nombre }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
