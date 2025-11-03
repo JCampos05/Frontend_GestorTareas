@@ -129,10 +129,12 @@
       <label for="notas">Notas: </label><br>
       <textarea id="notas" [(ngModel)]="notas" name="notas" rows="4"></textarea>
 
-      <button type="submit" class="btn-guardar">
+      <div class="form-buttons">
+        <button type="submit" class="btn-guardar">
         {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
-      </button>
-      <button type="button" (click)="onCerrar()" class="btn-cancelar">Cancelar</button>
+        </button>
+        <button type="button" (click)="onCerrar()" class="btn-cancelar">Cancelar</button>
+      </div>
     </form>
   </div>
 </div>

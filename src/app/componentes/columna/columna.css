@@ -1,16 +1,19 @@
 #contentArea {
-  flex: 1;
   display: flex;
   height: 100%;
-  min-height: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
+  gap: 0;
 }
 
 .columna {
-  min-width: 300px;
+  min-width: 350px;
+  flex: 1;
+  max-width: 450px;
   border-right: 1px solid #ccc;
   display: flex;
   flex-direction: column;
+  background: white;
 }
 
 .columna-header {
@@ -20,6 +23,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .btn-agregar {
@@ -27,6 +31,13 @@
   background: none;
   border: none;
   cursor: pointer;
+  padding: 5px 10px;
+  transition: background 0.2s;
+}
+
+.btn-agregar:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 
 .columna-content {
@@ -36,14 +47,16 @@
 }
 
 .sin-tareas {
-  padding: 10px;
+  padding: 20px 10px;
   color: #999;
+  text-align: center;
+  font-style: italic;
 }
 
 .btn-flotante {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 30px;
+  right: 30px;
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -52,5 +65,31 @@
   border: none;
   font-size: 30px;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.btn-flotante:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+  background: #f0f0f0;
+  border: 2px dashed #ccc;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.columna-content.cdk-drop-list-dragging .app-tarea-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

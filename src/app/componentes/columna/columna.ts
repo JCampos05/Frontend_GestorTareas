@@ -5,13 +5,14 @@ import { TareasService, Tarea } from '../../core/services/tareas/tareas';
 import { ListasService } from '../../core/services/listas/listas';
 import { TareaCardComponent } from '../tarea-card/tarea-card';
 import { PanelDetallesComponent } from '../panel-detalles/panel-detalles';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-imports: [CommonModule, TareaCardComponent, PanelDetallesComponent, DragDropModule]
+import { CdkDrag, CdkDropList,CdkDragDrop,moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+//import { CdkDragDrop,moveItemInArray,transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
+//imports: [CommonModule, TareaCardComponent, PanelDetallesComponent, DragDropModule]
 
 @Component({
   selector: 'app-columnas',
   standalone: true,
-  imports: [CommonModule, TareaCardComponent, PanelDetallesComponent],
+  imports: [CommonModule, TareaCardComponent, PanelDetallesComponent, CdkDrag, CdkDropList],
   templateUrl: './columna.html',
   styleUrl: './columna.css'
 })
@@ -135,5 +136,34 @@ export class ColumnasComponent implements OnInit {
 
   async onEstadoCambiado() {
     await this.cargarTareas();
+  }
+  async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    
+      // Actualizar el estado de la tarea
+      const tarea = event.container.data[event.currentIndex];
+      if (tarea.idTarea) {
+        try {
+          await this.tareasService.actualizarTarea(tarea.idTarea, { ...tarea, estado: nuevoEstado as any });
+        } catch (error) {
+          console.error('Error al actualizar estado:', error);
+          // Revertir el cambio si falla
+          transferArrayItem(
+            event.container.data,
+            event.previousContainer.data,
+            event.currentIndex,
+            event.previousIndex
+          );
+        }
+      }
+    }
   }
 }

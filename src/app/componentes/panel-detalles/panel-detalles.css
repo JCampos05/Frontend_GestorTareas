@@ -4,20 +4,21 @@
   top: 0;
   width: 0;
   height: 100vh;
-  border-left: 1px solid #ccc;
-  overflow: hidden;
-  transition: width 0.3s;
   background: white;
+  border-left: 1px solid #ccc;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: width 0.3s ease;
   z-index: 1000;
 }
 
 #panelDetalles.abierto {
-  width: 400px;
+  width: 450px;
 }
 
 #panelDetallesContent {
   padding: 20px;
-  width: 400px;
+  width: 450px;
   height: 100%;
   overflow-y: auto;
 }
@@ -26,14 +27,29 @@
   float: right;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
+  padding: 5px 10px;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.btn-cerrar:hover {
+  color: #000;
+}
+
+form h2 {
+  margin-bottom: 20px;
+  color: #333;
 }
 
 form label {
   display: block;
-  margin-top: 10px;
+  margin-top: 15px;
+  margin-bottom: 5px;
   font-weight: bold;
+  color: #555;
+  font-size: 14px;
 }
 
 form input[type="text"],
@@ -43,20 +59,37 @@ form input[type="number"],
 form select,
 form textarea {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   margin-bottom: 10px;
   box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+form input[type="text"]:focus,
+form input[type="date"]:focus,
+form input[type="time"]:focus,
+form input[type="number"]:focus,
+form select:focus,
+form textarea:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
 }
 
 form input[type="checkbox"] {
   width: auto;
-  margin-right: 5px;
+  margin-right: 8px;
+  cursor: pointer;
 }
 
 .paso-item {
   display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
 }
 
 .paso-input {
@@ -64,23 +97,55 @@ form input[type="checkbox"] {
 }
 
 .btn-eliminar-paso {
-  padding: 5px 10px;
+  padding: 8px 12px;
   cursor: pointer;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.btn-eliminar-paso:hover {
+  background: #d32f2f;
 }
 
 .btn-agregar-paso {
   margin-bottom: 10px;
+  padding: 8px 15px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.btn-agregar-paso:hover {
+  background: #45a049;
 }
 
 #configPersonalizada {
-  margin-bottom: 10px;
-  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  padding: 15px;
   border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+#configPersonalizada label {
+  margin-top: 0;
+  display: inline;
+  font-weight: normal;
 }
 
 #configPersonalizada input[type="number"] {
-  width: 60px;
+  width: 80px;
   display: inline-block;
+  margin: 0 5px;
 }
 
 #configPersonalizada select {
@@ -91,19 +156,71 @@ form input[type="checkbox"] {
 
 .btn-guardar,
 .btn-cancelar {
-  padding: 10px 20px;
-  margin-top: 10px;
+  padding: 12px 24px;
+  margin-top: 20px;
   margin-right: 10px;
   cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
 .btn-guardar {
   background-color: #0078d4;
   color: white;
-  border: none;
+}
+
+.btn-guardar:hover {
+  background-color: #005a9e;
 }
 
 .btn-cancelar {
-  background-color: #ccc;
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-cancelar:hover {
+  background-color: #d0d0d0;
+}
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-guardar,
+.btn-cancelar {
+  padding: 12px 24px;
+  cursor: pointer;
   border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.btn-guardar {
+  background-color: #0078d4;
+  color: white;
+}
+
+.btn-guardar:hover {
+  background-color: #005a9e;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+}
+
+.btn-cancelar {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-cancelar:hover {
+  background-color: #d0d0d0;
+  transform: translateY(-1px);
 }

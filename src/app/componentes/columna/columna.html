@@ -4,11 +4,17 @@
       Today
       <button (click)="abrirPanelDetalles()" class="btn-agregar">+</button>
     </div>
-    <div class="columna-content" id="tareasToday">
+    <div 
+      class="columna-content" 
+      cdkDropList
+      [cdkDropListData]="tareasToday"
+      [cdkDropListConnectedTo]="['tareasPendientes', 'tareasEnProceso', 'tareasTerminadas']"
+      (cdkDropListDropped)="onDrop($event, 'P')">
       <p *ngIf="tareasToday.length === 0" class="sin-tareas">Sin tareas para hoy</p>
       <app-tarea-card 
         *ngFor="let tarea of tareasToday" 
         [tarea]="tarea"
+        cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
         (estadoCambiado)="onEstadoCambiado()">
       </app-tarea-card>
@@ -20,11 +26,18 @@
       Tareas
       <button (click)="abrirPanelDetalles()" class="btn-agregar">+</button>
     </div>
-    <div class="columna-content" id="tareasPendientes">
+    <div 
+      class="columna-content" 
+      id="tareasPendientes"
+      cdkDropList
+      [cdkDropListData]="tareasPendientes"
+      [cdkDropListConnectedTo]="['tareasToday', 'tareasEnProceso', 'tareasTerminadas']"
+      (cdkDropListDropped)="onDrop($event, 'P')">
       <p *ngIf="tareasPendientes.length === 0" class="sin-tareas">Sin tareas pendientes</p>
       <app-tarea-card 
         *ngFor="let tarea of tareasPendientes" 
         [tarea]="tarea"
+        cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
         (estadoCambiado)="onEstadoCambiado()">
       </app-tarea-card>
@@ -33,11 +46,18 @@
   
   <div class="columna">
     <div class="columna-header">Proceso</div>
-    <div class="columna-content" id="tareasEnProceso">
+    <div 
+      class="columna-content" 
+      id="tareasEnProceso"
+      cdkDropList
+      [cdkDropListData]="tareasEnProceso"
+      [cdkDropListConnectedTo]="['tareasToday', 'tareasPendientes', 'tareasTerminadas']"
+      (cdkDropListDropped)="onDrop($event, 'N')">
       <p *ngIf="tareasEnProceso.length === 0" class="sin-tareas">Sin tareas en proceso</p>
       <app-tarea-card 
         *ngFor="let tarea of tareasEnProceso" 
         [tarea]="tarea"
+        cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
         (estadoCambiado)="onEstadoCambiado()">
       </app-tarea-card>
@@ -46,11 +66,18 @@
   
   <div class="columna">
     <div class="columna-header">Terminado</div>
-    <div class="columna-content" id="tareasTerminadas">
+    <div 
+      class="columna-content" 
+      id="tareasTerminadas"
+      cdkDropList
+      [cdkDropListData]="tareasTerminadas"
+      [cdkDropListConnectedTo]="['tareasToday', 'tareasPendientes', 'tareasEnProceso']"
+      (cdkDropListDropped)="onDrop($event, 'C')">
       <p *ngIf="tareasTerminadas.length === 0" class="sin-tareas">Sin tareas completadas</p>
       <app-tarea-card 
         *ngFor="let tarea of tareasTerminadas" 
         [tarea]="tarea"
+        cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
         (estadoCambiado)="onEstadoCambiado()">
       </app-tarea-card>
