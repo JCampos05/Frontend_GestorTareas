@@ -60,40 +60,79 @@ export class SidebarComponent implements OnInit {
     return this.categoriaExpandida[idCategoria] || false;
   }
 
-  // Navegación
-  mostrarAdminSections() {
-    this.router.navigate(['/admin']);
+  // ==================== TOOLS ====================
+  mostrarListasIndividuales() {
+    console.log('Función pendiente: mostrar listas individuales');
+    // TODO: Crear página
   }
 
   mostrarListasImportantes() {
     console.log('Función pendiente: mostrar listas importantes');
+    // TODO: Crear página
   }
 
   mostrarCalendario() {
     console.log('Función pendiente: mostrar calendario');
+    // TODO: Crear página
   }
 
   mostrarImportante() {
     console.log('Función pendiente: mostrar tareas importantes');
+    // TODO: Crear página
   }
 
   mostrarNotas() {
-    console.log('Función pendiente: mostrar notas');
+    this.router.navigate(['/app/notas']);
   }
 
+  // ==================== VISTAS ====================
   cargarTodasLasTareas() {
-    this.router.navigate(['/tareas']);
+    this.router.navigate(['/app/todas-tareas']);
   }
 
-  filtrarPorEstado(estado: string) {
-    this.router.navigate(['/tareas'], { queryParams: { estado } });
+  cargarPendientes() {
+    this.router.navigate(['/app/pendientes']);
+  }
+
+  cargarEnProgreso() {
+    this.router.navigate(['/app/progreso']);
+  }
+
+  cargarCompletadas() {
+    this.router.navigate(['/app/completadas']);
   }
 
   cargarTareasVencidas() {
-    this.router.navigate(['/tareas'], { queryParams: { filtro: 'vencidas' } });
+    this.router.navigate(['/app/vencidas']);
   }
 
+  // Método legacy para compatibilidad (puedes cambiarlo en el HTML)
+  filtrarPorEstado(estado: string) {
+    switch(estado) {
+      case 'P':
+        this.cargarPendientes();
+        break;
+      case 'N':
+        this.cargarEnProgreso();
+        break;
+      case 'C':
+        this.cargarCompletadas();
+        break;
+    }
+  }
+
+  // ==================== DETALLES ====================
   cargarTareasDeLista(idLista: number) {
-    this.router.navigate(['/lista', idLista]);
+    this.router.navigate(['/app/lista', idLista]);
+  }
+
+  cargarCategoria(idCategoria: number) {
+    console.log('Función pendiente: mostrar categoría', idCategoria);
+    // TODO: Crear página detalle-categoria
+  }
+
+  // ==================== ADMIN ====================
+  mostrarAdminSections() {
+    this.router.navigate(['/app/operator']);
   }
 }

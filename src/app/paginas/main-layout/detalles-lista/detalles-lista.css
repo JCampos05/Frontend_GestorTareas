@@ -1,0 +1,35 @@
+    :host {
+      display: block;
+      height: 100%;
+      overflow: auto;
+    }
+    
+    .detalle-lista-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .lista-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .lista-header h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    .lista-header p {
+      margin: 0;
+      color: #546e7a;
+      font-size: 14px;
+    }
+    
+    app-columnas {
+      flex: 1;
+      overflow: auto;
+    }

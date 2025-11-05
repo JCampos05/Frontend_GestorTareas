@@ -1,0 +1,7 @@
+<div class="detalle-lista-container">
+        <div class="lista-header" *ngIf="nombreLista">
+            <h2>📝 {{ nombreLista }}</h2>
+            <p *ngIf="descripcionLista">{{ descripcionLista }}</p>
+        </div>
+        <app-columnas></app-columnas>
+</div>
