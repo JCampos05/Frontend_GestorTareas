@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-    // ==================== RUTAS PÚBLICAS ====================
-    {path: 'landing', loadComponent: () => import('./paginas/landing-page/landing-page').then(m => m.LandingPage)},
-    {path: 'inicio-sesion', loadComponent: () => import('./paginas/inicio-sesion/inicio-sesion').then(m => m.InicioSesion)},
-    {path: 'registrate', loadComponent: () => import('./paginas/registrate/registrate').then(m => m.Registrate)},
+    {path: 'landing', loadComponent: () => import('./paginas/landing-page/landing-page').then(m => m.LandingPageComponent)},
+    {path: 'login', loadComponent: () => import('./authentication/login/login').then(m => m.LoginComponent)},
+    {path: 'registrate', loadComponent: () => import('./authentication/crear-cuenta/crear-cuenta').then(m => m.Registrate)},
     {path: 'app', loadComponent: () => import('./paginas/main-layout/main-layout').then(m => m.MainLayoutComponent),
         children: [
             {path: '', redirectTo: 'todas-tareas', pathMatch: 'full'},

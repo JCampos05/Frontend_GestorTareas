@@ -152,7 +152,8 @@ export class ColumnasComponent implements OnInit {
       const tarea = event.container.data[event.currentIndex];
       if (tarea.idTarea) {
         try {
-          await this.tareasService.actualizarTarea(tarea.idTarea, { ...tarea, estado: nuevoEstado as any });
+          await this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado as any);
+          tarea.estado = nuevoEstado as any;
         } catch (error) {
           console.error('Error al actualizar estado:', error);
           // Revertir el cambio si falla
