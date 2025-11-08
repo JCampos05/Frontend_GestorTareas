@@ -1,0 +1,27 @@
+<div class="vista-container">
+    <div class="vista-header">
+        <h2><i class="fas fa-star"></i> Listas Importantes</h2>
+        <p>Tus listas destacadas y prioritarias</p>
+    </div>
+
+    <div class="listas-grid">
+        <div *ngFor="let lista of listas" class="lista-card" (click)="abrirLista(lista.idLista!)">
+            <div class="lista-icon">{{ lista.icono || '📋' }}</div>
+            <div class="lista-info">
+                <h3>{{ lista.nombre }}</h3>
+                <span class="lista-categoria" *ngIf="lista.nombreCategoria">
+                    {{ lista.nombreCategoria }}
+                </span>
+            </div>
+            <div class="lista-badge">
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+
+        <div *ngIf="listas.length === 0" class="sin-listas">
+            <i class="fas fa-star"></i>
+            <p>No tienes listas marcadas como importantes</p>
+            <small>Marca tus listas como importantes desde el modal de edición</small>
+        </div>
+    </div>
+</div>

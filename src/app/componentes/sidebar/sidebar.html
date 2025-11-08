@@ -1,7 +1,35 @@
 <div id="sidebar" [style.display]="visible ? 'block' : 'none'">
   <div class="sidebar-section">
+    <h3>Vistas</h3>
+    <div class="sidebar-item" (click)="cargarTodasLasTareas()">
+      <i class="fas fa-th-list"></i>
+      <span>Todas las tareas</span>
+    </div>
+    <div class="sidebar-item" (click)="cargarMiDia()">
+      <i class="fas fa-sun"></i>
+      <span>Mi día</span>
+    </div>
+    <div class="sidebar-item" (click)="filtrarPorEstado('P')">
+      <i class="far fa-clock"></i>
+      <span>Pendientes</span>
+    </div>
+    <div class="sidebar-item" (click)="filtrarPorEstado('N')">
+      <i class="fas fa-spinner"></i>
+      <span>En progreso</span>
+    </div>
+    <div class="sidebar-item" (click)="filtrarPorEstado('C')">
+      <i class="fas fa-check-circle"></i>
+      <span>Completadas</span>
+    </div>
+    <div class="sidebar-item" (click)="cargarTareasVencidas()">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Vencidas</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
     <h3>Tools</h3>
-    <div class="sidebar-item" (click)="mostrarAdminSections()">
+    <div class="sidebar-item" (click)="mostrarListasIndividuales()">
       <i class="fas fa-list"></i>
       <span>Listas individuales</span>
     </div>
@@ -24,49 +52,57 @@
   </div>
 
   <div class="sidebar-section">
-    <h3>Vistas</h3>
-    <div class="sidebar-item" (click)="cargarTodasLasTareas()">
-      <i class="fas fa-th-list"></i>
-      <span>Todas las tareas</span>
+    <div class="sidebar-section-header">
+      <h3>Categorías</h3>
+      <button class="btn-add-categoria" (click)="abrirModalCategoria()" title="Agregar categoría">
+        <i class="fas fa-plus"></i>
+      </button>
     </div>
-    <div class="sidebar-item" (click)="filtrarPorEstado('P')">
-      <i class="far fa-clock"></i>
-      <span>Pendientes</span>
-    </div>
-    <div class="sidebar-item" (click)="filtrarPorEstado('N')">
-      <i class="fas fa-spinner"></i>
-      <span>En progreso</span>
-    </div>
-    <div class="sidebar-item" (click)="filtrarPorEstado('C')">
-      <i class="fas fa-check-circle"></i>
-      <span>Completadas</span>
-    </div>
-    <div class="sidebar-item" (click)="cargarTareasVencidas()">
-      <i class="fas fa-exclamation-triangle"></i>
-      <span>Vencidas</span>
-    </div>
-  </div>
-
-  <div class="sidebar-section">
-    <h3>Categorías</h3>
+    
     <div id="sidebarCategorias">
+      <!-- Categorías con sus listas -->
       <div *ngFor="let categoria of categorias" class="sidebar-categoria">
         <div class="sidebar-categoria-header" (click)="toggleCategoria(categoria.idCategoria)">
           <span>
             <i class="fas" [ngClass]="isCategoriaExpandida(categoria.idCategoria) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
             {{ categoria.nombre }}
           </span>
-          <span class="count">{{ categoria.listas?.length || 0 }}</span>
+          <div class="categoria-actions">
+            <button class="btn-add-lista" (click)="abrirModalLista(categoria.idCategoria, $event)" title="Agregar lista">
+              <i class="fas fa-plus"></i>
+            </button>
+            <span class="count">{{ categoria.listas?.length || 0 }}</span>
+          </div>
         </div>
         <div class="sidebar-listas"
              [style.display]="isCategoriaExpandida(categoria.idCategoria) ? 'block' : 'none'">
           <div *ngFor="let lista of categoria.listas"
                class="sidebar-lista-item"
                (click)="cargarTareasDeLista(lista.idLista)">
-            <i class="fas fa-clipboard-list"></i>
+            <i [class]="lista.icono || 'fas fa-clipboard-list'"></i>
             <span>{{ lista.nombre }}</span>
           </div>
         </div>
+      </div>
+
+      <!-- Separador antes de las listas sin categoría -->
+      <div class="sidebar-separator"></div>
+
+      <!-- Botón para agregar lista sin categoría -->
+      <div class="agregar-lista-sin-categoria">
+        <button class="btn-agregar-lista-suelta" (click)="abrirModalListaSinCategoria()">
+          <i class="fas fa-plus"></i>
+          <span>Agregar lista sin categoría</span>
+        </button>
+      </div>
+
+      <!-- Listas sin categoría -->
+      <div *ngFor="let lista of listasSinCategoria" 
+           class="sidebar-lista-suelta"
+           (click)="cargarTareasDeLista(lista.idLista)">
+        <span *ngIf="esEmoji(lista.icono)" class="emoji-icon">{{ lista.icono }}</span>
+        <i *ngIf="!esEmoji(lista.icono)" [class]="obtenerClaseIcono(lista.icono)"></i>
+        <span>{{ lista.nombre }}</span>
       </div>
     </div>
   </div>

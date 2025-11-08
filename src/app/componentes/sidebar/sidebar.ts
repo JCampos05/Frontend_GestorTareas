@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CategoriasService } from '../../core/services/categorias/categorias';
@@ -13,44 +13,84 @@ import { ListasService } from '../../core/services/listas/listas';
 })
 export class SidebarComponent implements OnInit {
   @Input() visible: boolean = true;
+  @Output() abrirModalCategoriaEvent = new EventEmitter<void>();
+  @Output() abrirModalListaEvent = new EventEmitter<number | null>();
 
   categorias: any[] = [];
+  listasSinCategoria: any[] = [];
   categoriaExpandida: { [key: string]: boolean } = {};
 
   constructor(
     private categoriasService: CategoriasService,
     private listasService: ListasService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.cargarCategorias();
   }
+  esEmoji(icono: string | null | undefined): boolean {
+    if (!icono || icono === 'null' || icono === '') return false;
 
-  async cargarCategorias() {
-    try {
-      const categorias = await this.categoriasService.obtenerCategorias();
-      
-      for (const categoria of categorias) {
-        const listas = await this.categoriasService.obtenerListasPorCategoria(categoria.idCategoria ?? 0);
-        categoria.listas = listas;
-      }
-
-      const listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
-      
-      this.categorias = categorias;
-      
-      if (listasSinCategoria.length > 0) {
-        this.categorias.push({
-          idCategoria: 'sin-categoria',
-          nombre: 'Sin categoría',
-          listas: listasSinCategoria
-        });
-      }
-    } catch (error) {
-      console.error('Error al cargar categorías:', error);
+    // Si empieza con 'fa', es un icono Font Awesome
+    if (icono.trim().startsWith('fa')) {
+      return false;
     }
+
+    // Si es otra cosa (emoji), devolver true
+    return true;
   }
+
+  obtenerClaseIcono(icono: string | null | undefined): string {
+    // Si no hay icono o es null
+    if (!icono || icono === 'null' || icono === '') {
+      return 'fas fa-clipboard-list';
+    }
+
+    // Limpiar espacios
+    const iconoLimpio = icono.trim();
+
+    // Si ya tiene el prefijo 'fas ' o 'far '
+    if (iconoLimpio.startsWith('fas ') || iconoLimpio.startsWith('far ')) {
+      return iconoLimpio;
+    }
+
+    // Si empieza con 'fa-', agregar prefijo 'fas'
+    if (iconoLimpio.startsWith('fa-')) {
+      return `fas ${iconoLimpio}`;
+    }
+
+    // Default
+    return 'fas fa-clipboard-list';
+  }
+  async cargarCategorias() {
+  try {
+    const categorias = await this.categoriasService.obtenerCategorias();
+    
+    for (const categoria of categorias) {
+      const listas = await this.categoriasService.obtenerListasPorCategoria(categoria.idCategoria ?? 0);
+      categoria.listas = listas;
+    }
+
+    this.listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
+    
+    this.categorias = categorias;
+    
+    // 🔍 DEBUG TEMPORAL
+    console.log('Todas las listas:');
+    this.categorias.forEach(cat => {
+      cat.listas?.forEach((lista: any) => {
+        console.log(`"${lista.nombre}": icono="${lista.icono}"`);
+      });
+    });
+    this.listasSinCategoria.forEach(lista => {
+      console.log(`"${lista.nombre}" (sin cat): icono="${lista.icono}"`);
+    });
+    
+  } catch (error) {
+    console.error('Error al cargar categorías:', error);
+  }
+}
 
   toggleCategoria(idCategoria: string) {
     this.categoriaExpandida[idCategoria] = !this.categoriaExpandida[idCategoria];
@@ -62,13 +102,13 @@ export class SidebarComponent implements OnInit {
 
   // ==================== TOOLS ====================
   mostrarListasIndividuales() {
-    console.log('Función pendiente: mostrar listas individuales');
-    // TODO: Crear página
+    //console.log('Función pendiente: mostrar listas individuales');
+    this.router.navigate(['/app/listas-individuales']);
   }
 
   mostrarListasImportantes() {
-    console.log('Función pendiente: mostrar listas importantes');
-    // TODO: Crear página
+    //console.log('Función pendiente: mostrar listas importantes');
+    this.router.navigate(['/app/listas-importantes']);
   }
 
   mostrarCalendario() {
@@ -89,7 +129,9 @@ export class SidebarComponent implements OnInit {
   cargarTodasLasTareas() {
     this.router.navigate(['/app/todas-tareas']);
   }
-
+  cargarMiDia() {
+    this.router.navigate(['/app/mi-dia']);
+  }
   cargarPendientes() {
     this.router.navigate(['/app/pendientes']);
   }
@@ -108,7 +150,7 @@ export class SidebarComponent implements OnInit {
 
   // Método legacy para compatibilidad (puedes cambiarlo en el HTML)
   filtrarPorEstado(estado: string) {
-    switch(estado) {
+    switch (estado) {
       case 'P':
         this.cargarPendientes();
         break;
@@ -132,7 +174,23 @@ export class SidebarComponent implements OnInit {
   }
 
   // ==================== ADMIN ====================
-  mostrarAdminSections() {
+  /*mostrarAdminSections() {
     this.router.navigate(['/app/operator']);
+  }*/
+  // ==================== MODALS ====================
+  abrirModalCategoria() {
+    this.abrirModalCategoriaEvent.emit();
+  }
+
+  abrirModalLista(idCategoria: string | number, event?: Event) {
+    if (event) {
+      event.stopPropagation(); // Evita que se expanda/contraiga la categoría
+    }
+    const categoriaId = idCategoria === 'sin-categoria' ? null : Number(idCategoria);
+    this.abrirModalListaEvent.emit(categoriaId);
+  }
+
+  abrirModalListaSinCategoria() {
+    this.abrirModalListaEvent.emit(null);
   }
 }

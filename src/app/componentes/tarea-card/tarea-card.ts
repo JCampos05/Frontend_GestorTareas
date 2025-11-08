@@ -13,6 +13,7 @@ export class TareaCardComponent {
   @Input() tarea!: Tarea;
   @Output() tareaClick = new EventEmitter<void>();
   @Output() estadoCambiado = new EventEmitter<void>();
+  @Output() tareaEliminada = new EventEmitter<void>();
 
   constructor(private tareasService: TareasService) {}
 
@@ -27,6 +28,7 @@ export class TareaCardComponent {
     
     try {
       await this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado);
+      this.tarea.estado = nuevoEstado;
       this.estadoCambiado.emit();
     } catch (error) {
       console.error('Error al cambiar estado:', error);
@@ -39,9 +41,26 @@ export class TareaCardComponent {
     
     try {
       await this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado);
+      this.tarea.estado = nuevoEstado;
       this.estadoCambiado.emit();
     } catch (error) {
       console.error('Error al cambiar estado:', error);
+    }
+  }
+
+  async eliminarTarea(event: Event) {
+    event.stopPropagation();
+    
+    const confirmacion = confirm(`¿Estás seguro de que deseas eliminar la tarea "${this.tarea.nombre}"?`);
+    
+    if (confirmacion) {
+      try {
+        await this.tareasService.eliminarTarea(this.tarea.idTarea!);
+        this.tareaEliminada.emit();
+      } catch (error) {
+        console.error('Error al eliminar tarea:', error);
+        alert('Error al eliminar la tarea. Por favor, intenta nuevamente.');
+      }
     }
   }
 

@@ -1,0 +1,29 @@
+    <div class="modal-overlay" *ngIf="visible" (click)="cerrar()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ categoriaEditando ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+          <button class="btn-close" (click)="cerrar()">✕</button>
+        </div>
+        
+        <form (ngSubmit)="guardar()">
+          <div class="form-group">
+            <label for="nombreCategoria">Nombre de la categoría</label>
+            <input 
+              type="text" 
+              id="nombreCategoria" 
+              [(ngModel)]="nombreCategoria" 
+              name="nombreCategoria"
+              placeholder="Ej: Trabajo, Personal, Estudios..."
+              required
+              autofocus>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" class="btn-cancelar" (click)="cerrar()">Cancelar</button>
+            <button type="submit" class="btn-guardar">
+              {{ categoriaEditando ? 'Actualizar' : 'Crear' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>

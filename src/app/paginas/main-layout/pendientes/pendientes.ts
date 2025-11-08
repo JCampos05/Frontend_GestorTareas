@@ -1,29 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { ColumnasComponent } from '../../../componentes/columna/columna';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { TableroComponent } from '../../../componentes/tablero/tablero';
 
 @Component({
   selector: 'app-pendientes',
   standalone: true,
-  imports: [ColumnasComponent],
+  imports: [TableroComponent],
   templateUrl: './pendientes.html',
   styleUrl: './pendientes.css' 
 })
-export class PendientesComponent implements OnInit {
-  
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+export class PendientesComponent  {
 
-  ngOnInit() {
-    // Verificar si ya tenemos el queryParam, si no, agregarlo
-    if (!this.route.snapshot.queryParams['estado']) {
-      this.router.navigate([], { 
-        relativeTo: this.route,
-        queryParams: { estado: 'P' }, 
-        queryParamsHandling: 'merge'
-      });
-    }
-  }
 }

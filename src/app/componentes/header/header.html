@@ -20,9 +20,45 @@
       <span>Cambiar de día</span>
     </button>
 
-    <div class="user-profile" title="Mi perfil">
-      <div class="user-avatar">U</div>
-      <span>Usuario</span>
+    <div class="user-profile-wrapper">
+      <div class="user-profile" (click)="toggleUserMenu()" title="Mi perfil">
+        <div class="user-avatar">{{ usuario.iniciales }}</div>
+        <span>{{ usuario.nombre }}</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+
+      <!-- Menú desplegable -->
+      <div class="user-menu" [class.show]="showUserMenu">
+        <div class="user-menu-header">
+          <div class="user-avatar-large">{{ usuario.iniciales }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ usuario.nombre }}</div>
+            <div class="user-email">{{ usuario.email }}</div>
+          </div>
+        </div>
+        
+        <div class="user-menu-divider"></div>
+        
+        <div class="user-menu-items">
+          <button class="user-menu-item" (click)="verPerfil()">
+            <i class="fas fa-user"></i>
+            <span>Mi perfil</span>
+          </button>
+          <button class="user-menu-item" (click)="verConfiguracion()">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </button>
+        </div>
+        
+        <div class="user-menu-divider"></div>
+        
+        <div class="user-menu-footer">
+          <button class="user-menu-item logout" (click)="cerrarSesion()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <button class="btn-google" (click)="loginGoogle()" title="Conectar con Google">

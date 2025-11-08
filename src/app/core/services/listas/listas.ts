@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 
 export interface Lista {
   idLista?: number;
   nombre: string;
   color?: string;
   icono?: string;
+  importante?: boolean;
   idCategoria?: number;
   nombreCategoria?: string;
 }
@@ -16,11 +17,22 @@ export interface Lista {
 })
 export class ListasService {
   private API_URL = 'http://localhost:3000/api/listas';
+  
+  // Evento para notificar cambios en las listas
+  private listasCambiadasSubject = new Subject<void>();
+  listasCambiadas$ = this.listasCambiadasSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
+  // Método privado para notificar cambios
+  private notificarCambio() {
+    this.listasCambiadasSubject.next();
+  }
+
   async crearLista(lista: Lista): Promise<any> {
-    return firstValueFrom(this.http.post(this.API_URL, lista));
+    const result = await firstValueFrom(this.http.post(this.API_URL, lista));
+    this.notificarCambio();
+    return result;
   }
 
   async obtenerListas(): Promise<Lista[]> {
@@ -33,12 +45,16 @@ export class ListasService {
     return response.success ? response.data : null;
   }
 
-  async actualizarLista(id: number, lista: Lista): Promise<any> {
-    return firstValueFrom(this.http.put(`${this.API_URL}/${id}`, lista));
+  async actualizarLista(id: number, lista: Partial<Lista>): Promise<any> {
+    const result = await firstValueFrom(this.http.put(`${this.API_URL}/${id}`, lista));
+    this.notificarCambio();
+    return result;
   }
 
   async eliminarLista(id: number): Promise<any> {
-    return firstValueFrom(this.http.delete(`${this.API_URL}/${id}`));
+    const result = await firstValueFrom(this.http.delete(`${this.API_URL}/${id}`));
+    this.notificarCambio();
+    return result;
   }
 
   async obtenerListaConTareas(id: number): Promise<any> {
@@ -50,7 +66,27 @@ export class ListasService {
   }
 
   async obtenerListasSinCategoria(): Promise<Lista[]> {
-    const listas = await this.obtenerListas();
-    return listas.filter(lista => !lista.idCategoria);
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.API_URL}/sin-categoria`)
+      );
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error('Error al obtener listas sin categoría:', error);
+      const listas = await this.obtenerListas();
+      return listas.filter(lista => lista.idCategoria === null || lista.idCategoria === undefined);
+    }
+  }
+
+  async obtenerListasImportantes(): Promise<Lista[]> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.API_URL}/importantes`)
+      );
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error('Error al obtener listas importantes:', error);
+      return [];
+    }
   }
 }

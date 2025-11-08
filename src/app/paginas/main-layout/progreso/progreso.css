@@ -1,35 +1,47 @@
-    :host {
-      display: block;
-      height: 100%;
-      overflow: auto;
-    }
-    
-    .vista-container {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .vista-header {
-      padding: 20px;
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
-      border-bottom: 3px solid #e94560;
-    }
-    
-    .vista-header h2 {
-      margin: 0 0 8px 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-    
-    .vista-header p {
-      margin: 0;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-    
-    app-columnas {
-      flex: 1;
-      overflow: auto;
-    }
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.vista-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #F5F3F5;
+}
+
+.vista-header {
+  padding: 32px 28px 28px;
+  color: rgb(0, 0, 0);
+}
+
+.vista-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  color: #172b4d;
+  gap: 12px;
+}
+
+.vista-header i {
+  font-size: 32px;
+  color: #0065ff;
+}
+
+.vista-header p {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.95;
+  font-weight: 300;
+}
+
+app-columnas {
+  flex: 1;
+  overflow: auto;
+  background-color: #f4f5f7;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(9, 30, 66, 0.08);
+}

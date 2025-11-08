@@ -90,25 +90,21 @@ export class ColumnasComponent implements OnInit {
   }
 
   distribuirTareas(tareas: Tarea[]) {
-    this.tareasToday = [];
-    this.tareasPendientes = [];
-    this.tareasEnProceso = [];
-    this.tareasTerminadas = [];
+  this.tareasToday = [];
+  this.tareasPendientes = [];
+  this.tareasEnProceso = [];
+  this.tareasTerminadas = [];
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  
+  const filtro = this.route.snapshot.queryParams['filtro'];
 
-    tareas.forEach(tarea => {
-      // Tareas de hoy
-      if (tarea.fechaVencimiento) {
-        const fechaVencimiento = new Date(tarea.fechaVencimiento);
-        fechaVencimiento.setHours(0, 0, 0, 0);
-        if (fechaVencimiento.getTime() === hoy.getTime() && tarea.estado !== 'C') {
-          this.tareasToday.push(tarea);
-        }
-      }
-
-      // Distribución por estado
+  tareas.forEach(tarea => {
+    // Si estamos en vista de vencidas, solo distribuir por estado
+    // NO agregar a tareasToday ni tareasPendientes generales
+    if (filtro === 'vencidas') {
+      // En vista vencidas, solo distribuir por estado actual
       if (tarea.estado === 'P') {
         this.tareasPendientes.push(tarea);
       } else if (tarea.estado === 'N') {
@@ -116,8 +112,28 @@ export class ColumnasComponent implements OnInit {
       } else if (tarea.estado === 'C') {
         this.tareasTerminadas.push(tarea);
       }
-    });
-  }
+      return; // No seguir con la lógica de "today"
+    }
+
+    // Tareas de hoy (solo si NO estamos en vista vencidas)
+    if (tarea.fechaVencimiento) {
+      const fechaVencimiento = new Date(tarea.fechaVencimiento);
+      fechaVencimiento.setHours(0, 0, 0, 0);
+      if (fechaVencimiento.getTime() === hoy.getTime() && tarea.estado !== 'C') {
+        this.tareasToday.push(tarea);
+      }
+    }
+
+    // Distribución por estado
+    if (tarea.estado === 'P') {
+      this.tareasPendientes.push(tarea);
+    } else if (tarea.estado === 'N') {
+      this.tareasEnProceso.push(tarea);
+    } else if (tarea.estado === 'C') {
+      this.tareasTerminadas.push(tarea);
+    }
+  });
+}
 
   abrirPanelDetalles(idTarea: number | null = null) {
     this.tareaSeleccionada = idTarea;
@@ -135,7 +151,19 @@ export class ColumnasComponent implements OnInit {
   }
 
   async onEstadoCambiado() {
-    await this.cargarTareas();
+    const estado = this.route.snapshot.queryParams['estado'];
+    const filtro = this.route.snapshot.queryParams['filtro'];
+    const idLista = this.route.snapshot.params['id'];
+
+    if (idLista) {
+      await this.cargarTareasDeLista(idLista);
+    } else if (estado) {
+      await this.filtrarPorEstado(estado);
+    } else if (filtro === 'vencidas') {
+      await this.cargarTareasVencidas();
+    } else {
+      await this.cargarTareas();
+    }
   }
   async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
     if (event.previousContainer === event.container) {
@@ -167,4 +195,20 @@ export class ColumnasComponent implements OnInit {
       }
     }
   }
+
+  async onTareaEliminada() {
+  const estado = this.route.snapshot.queryParams['estado'];
+  const filtro = this.route.snapshot.queryParams['filtro'];
+  const idLista = this.route.snapshot.params['id'];
+
+  if (idLista) {
+    await this.cargarTareasDeLista(idLista);
+  } else if (estado) {
+    await this.filtrarPorEstado(estado);
+  } else if (filtro === 'vencidas') {
+    await this.cargarTareasVencidas();
+  } else {
+    await this.cargarTareas();
+  }
+}
 }

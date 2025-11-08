@@ -1,20 +1,12 @@
 import { Component } from '@angular/core';
-import { ColumnasComponent } from '../../../componentes/columna/columna';
-import { Router } from '@angular/router';
+import { TableroComponent } from '../../../componentes/tablero/tablero';
 
 @Component({
   selector: 'app-progreso',
   standalone: true,
-  imports: [ColumnasComponent],
+  imports: [TableroComponent],
   templateUrl: './progreso.html',
   styleUrl: './progreso.css'
 })
 export class ProgresoComponent {
-  constructor(private router: Router) {
-    this.router.navigate([], { 
-      queryParams: { estado: 'N' }, 
-      queryParamsHandling: 'merge',
-      replaceUrl: true 
-    });
-  }
 }
