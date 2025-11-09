@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TareasService, Tarea } from '../../core/services/tareas/tareas';
 import { Lista, ListasService } from '../../core/services/listas/listas';
+import { DropdownListaComponent } from '../dropdown-lista/dropdown-lista';
 
 @Component({
   selector: 'app-panel-detalles',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DropdownListaComponent],
   templateUrl: './panel-detalles.html',
   styleUrl: './panel-detalles.css',
   host: {
@@ -53,6 +54,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
 
   // Modo edición
   modoEdicion = false;
+  estadoOriginal: 'P' | 'N' | 'C' = 'P';
 
   constructor(
     private tareasService: TareasService,
@@ -82,11 +84,11 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
     try {
       this.listas = await this.listasService.obtenerListas();
       // DEBUG: Ver qué iconos tienen las listas
-      console.log('📋 Listas cargadas:', this.listas.map(l => ({
+      /*console.log('📋 Listas cargadas:', this.listas.map(l => ({
         nombre: l.nombre,
         icono: l.icono,
         esEmoji: this.esEmoji(l.icono)
-      })));
+      })));*/
     } catch (error) {
       console.error('Error al cargar listas:', error);
     }
@@ -114,6 +116,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       const tarea = await this.tareasService.obtenerTarea(id);
       if (tarea) {
         this.modoEdicion = true;
+        this.estadoOriginal = tarea.estado;
         this.nombre = tarea.nombre;
         this.descripcion = tarea.descripcion || '';
         this.prioridad = tarea.prioridad;
@@ -159,6 +162,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
 
   limpiarFormulario() {
     this.modoEdicion = false;
+    this.estadoOriginal = 'P';
     this.nombre = '';
     this.descripcion = '';
     this.prioridad = 'N';
@@ -291,7 +295,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       nombre: this.nombre.trim(),
       descripcion: this.descripcion.trim() || null,
       prioridad: this.prioridad,
-      estado: 'P',
+      estado: this.modoEdicion ? this.estadoOriginal : 'P',
       fechaVencimiento: fechaVencimientoFinal || undefined,
       pasos: this.pasos.filter(p => p.trim()).length > 0 ? this.pasos.filter(p => p.trim()) : undefined,
       notas: this.notas.trim() || undefined,
