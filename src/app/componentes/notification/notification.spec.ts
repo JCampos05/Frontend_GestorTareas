@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CrearTarea } from './crear-tarea';
+import { Notification } from './notification';
 
-describe('CrearTarea', () => {
-  let component: CrearTarea;
-  let fixture: ComponentFixture<CrearTarea>;
+describe('Notification', () => {
+  let component: Notification;
+  let fixture: ComponentFixture<Notification>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CrearTarea]
+      imports: [Notification]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CrearTarea);
+    fixture = TestBed.createComponent(Notification);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

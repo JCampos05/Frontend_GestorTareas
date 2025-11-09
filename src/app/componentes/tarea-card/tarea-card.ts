@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TareasService, Tarea } from '../../core/services/tareas/tareas';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-tarea-card',
@@ -15,7 +16,10 @@ export class TareaCardComponent {
   @Output() estadoCambiado = new EventEmitter<void>();
   @Output() tareaEliminada = new EventEmitter<void>();
 
-  constructor(private tareasService: TareasService) {}
+  constructor(
+    private tareasService: TareasService,
+    private notificacionesService: NotificacionesService
+  ) {}
 
   onTareaClick() {
     this.tareaClick.emit();
@@ -56,10 +60,11 @@ export class TareaCardComponent {
     if (confirmacion) {
       try {
         await this.tareasService.eliminarTarea(this.tarea.idTarea!);
+        this.notificacionesService.exito('Tarea eliminada exitosamente')
         this.tareaEliminada.emit();
       } catch (error) {
         console.error('Error al eliminar tarea:', error);
-        alert('Error al eliminar la tarea. Por favor, intenta nuevamente.');
+        this.notificacionesService.error('Error al eliminar la tarea. Por favor, intenta nuevamente.');
       }
     }
   }
@@ -110,24 +115,21 @@ export class TareaCardComponent {
 
   async alternarMiDia(event: Event) {
     event.stopPropagation();
-    
-    //console.log('🌞 Alternando Mi Día');
-    //console.log('Valor actual:', this.tarea.miDia);
-    //console.log('ID Tarea:', this.tarea.idTarea);
 
     try {
       const nuevoValor = !this.tarea.miDia;
-      //console.log('Nuevo valor: ', nuevoValor);
-
       await this.tareasService.alternarMiDia(this.tarea.idTarea!, nuevoValor);
-
       this.tarea.miDia = nuevoValor;
       this.estadoCambiado.emit();
 
-      //console.log('✅ Mi Día actualizado exitosamente');
+      if (nuevoValor){
+        this.notificacionesService.exito('Tarea agregada a Mi Día');
+      } else {
+        this.notificacionesService.exito('Tarea eliminada de Mi Día');
+      }
     } catch (error) {
-      console.error('Error al alternar Mi Día:', error);
-      alert('Error al actualizar Mi Día. Por favor, intenta nuevamente.');
+      //console.error('Error al alternar Mi Día:', error);
+      this.notificacionesService.error('Error al actualizar Mi Día. Por favor, intenta nuevamente.');
     }
   }
 /*ngOnInit() {

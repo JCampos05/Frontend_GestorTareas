@@ -4,6 +4,7 @@ import { HeaderComponent } from '../../componentes/header/header';
 import { SidebarComponent } from '../../componentes/sidebar/sidebar';
 import { ModalCategoriaComponent } from '../../componentes/modal-categoria/modal-categoria';
 import { ModalListaComponent } from '../../componentes/modal-lista/modal-lista';
+import { NotificacionComponent } from '../../componentes/notification/notification';
 
 @Component({
   selector: 'app-main-layout',
@@ -13,7 +14,8 @@ import { ModalListaComponent } from '../../componentes/modal-lista/modal-lista';
     HeaderComponent, 
     SidebarComponent,
     ModalCategoriaComponent,
-    ModalListaComponent
+    ModalListaComponent,
+    NotificacionComponent
   ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'

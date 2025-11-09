@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoriasService } from '../../core/services/categorias/categorias';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-modal-categoria',
@@ -18,7 +19,10 @@ export class ModalCategoriaComponent implements OnInit {
 
   nombreCategoria: string = '';
 
-  constructor(private categoriasService: CategoriasService) {}
+  constructor(
+    private categoriasService: CategoriasService,
+    private notificacionesService: NotificacionesService
+  ) {}
 
   ngOnInit() {
     if (this.categoriaEditando) {
@@ -41,6 +45,7 @@ export class ModalCategoriaComponent implements OnInit {
       
       this.categoriaGuardada.emit();
       this.cerrar();
+      this.notificacionesService.exito('Categoria creada exitosamente');
     } catch (error) {
       console.error('Error al guardar categoría:', error);
       alert('Error al guardar la categoría');

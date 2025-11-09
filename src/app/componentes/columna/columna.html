@@ -2,7 +2,7 @@
   <div class="columna">
     <div class="columna-header">
       Today
-      <button (click)="abrirPanelDetalles()" class="btn-agregar">+</button>
+      <button (click)="abrirPanelDetalles(null, true)" class="btn-agregar">+</button>
     </div>
     <div 
       class="columna-content" 
@@ -93,6 +93,8 @@
 <app-panel-detalles 
   [abierto]="panelAbierto"
   [idTarea]="tareaSeleccionada"
+  [idListaPredeterminada]="idListaActual"
+  [miDiaPredeterminado]="esMiDia"
   (cerrar)="cerrarPanelDetalles()"
   (tareaGuardada)="onTareaGuardada()">
 </app-panel-detalles>

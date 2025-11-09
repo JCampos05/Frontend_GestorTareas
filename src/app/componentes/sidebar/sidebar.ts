@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CategoriasService } from '../../core/services/categorias/categorias';
 import { ListasService } from '../../core/services/listas/listas';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-sidebar',
@@ -20,25 +21,27 @@ export class SidebarComponent implements OnInit, OnDestroy {
   categorias: any[] = [];
   listasSinCategoria: any[] = [];
   categoriaExpandida: { [key: string]: boolean } = {};
-  
+  categoriaAEliminar: any = null;
+
   // Suscripción para detectar cambios
   private listasSubscription?: Subscription;
 
   constructor(
     private categoriasService: CategoriasService,
     private listasService: ListasService,
-    private router: Router
+    private router: Router,
+    private notificacionesService: NotificacionesService
   ) { }
 
   ngOnInit() {
     this.cargarCategorias();
-    
+
     // Suscribirse a los cambios en las listas
     this.listasSubscription = this.listasService.listasCambiadas$.subscribe(() => {
       this.cargarCategorias();
     });
   }
-  
+
   ngOnDestroy() {
     // Limpiar la suscripción para evitar memory leaks
     if (this.listasSubscription) {
@@ -84,16 +87,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   async cargarCategorias() {
     try {
       const categorias = await this.categoriasService.obtenerCategorias();
-      
+
       for (const categoria of categorias) {
         const listas = await this.categoriasService.obtenerListasPorCategoria(categoria.idCategoria ?? 0);
         categoria.listas = listas;
       }
 
       this.listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
-      
+
       this.categorias = categorias;
-      
+
       //console.log('Todas las listas:');
       this.categorias.forEach(cat => {
         cat.listas?.forEach((lista: any) => {
@@ -103,7 +106,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.listasSinCategoria.forEach(lista => {
         //console.log(`"${lista.nombre}" (sin cat): icono="${lista.icono}"`);
       });
-      
+
     } catch (error) {
       console.error('Error al cargar categorías:', error);
     }
@@ -209,5 +212,30 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   abrirModalListaSinCategoria() {
     this.abrirModalListaEvent.emit(null);
+  }
+  // ==================== ELIMINACIÓN DE CATEGORÍAS ====================
+  confirmarEliminarCategoria(categoria: any, event: Event) {
+    event.stopPropagation();
+    this.categoriaAEliminar = categoria;
+  }
+
+  cancelarEliminarCategoria() {
+    this.categoriaAEliminar = null;
+  }
+
+  async eliminarCategoria() {
+    if (!this.categoriaAEliminar || !this.categoriaAEliminar.idCategoria) {
+      return;
+    }
+
+    try {
+      await this.categoriasService.eliminarCategoria(this.categoriaAEliminar.idCategoria);
+      this.notificacionesService.exito('Categoría eliminada exitosamente');
+      this.categoriaAEliminar = null;
+      await this.cargarCategorias();
+    } catch (error) {
+      console.error('Error al eliminar categoría:', error);
+      this.notificacionesService.error('Error al eliminar la categoría. Por favor, intenta de nuevo.');
+    }
   }
 }

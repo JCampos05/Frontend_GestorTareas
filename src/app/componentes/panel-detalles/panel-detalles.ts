@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TareasService, Tarea } from '../../core/services/tareas/tareas';
 import { Lista, ListasService } from '../../core/services/listas/listas';
 import { DropdownListaComponent } from '../dropdown-lista/dropdown-lista';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-panel-detalles',
@@ -18,6 +19,8 @@ import { DropdownListaComponent } from '../dropdown-lista/dropdown-lista';
 export class PanelDetallesComponent implements OnInit, OnChanges {
   @Input() abierto = false;
   @Input() idTarea: number | null = null;
+  @Input() idListaPredeterminada: number | null = null;
+  @Input() miDiaPredeterminado: boolean = false;
   @Output() cerrar = new EventEmitter<void>();
   @Output() tareaGuardada = new EventEmitter<void>();
 
@@ -58,14 +61,23 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
 
   constructor(
     private tareasService: TareasService,
-    private listasService: ListasService
+    private listasService: ListasService,
+    private notificacionesService: NotificacionesService
   ) { }
 
   ngOnInit() {
     this.cargarListas();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  
+
+ngOnChanges(changes: SimpleChanges) {
+    /*console.log('🔍 Panel Detalles - ngOnChanges:', {
+      abierto: this.abierto,
+      miDiaPredeterminado: this.miDiaPredeterminado,
+      changes: changes
+    });*/
+    
     if (changes['abierto'] && this.abierto) {
       // Recargar listas cada vez que se abre el panel
       this.cargarListas();
@@ -74,6 +86,9 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
         this.cargarTarea(this.idTarea);
       } else {
         this.limpiarFormulario();
+        // Siempre aplicar miDiaPredeterminado después de limpiar
+        this.miDia = this.miDiaPredeterminado;
+        //console.log('✅ miDia establecido a:', this.miDia);
       }
     } else if (changes['idTarea'] && this.idTarea && !changes['abierto']) {
       this.cargarTarea(this.idTarea);
@@ -167,9 +182,9 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
     this.descripcion = '';
     this.prioridad = 'N';
     this.notas = '';
-    this.idLista = null;
+    this.idLista = this.idListaPredeterminada;
     this.pasos = [];
-    this.miDia = false;
+    this.miDia = this.miDiaPredeterminado;
     this.recordatorio = '0';
     this.fechaRecordatorio = '';
     this.horaRecordatorio = '';
@@ -264,7 +279,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
 
   async onSubmit() {
     if (!this.nombre.trim()) {
-      alert('El nombre es requerido');
+      this.notificacionesService.advertencia('El nombre es requerido');
       return;
     }
 
@@ -310,8 +325,10 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
     try {
       if (this.modoEdicion && this.idTarea) {
         await this.tareasService.actualizarTarea(this.idTarea, tarea);
+        this.notificacionesService.exito('Tarea actualizada exitosamente');
       } else {
         await this.tareasService.crearTarea(tarea);
+        this.notificacionesService.exito('Tarea creada exitosamente');
       }
 
       this.tareaGuardada.emit();

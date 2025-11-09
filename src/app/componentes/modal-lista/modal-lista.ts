@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListasService } from '../../core/services/listas/listas';
 import { CategoriasService } from '../../core/services/categorias/categorias';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-modal-lista',
@@ -99,7 +100,8 @@ export class ModalListaComponent implements OnInit, OnChanges {
 
   constructor(
     private listasService: ListasService,
-    private categoriasService: CategoriasService
+    private categoriasService: CategoriasService,
+    private notificacionesService: NotificacionesService
   ) {}
 
   async ngOnInit() {
@@ -158,6 +160,7 @@ export class ModalListaComponent implements OnInit, OnChanges {
       
       this.listaGuardada.emit();
       this.cerrar();
+      this.notificacionesService.exito('Lista creada exitosamente');
     } catch (error) {
       console.error('Error al guardar lista:', error);
       alert('Error al guardar la lista');
