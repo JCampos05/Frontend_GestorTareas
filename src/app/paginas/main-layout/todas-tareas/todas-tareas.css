@@ -3,25 +3,36 @@
     height: 100%;
     overflow: auto;
 }
+
 .vista-container {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #F5F3F5;
+    background-color: #f5f3f5;
 }
+
 .vista-header {
     padding: 24px 16px 20px;
 }
+
 .vista-header h2 {
     margin: 0 0 8px 0;
     font-size: 32px;
-    font-weight: 700;
+    font-weight: 600;
     display: flex;
     align-items: center;
     color: #172b4d;
     gap: 12px;
 }
+
 .vista-header i {
     font-size: 32px;
     color: #505f79;
+}
+
+.subtitulo {
+    font-size: 14px;
+    color: #626f86;
+    margin: 0;
+    padding-left: 44px;
 }

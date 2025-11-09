@@ -6,7 +6,7 @@ export const routes: Routes = [
     {path: 'registrate', loadComponent: () => import('./authentication/crear-cuenta/crear-cuenta').then(m => m.Registrate)},
     {path: 'app', loadComponent: () => import('./paginas/main-layout/main-layout').then(m => m.MainLayoutComponent),
         children: [
-            {path: '', redirectTo: 'todas-tareas', pathMatch: 'full'},
+            {path: '', redirectTo: 'mi-dia', pathMatch: 'full'},
             {path: 'mi-dia', loadComponent: () => import('./paginas/main-layout/mi-dia/mi-dia').then(m =>m.MiDiaComponent)},
             {path: 'todas-tareas', loadComponent: () => import('./paginas/main-layout/todas-tareas/todas-tareas').then(m => m.TodasTareasComponent)},
             {path: 'pendientes', loadComponent: () => import('./paginas/main-layout/pendientes/pendientes').then(m => m.PendientesComponent)},
