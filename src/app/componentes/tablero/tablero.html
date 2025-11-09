@@ -5,8 +5,7 @@
       id="tareasColumna"
       cdkDropList
       [cdkDropListData]="tareasColumna"
-      [cdkDropListConnectedTo]="['tareasToday']"
-      (cdkDropListDropped)="onDrop($event, estadoColumna)">
+      (cdkDropListDropped)="onDrop($event)">
       <p *ngIf="tareasColumna.length === 0" class="sin-tareas">Sin tareas</p>
       <app-tarea-card 
         *ngFor="let tarea of tareasColumna" 

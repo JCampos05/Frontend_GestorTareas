@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CategoriasService } from '../../core/services/categorias/categorias';
 import { ListasService } from '../../core/services/listas/listas';
 
@@ -11,7 +12,7 @@ import { ListasService } from '../../core/services/listas/listas';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   @Input() visible: boolean = true;
   @Output() abrirModalCategoriaEvent = new EventEmitter<void>();
   @Output() abrirModalListaEvent = new EventEmitter<number | null>();
@@ -19,6 +20,9 @@ export class SidebarComponent implements OnInit {
   categorias: any[] = [];
   listasSinCategoria: any[] = [];
   categoriaExpandida: { [key: string]: boolean } = {};
+  
+  // Suscripción para detectar cambios
+  private listasSubscription?: Subscription;
 
   constructor(
     private categoriasService: CategoriasService,
@@ -28,7 +32,20 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit() {
     this.cargarCategorias();
+    
+    // Suscribirse a los cambios en las listas
+    this.listasSubscription = this.listasService.listasCambiadas$.subscribe(() => {
+      this.cargarCategorias();
+    });
   }
+  
+  ngOnDestroy() {
+    // Limpiar la suscripción para evitar memory leaks
+    if (this.listasSubscription) {
+      this.listasSubscription.unsubscribe();
+    }
+  }
+
   esEmoji(icono: string | null | undefined): boolean {
     if (!icono || icono === 'null' || icono === '') return false;
 
@@ -63,34 +80,34 @@ export class SidebarComponent implements OnInit {
     // Default
     return 'fas fa-clipboard-list';
   }
-  async cargarCategorias() {
-  try {
-    const categorias = await this.categoriasService.obtenerCategorias();
-    
-    for (const categoria of categorias) {
-      const listas = await this.categoriasService.obtenerListasPorCategoria(categoria.idCategoria ?? 0);
-      categoria.listas = listas;
-    }
 
-    this.listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
-    
-    this.categorias = categorias;
-    
-    // 🔍 DEBUG TEMPORAL
-    console.log('Todas las listas:');
-    this.categorias.forEach(cat => {
-      cat.listas?.forEach((lista: any) => {
-        console.log(`"${lista.nombre}": icono="${lista.icono}"`);
+  async cargarCategorias() {
+    try {
+      const categorias = await this.categoriasService.obtenerCategorias();
+      
+      for (const categoria of categorias) {
+        const listas = await this.categoriasService.obtenerListasPorCategoria(categoria.idCategoria ?? 0);
+        categoria.listas = listas;
+      }
+
+      this.listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
+      
+      this.categorias = categorias;
+      
+      //console.log('Todas las listas:');
+      this.categorias.forEach(cat => {
+        cat.listas?.forEach((lista: any) => {
+          //console.log(`"${lista.nombre}": icono="${lista.icono}"`);
+        });
       });
-    });
-    this.listasSinCategoria.forEach(lista => {
-      console.log(`"${lista.nombre}" (sin cat): icono="${lista.icono}"`);
-    });
-    
-  } catch (error) {
-    console.error('Error al cargar categorías:', error);
+      this.listasSinCategoria.forEach(lista => {
+        //console.log(`"${lista.nombre}" (sin cat): icono="${lista.icono}"`);
+      });
+      
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+    }
   }
-}
 
   toggleCategoria(idCategoria: string) {
     this.categoriaExpandida[idCategoria] = !this.categoriaExpandida[idCategoria];

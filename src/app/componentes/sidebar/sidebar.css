@@ -342,10 +342,38 @@
 }
 
 .emoji-icon {
-  font-size: 16px;
-  min-width: 16px;
-  width: 16px;
+  font-size: 18px;
+  min-width: 20px;
+  width: 20px;
   text-align: center;
   flex-shrink: 0;
   display: inline-block;
+  line-height: 1;
+}
+
+.lista-icon-wrapper {
+  min-width: 26px;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-sidebar {
+  font-size: 14px;
+  color: white !important;
+}
+
+
+
+/* Ajustar el espaciado del texto */
+.sidebar-lista-item > span:last-child,
+.sidebar-lista-suelta > span:last-child {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

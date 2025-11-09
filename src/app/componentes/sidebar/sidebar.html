@@ -53,7 +53,7 @@
 
   <div class="sidebar-section">
     <div class="sidebar-section-header">
-      <h3>Categorías</h3>
+      <h3>Categorías / Grupos </h3>
       <button class="btn-add-categoria" (click)="abrirModalCategoria()" title="Agregar categoría">
         <i class="fas fa-plus"></i>
       </button>
@@ -74,15 +74,18 @@
             <span class="count">{{ categoria.listas?.length || 0 }}</span>
           </div>
         </div>
-        <div class="sidebar-listas"
-             [style.display]="isCategoriaExpandida(categoria.idCategoria) ? 'block' : 'none'">
-          <div *ngFor="let lista of categoria.listas"
-               class="sidebar-lista-item"
-               (click)="cargarTareasDeLista(lista.idLista)">
-            <i [class]="lista.icono || 'fas fa-clipboard-list'"></i>
-            <span>{{ lista.nombre }}</span>
-          </div>
-        </div>
+<div class="sidebar-listas" [style.display]="isCategoriaExpandida(categoria.idCategoria) ? 'block' : 'none'">
+  <div *ngFor="let lista of categoria.listas" class="sidebar-lista-item"
+    (click)="cargarTareasDeLista(lista.idLista)">
+    <!-- Emoji sin fondo -->
+    <span *ngIf="esEmoji(lista.icono)" class="emoji-icon">{{ lista.icono }}</span>
+    <!-- Icono Font Awesome con fondo de color -->
+    <span *ngIf="!esEmoji(lista.icono)" class="lista-icon-wrapper" [style.background-color]="lista.color || '#6554c0'">
+      <i [class]="obtenerClaseIcono(lista.icono)" class="icon-sidebar"></i>
+    </span>
+    <span>{{ lista.nombre }}</span>
+  </div>
+</div>
       </div>
 
       <!-- Separador antes de las listas sin categoría -->
@@ -97,13 +100,17 @@
       </div>
 
       <!-- Listas sin categoría -->
-      <div *ngFor="let lista of listasSinCategoria" 
-           class="sidebar-lista-suelta"
-           (click)="cargarTareasDeLista(lista.idLista)">
-        <span *ngIf="esEmoji(lista.icono)" class="emoji-icon">{{ lista.icono }}</span>
-        <i *ngIf="!esEmoji(lista.icono)" [class]="obtenerClaseIcono(lista.icono)"></i>
-        <span>{{ lista.nombre }}</span>
-      </div>
+<div *ngFor="let lista of listasSinCategoria" 
+     class="sidebar-lista-suelta"
+     (click)="cargarTareasDeLista(lista.idLista)">
+  <!-- Emoji sin fondo -->
+  <span *ngIf="esEmoji(lista.icono)" class="emoji-icon">{{ lista.icono }}</span>
+  <!-- Icono Font Awesome con fondo de color -->
+  <span *ngIf="!esEmoji(lista.icono)" class="lista-icon-wrapper" [style.background-color]="lista.color || '#6554c0'">
+    <i [class]="obtenerClaseIcono(lista.icono)" class="icon-sidebar"></i>
+  </span>
+  <span>{{ lista.nombre }}</span>
+</div>
     </div>
   </div>
 </div>

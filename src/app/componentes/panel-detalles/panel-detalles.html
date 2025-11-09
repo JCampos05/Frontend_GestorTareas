@@ -9,22 +9,12 @@
       <label for="nombre">
         <i class="fas fa-tag"></i> Nombre:
       </label>
-      <input
-        type="text"
-        id="nombre"
-        [(ngModel)]="nombre"
-        name="nombre"
-        placeholder="+ Agregar una tarea"
-        required>
+      <input type="text" id="nombre" [(ngModel)]="nombre" name="nombre" placeholder="+ Agregar una tarea" required>
 
       <label for="descripcion">
         <i class="fas fa-align-left"></i> Descripción:
       </label>
-      <input
-        type="text"
-        id="descripcion"
-        [(ngModel)]="descripcion"
-        name="descripcion">
+      <input type="text" id="descripcion" [(ngModel)]="descripcion" name="descripcion">
 
       <label>
         <i class="fas fa-list-ol"></i> Pasos:
@@ -32,11 +22,7 @@
       <div id="contenedorPasos">
         <div *ngFor="let paso of pasos; let i = index" class="paso-item">
           <i class="fas fa-grip-vertical paso-drag-icon"></i>
-          <input
-            type="text"
-            [(ngModel)]="pasos[i]"
-            [name]="'paso-' + i"
-            placeholder="Agregar un paso"
+          <input type="text" [(ngModel)]="pasos[i]" [name]="'paso-' + i" placeholder="Agregar un paso"
             class="paso-input">
           <button type="button" (click)="eliminarPaso(i)" class="btn-eliminar-paso">
             <i class="fas fa-trash-alt"></i>
@@ -51,21 +37,22 @@
       <label>
         <i class="fas fa-star"></i> Agregar a:
       </label>
-      <div class="checkbox-group">
-        <input type="checkbox" id="miDia" [(ngModel)]="miDia" name="miDia">
-        <label for="miDia" class="checkbox-label">
-          <i class="fas fa-sun"></i> Mi día
-        </label>
+      <div class="agregar-a-section">
+        <div class="checkbox-group">
+          <input type="checkbox" id="miDia" [(ngModel)]="miDia" name="miDia">
+          <label for="miDia" class="checkbox-label">
+            <i class="fas fa-sun"></i> Mi día
+          </label>
+        </div>
       </div>
-      <br>
 
       <label for="listaSelect">
         <i class="fas fa-layer-group"></i> Lista:
       </label>
       <select id="listaSelect" [(ngModel)]="idLista" name="listaSelect">
-        <option [value]="null">Sin lista</option>
-        <option *ngFor="let lista of listas" [value]="lista.idLista">
-          {{ lista.icono }} {{ lista.nombre }}
+        <option [ngValue]="null">Sin lista</option>
+        <option *ngFor="let lista of listas" [ngValue]="lista.idLista">
+          {{ obtenerTextoListaSimple(lista) }}
         </option>
       </select>
 
@@ -89,25 +76,14 @@
         <option value="4">Elegir fecha</option>
       </select>
       <div class="fecha-hora-group" *ngIf="recordatorio === '4'">
-        <input
-          type="date"
-          id="fechaRecordatorio"
-          [(ngModel)]="fechaRecordatorio"
-          name="fechaRecordatorio">
-        <input
-          type="time"
-          id="horaRecordatorio"
-          [(ngModel)]="horaRecordatorio"
-          name="horaRecordatorio">
+        <input type="date" id="fechaRecordatorio" [(ngModel)]="fechaRecordatorio" name="fechaRecordatorio">
+        <input type="time" id="horaRecordatorio" [(ngModel)]="horaRecordatorio" name="horaRecordatorio">
       </div>
 
       <label for="selectFechaVencimiento">
         <i class="far fa-calendar-alt"></i> Fecha de vencimiento:
       </label>
-      <select
-        id="selectFechaVencimiento"
-        [(ngModel)]="selectFechaVencimiento"
-        name="selectFechaVencimiento"
+      <select id="selectFechaVencimiento" [(ngModel)]="selectFechaVencimiento" name="selectFechaVencimiento"
         (change)="onSelectFechaVencimientoChange()">
         <option value="0">Sin fecha</option>
         <option value="1">Hoy</option>
@@ -115,11 +91,7 @@
         <option value="3">Semana Próxima</option>
         <option value="4">Elegir fecha</option>
       </select>
-      <input
-        *ngIf="selectFechaVencimiento === '4'"
-        type="date"
-        id="fechaVencimiento"
-        [(ngModel)]="fechaVencimiento"
+      <input *ngIf="selectFechaVencimiento === '4'" type="date" id="fechaVencimiento" [(ngModel)]="fechaVencimiento"
         name="fechaVencimiento">
 
       <label for="repetir">
@@ -129,11 +101,7 @@
         <input type="checkbox" id="repetir" [(ngModel)]="repetir" name="repetir">
         <label for="repetir" class="checkbox-label"></label>
       </div>
-      <select
-        id="tipoRepeticion"
-        [(ngModel)]="tipoRepeticion"
-        name="tipoRepeticion"
-        [disabled]="!repetir">
+      <select id="tipoRepeticion" [(ngModel)]="tipoRepeticion" name="tipoRepeticion" [disabled]="!repetir">
         <option value="diario">Diariamente</option>
         <option value="laborales">Días laborales</option>
         <option value="semanal">Semanalmente</option>
@@ -143,12 +111,7 @@
 
       <div *ngIf="repetir && tipoRepeticion === 'personalizado'" id="configPersonalizada">
         <label for="repetirCada">Cada:</label>
-        <input
-          type="number"
-          id="repetirCada"
-          [(ngModel)]="repetirCada"
-          name="repetirCada"
-          min="1">
+        <input type="number" id="repetirCada" [(ngModel)]="repetirCada" name="repetirCada" min="1">
         <select id="repetirUnidad" [(ngModel)]="repetirUnidad" name="repetirUnidad">
           <option value="dias">Día(s)</option>
           <option value="semanas">Semana(s)</option>

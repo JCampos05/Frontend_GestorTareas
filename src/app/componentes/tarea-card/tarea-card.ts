@@ -68,11 +68,75 @@ export class TareaCardComponent {
     const date = new Date(fecha);
     return date.toLocaleDateString('es-MX', { 
       year: 'numeric', 
-      month: 'long', 
+      month: 'short', 
       day: 'numeric' 
     });
   }
 
+  esEmoji(icono: string | null | undefined): boolean {
+    if (!icono || icono === 'null' || icono === '') return false;
+    
+    // Si empieza con 'fa', es un icono Font Awesome
+    if (icono.trim().startsWith('fa')) {
+      return false;
+    }
+    
+    // Si es otra cosa (emoji), devolver true
+    return true;
+  }
+
+  obtenerClaseIcono(icono: string | null | undefined): string {
+    // Si no hay icono o es null
+    if (!icono || icono === 'null' || icono === '') {
+      return 'fas fa-clipboard-list';
+    }
+
+    // Limpiar espacios
+    const iconoLimpio = icono.trim();
+
+    // Si ya tiene el prefijo 'fas ' o 'far '
+    if (iconoLimpio.startsWith('fas ') || iconoLimpio.startsWith('far ')) {
+      return iconoLimpio;
+    }
+
+    // Si empieza con 'fa-', agregar prefijo 'fas'
+    if (iconoLimpio.startsWith('fa-')) {
+      return `fas ${iconoLimpio}`;
+    }
+
+    // Default
+    return 'fas fa-clipboard-list';
+  }
+
+  async alternarMiDia(event: Event) {
+    event.stopPropagation();
+    
+    //console.log('🌞 Alternando Mi Día');
+    //console.log('Valor actual:', this.tarea.miDia);
+    //console.log('ID Tarea:', this.tarea.idTarea);
+
+    try {
+      const nuevoValor = !this.tarea.miDia;
+      //console.log('Nuevo valor: ', nuevoValor);
+
+      await this.tareasService.alternarMiDia(this.tarea.idTarea!, nuevoValor);
+
+      this.tarea.miDia = nuevoValor;
+      this.estadoCambiado.emit();
+
+      //console.log('✅ Mi Día actualizado exitosamente');
+    } catch (error) {
+      console.error('Error al alternar Mi Día:', error);
+      alert('Error al actualizar Mi Día. Por favor, intenta nuevamente.');
+    }
+  }
+/*ngOnInit() {
+    // Debug: verificar datos de la lista
+    console.log('Tarea:', this.tarea.nombre);
+    console.log('Lista:', this.tarea.nombreLista);
+    console.log('Icono Lista:', this.tarea.iconoLista);
+    console.log('Color Lista:', this.tarea.colorLista);
+  }*/
   get mostrarBotonIniciar(): boolean {
     return this.tarea.estado === 'P';
   }

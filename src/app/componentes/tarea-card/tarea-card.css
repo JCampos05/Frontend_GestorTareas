@@ -1,3 +1,4 @@
+/* ========== CARD PRINCIPAL ========== */
 .tarea-card {
   background: white;
   border-radius: 8px;
@@ -7,6 +8,7 @@
   box-shadow: 0 1px 2px rgba(9, 30, 66, 0.15);
   transition: all 0.2s ease;
   border-left: 3px solid transparent;
+  position: relative; /* Para el badge absoluto */
 }
 
 .tarea-card:hover {
@@ -21,7 +23,64 @@
   gap: 10px;
 }
 
-/* Checkbox personalizado */
+/* ========== BADGE DE LISTA (ESQUINA SUPERIOR DERECHA) ========== */
+.tarea-lista-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f4f5f7;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #42526e;
+  font-weight: 500;
+  z-index: 1;
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.08);
+}
+
+.estrella-importante {
+  color: #ffab00;
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.lista-emoji {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.lista-icon-wrapper {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lista-icon-wrapper i {
+  font-size: 10px;
+  color: white;
+}
+
+/* ========== HEADER CON CHECKBOX E INFO ========== */
+.tarea-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding-right: 140px; /* Espacio para el badge de lista */
+}
+
+/* Ajuste para tarjetas sin lista */
+.tarea-card:not(:has(.tarea-lista-badge)) .tarea-header {
+  padding-right: 0;
+}
+
+/* ========== CHECKBOX PERSONALIZADO ========== */
 .tarea-checkbox {
   width: 18px;
   height: 18px;
@@ -59,7 +118,7 @@
   font-weight: bold;
 }
 
-/* Información de la tarea */
+/* ========== INFORMACIÓN DE LA TAREA ========== */
 .tarea-info {
   flex: 1;
   display: flex;
@@ -103,6 +162,15 @@
   word-break: break-word;
 }
 
+/* ========== METADATA (FECHA) ========== */
+.tarea-metadata {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
 .tarea-fecha {
   color: #5e6c84;
   font-size: 12px;
@@ -115,14 +183,16 @@
   border-radius: 4px;
   width: fit-content;
   font-weight: 500;
+  white-space: nowrap; /* Evita que se rompa en múltiples líneas */
 }
 
 .tarea-fecha i {
   color: #6554c0;
   font-size: 13px;
+  flex-shrink: 0; /* El icono no se comprime */
 }
 
-/* Botones de acción */
+/* ========== BOTONES DE ACCIÓN ========== */
 .tarea-acciones {
   display: flex;
   gap: 6px;
@@ -168,7 +238,7 @@
   transform: translateY(0);
 }
 
-/* Estilos específicos por tipo de botón con iconos */
+/* Botón Iniciar (Play) */
 .btn-accion:has(.fa-play) {
   border-color: #0052cc;
   color: #0052cc;
@@ -188,6 +258,7 @@
   color: #0065ff;
 }
 
+/* Botón Pausar */
 .btn-accion:has(.fa-pause) {
   border-color: #ff991f;
   color: #ff991f;
@@ -202,6 +273,7 @@
   color: #ff991f;
 }
 
+/* Botón Completar (Check) */
 .btn-accion:has(.fa-check) {
   border-color: #00875a;
   color: #00875a;
@@ -216,6 +288,7 @@
   color: #00875a;
 }
 
+/* Botón Reabrir (Redo) */
 .btn-accion:has(.fa-redo) {
   border-color: #6554c0;
   color: #6554c0;
@@ -230,7 +303,20 @@
   color: #6554c0;
 }
 
-/* Colores por estado de tarea */
+/* Botón Eliminar */
+.btn-eliminar {
+  background-color: transparent;
+  color: #de350b;
+  border: 1px solid transparent;
+}
+
+.btn-eliminar:hover {
+  background-color: #ffebe6;
+  border-color: #de350b;
+  color: #bf2600;
+}
+
+/* ========== COLORES POR ESTADO ========== */
 .tarea-card[data-estado="P"] {
   border-left-color: #6554c0;
 }
@@ -248,7 +334,7 @@
   opacity: 1;
 }
 
-/* Estado de arrastre */
+/* ========== ESTADO DE ARRASTRE (CDK) ========== */
 .tarea-card.cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
@@ -258,10 +344,19 @@
   transform: rotate(3deg);
 }
 
-/* Responsive */
+/* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   .tarea-card {
     padding: 10px;
+  }
+
+  .tarea-header {
+    padding-right: 100px; /* Menos padding en móvil */
+  }
+
+  .tarea-lista-badge {
+    font-size: 11px;
+    padding: 3px 8px;
   }
 
   .tarea-info strong {
@@ -277,15 +372,16 @@
     font-size: 11px;
   }
 }
-
-.btn-eliminar {
-  background-color: transparent;
-  color: #de350b;
-  border: 1px solid transparent;
+.btn-accion.mi-dia-activo {
+  background-color: #fff4e6;
+  color: #ff8c00;
+  border: 1px solid #ffd700;
 }
 
-.btn-eliminar:hover {
-  background-color: #ffebe6;
-  border-color: #de350b;
-  color: #bf2600;
+.btn-accion.mi-dia-activo:hover {
+  background-color: #ffe4b3;
+}
+
+.btn-accion.mi-dia-activo i {
+  color: #ff8c00;
 }

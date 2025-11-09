@@ -1,7 +1,13 @@
 <div class="detalle-lista-container">
-        <div class="lista-header" *ngIf="nombreLista">
-            <h2><i class="fas fa-list"></i> {{ nombreLista }}</h2>
-            <p *ngIf="descripcionLista">{{ descripcionLista }}</p>
-        </div>
-        <app-columnas></app-columnas>
+    <div class="lista-header" *ngIf="nombreLista">
+        <h2>
+            <span class="lista-icono" [style.background-color]="colorLista">
+                <span *ngIf="esEmoji(iconoLista)">{{ iconoLista }}</span>
+                <i *ngIf="!esEmoji(iconoLista)" [class]="obtenerClaseIcono(iconoLista)"></i>
+            </span>
+            {{ nombreLista }}
+        </h2>
+        <p *ngIf="descripcionLista">{{ descripcionLista }}</p>
+    </div>
+    <app-columnas></app-columnas>
 </div>

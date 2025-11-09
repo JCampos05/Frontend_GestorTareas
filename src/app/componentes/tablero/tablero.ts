@@ -17,7 +17,6 @@ import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray, transferArrayItem }
 export class TableroComponent implements OnInit {
   @Input() tipoVista: 'pendientes' | 'progreso' | 'completadas' | 'vencidas' | 'mi-dia' = 'pendientes';
   
-  //tareasToday: Tarea[] = [];
   tareasColumna: Tarea[] = [];
   
   panelAbierto = false;
@@ -33,83 +32,43 @@ export class TableroComponent implements OnInit {
     this.cargarTareas();
   }
 
-async cargarTareas() {
-  try {
-    let tareas: Tarea[] = [];
-    
-    if (this.tipoVista === 'mi-dia') {
-      const todasLasTareas = await this.tareasService.obtenerTareas();
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-
-      tareas = todasLasTareas.filter(tarea => {
-        if (!tarea.fechaVencimiento || tarea.estado === 'C') return false;
-        
-        const fechaVencimiento = new Date(tarea.fechaVencimiento);
-        fechaVencimiento.setHours(0, 0, 0, 0);
-        
-        return fechaVencimiento.getTime() === hoy.getTime();
-      });
-    } else if (this.tipoVista === 'vencidas') {
-      tareas = await this.tareasService.obtenerTareasVencidas();
-    } else {
-      const estadoMap = {
-        'pendientes': 'P',
-        'progreso': 'N',
-        'completadas': 'C'
-      };
-      tareas = await this.tareasService.obtenerTareasPorEstado(estadoMap[this.tipoVista]);
-    }
-    
-    this.distribuirTareas(tareas);
-  } catch (error) {
-    console.error('Error al cargar tareas:', error);
-  }
-}
-
-  distribuirTareas(tareas: Tarea[]) {
-    //this.tareasToday = [];
-    this.tareasColumna = [];
-
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    tareas.forEach(tarea => {
-      // TODAY: Solo tareas del día que NO estén completadas
-      if (tarea.fechaVencimiento) {
-        const fechaVencimiento = new Date(tarea.fechaVencimiento);
-        fechaVencimiento.setHours(0, 0, 0, 0);
-        /*if (fechaVencimiento.getTime() === hoy.getTime() && tarea.estado !== 'C') {
-          this.tareasToday.push(tarea);
-        }*/
+  async cargarTareas() {
+    try {
+      let tareas: Tarea[] = [];
+      
+      if (this.tipoVista === 'mi-dia') {
+        // Usar el endpoint específico para Mi Día
+        tareas = await this.tareasService.obtenerTareasMiDia();
+      } else if (this.tipoVista === 'vencidas') {
+        tareas = await this.tareasService.obtenerTareasVencidas();
+      } else {
+        const estadoMap = {
+          'pendientes': 'P',
+          'progreso': 'N',
+          'completadas': 'C'
+        };
+        tareas = await this.tareasService.obtenerTareasPorEstado(estadoMap[this.tipoVista]);
       }
       
-      // Todas las tareas van a la columna principal
-      this.tareasColumna.push(tarea);
-    });
+      this.tareasColumna = tareas;
+    } catch (error) {
+      console.error('Error al cargar tareas:', error);
+    }
   }
 
-get tituloColumna(): string {
-  const titulos = {
-    'mi-dia': 'Mi Día',
-    'pendientes': 'Tareas Pendientes',
-    'progreso': 'En Proceso',
-    'completadas': 'Completadas',
-    'vencidas': 'Vencidas'
-  };
-  return titulos[this.tipoVista];
-}
+  get tituloColumna(): string {
+    const titulos = {
+      'mi-dia': 'Mi Día',
+      'pendientes': 'Tareas Pendientes',
+      'progreso': 'En Proceso',
+      'completadas': 'Completadas',
+      'vencidas': 'Vencidas'
+    };
+    return titulos[this.tipoVista];
+  }
 
-get estadoColumna(): 'P' | 'N' | 'C' {
-  const estados = {
-    'mi-dia': 'P',
-    'pendientes': 'P',
-    'progreso': 'N',
-    'completadas': 'C',
-    'vencidas': 'P'
-  };
-  return estados[this.tipoVista] as 'P' | 'N' | 'C';
-}
+  // Este método ya no es necesario para Mi Día
+  // Las tareas de Mi Día mantienen su estado original
 
   abrirPanelDetalles(idTarea: number | null = null) {
     this.tareaSeleccionada = idTarea;
@@ -130,33 +89,12 @@ get estadoColumna(): 'P' | 'N' | 'C' {
     await this.cargarTareas();
   }
 
-  async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
+  async onDrop(event: CdkDragDrop<Tarea[]>) {
+    // Solo reordenar en la misma lista (no cambiar estados en Mi Día)
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    
-      const tarea = event.container.data[event.currentIndex];
-      if (tarea.idTarea) {
-        try {
-          await this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado as any);
-          tarea.estado = nuevoEstado as any;
-        } catch (error) {
-          console.error('Error al actualizar estado:', error);
-          transferArrayItem(
-            event.container.data,
-            event.previousContainer.data,
-            event.currentIndex,
-            event.previousIndex
-          );
-        }
-      }
     }
+    // No permitir drag & drop entre contenedores en Mi Día
   }
 
   async onTareaEliminada() {

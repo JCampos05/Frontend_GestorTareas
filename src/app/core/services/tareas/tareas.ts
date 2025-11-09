@@ -5,10 +5,11 @@ import { firstValueFrom } from 'rxjs';
 export interface Tarea {
   idTarea?: number;
   nombre: string;
-  descripcion?: string;
+  descripcion?: string | null;
   prioridad: 'A' | 'N' | 'B';
   estado: 'P' | 'N' | 'C';
   fechaVencimiento?: string;
+  miDia?: boolean;
   pasos?: string[];
   notas?: string;
   recordatorio?: string;
@@ -16,6 +17,10 @@ export interface Tarea {
   tipoRepeticion?: string;
   configRepeticion?: string;
   idLista?: number;
+  nombreLista?: string;
+  iconoLista?: string;
+  colorLista?: string;
+  importante?: boolean;  
   fechaCreacion?: string;
 }
 
@@ -60,6 +65,15 @@ export class TareasService {
 
   async obtenerTareasVencidas(): Promise<Tarea[]> {
     const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/vencidas`));
+    return response.success ? response.data : [];
+  }
+  
+  async alternarMiDia(id: number, miDia: boolean): Promise<any> {
+    return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/mi-dia`, { miDia }));
+  }
+
+  async obtenerTareasMiDia(): Promise<Tarea[]> {
+    const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/mi-dia`));
     return response.success ? response.data : [];
   }
 }

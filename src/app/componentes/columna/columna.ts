@@ -95,8 +95,8 @@ export class ColumnasComponent implements OnInit {
   this.tareasEnProceso = [];
   this.tareasTerminadas = [];
 
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
+  //const hoy = new Date();
+  //hoy.setHours(0, 0, 0, 0);
   
   const filtro = this.route.snapshot.queryParams['filtro'];
 
@@ -115,14 +115,11 @@ export class ColumnasComponent implements OnInit {
       return; // No seguir con la lógica de "today"
     }
 
+
     // Tareas de hoy (solo si NO estamos en vista vencidas)
-    if (tarea.fechaVencimiento) {
-      const fechaVencimiento = new Date(tarea.fechaVencimiento);
-      fechaVencimiento.setHours(0, 0, 0, 0);
-      if (fechaVencimiento.getTime() === hoy.getTime() && tarea.estado !== 'C') {
-        this.tareasToday.push(tarea);
-      }
-    }
+    if (tarea.miDia && tarea.estado) {
+      this.tareasToday.push(tarea);
+    } 
 
     // Distribución por estado
     if (tarea.estado === 'P') {

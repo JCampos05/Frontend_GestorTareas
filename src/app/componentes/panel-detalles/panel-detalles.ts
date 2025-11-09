@@ -11,7 +11,7 @@ import { Lista, ListasService } from '../../core/services/listas/listas';
   templateUrl: './panel-detalles.html',
   styleUrl: './panel-detalles.css',
   host: {
-    '[class.abierto]' : 'abierto'
+    '[class.abierto]': 'abierto'
   }
 })
 export class PanelDetallesComponent implements OnInit, OnChanges {
@@ -26,57 +26,87 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
   prioridad: 'A' | 'N' | 'B' = 'N';
   notas = '';
   idLista: number | null = null;
-  
+
   // Pasos
   pasos: string[] = [];
-  
+
   // Mi día
   miDia = false;
-  
+
   // Recordatorio
   recordatorio = '0';
   fechaRecordatorio = '';
   horaRecordatorio = '';
-  
+
   // Fecha vencimiento
   selectFechaVencimiento = '0';
   fechaVencimiento = '';
-  
+
   // Repetición
   repetir = false;
   tipoRepeticion = 'diario';
   repetirCada = 1;
   repetirUnidad = 'dias';
-  
+
   // Listas disponibles
   listas: Lista[] = [];
-  
+
   // Modo edición
   modoEdicion = false;
 
   constructor(
     private tareasService: TareasService,
     private listasService: ListasService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.cargarListas();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['idTarea'] && this.idTarea) {
+    if (changes['abierto'] && this.abierto) {
+      // Recargar listas cada vez que se abre el panel
+      this.cargarListas();
+
+      if (this.idTarea) {
+        this.cargarTarea(this.idTarea);
+      } else {
+        this.limpiarFormulario();
+      }
+    } else if (changes['idTarea'] && this.idTarea && !changes['abierto']) {
       this.cargarTarea(this.idTarea);
-    } else if (changes['abierto'] && this.abierto && !this.idTarea) {
-      this.limpiarFormulario();
     }
   }
 
   async cargarListas() {
     try {
       this.listas = await this.listasService.obtenerListas();
+      // DEBUG: Ver qué iconos tienen las listas
+      console.log('📋 Listas cargadas:', this.listas.map(l => ({
+        nombre: l.nombre,
+        icono: l.icono,
+        esEmoji: this.esEmoji(l.icono)
+      })));
     } catch (error) {
       console.error('Error al cargar listas:', error);
     }
+  }
+
+  obtenerTextoLista(lista: Lista): string {
+    const icono = this.esEmoji(lista.icono) ? lista.icono : this.obtenerIconoTexto(lista.icono);
+    return `${icono} ${lista.nombre}`;
+  }
+
+  esEmoji(icono: string | null | undefined): boolean {
+    if (!icono || icono === 'null' || icono === '') return false;
+    return !icono.trim().startsWith('fa');
+  }
+
+  obtenerIconoTexto(icono: string | null | undefined): string {
+    // Para el select, mostramos un símbolo genérico si es un icono FA
+    if (!icono || icono === 'null' || icono === '') return '📋';
+    if (icono.trim().startsWith('fa')) return '📋';
+    return icono;
   }
 
   async cargarTarea(id: number) {
@@ -89,12 +119,13 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
         this.prioridad = tarea.prioridad;
         this.notas = tarea.notas || '';
         this.idLista = tarea.idLista || null;
-        
+        this.miDia = tarea.miDia || false;
+
         // Cargar pasos
         if (tarea.pasos) {
           this.pasos = Array.isArray(tarea.pasos) ? tarea.pasos : JSON.parse(tarea.pasos as any);
         }
-        
+
         // Cargar recordatorio
         if (tarea.recordatorio) {
           const fechaHora = tarea.recordatorio.split('T');
@@ -102,20 +133,20 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
           this.fechaRecordatorio = fechaHora[0];
           this.horaRecordatorio = fechaHora[1]?.slice(0, 5) || '';
         }
-        
+
         // Cargar fecha vencimiento
         if (tarea.fechaVencimiento) {
           this.selectFechaVencimiento = '4';
           this.fechaVencimiento = tarea.fechaVencimiento.split('T')[0];
         }
-        
+
         // Cargar repetición
         this.repetir = tarea.repetir || false;
         this.tipoRepeticion = tarea.tipoRepeticion || 'diario';
-        
+
         if (tarea.tipoRepeticion === 'personalizado' && tarea.configRepeticion) {
-          const config = typeof tarea.configRepeticion === 'string' 
-            ? JSON.parse(tarea.configRepeticion) 
+          const config = typeof tarea.configRepeticion === 'string'
+            ? JSON.parse(tarea.configRepeticion)
             : tarea.configRepeticion;
           this.repetirCada = config.cada || 1;
           this.repetirUnidad = config.unidad || 'dias';
@@ -174,8 +205,8 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
   calcularFechaVencimiento(opcion: string) {
     const hoy = new Date();
     let fecha = new Date();
-    
-    switch(opcion) {
+
+    switch (opcion) {
       case '1': // Hoy
         fecha = hoy;
         break;
@@ -189,19 +220,19 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
         this.fechaVencimiento = '';
         return;
     }
-    
+
     const year = fecha.getFullYear();
     const month = String(fecha.getMonth() + 1).padStart(2, '0');
     const day = String(fecha.getDate()).padStart(2, '0');
-    
+
     this.fechaVencimiento = `${year}-${month}-${day}`;
   }
 
   calcularRecordatorio(opcion: string) {
     const ahora = new Date();
     let fecha = new Date();
-    
-    switch(opcion) {
+
+    switch (opcion) {
       case '1': // Más tarde (2 horas)
         fecha.setHours(ahora.getHours() + 2);
         break;
@@ -216,13 +247,13 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       default:
         return;
     }
-    
+
     const year = fecha.getFullYear();
     const month = String(fecha.getMonth() + 1).padStart(2, '0');
     const day = String(fecha.getDate()).padStart(2, '0');
     const hours = String(fecha.getHours()).padStart(2, '0');
     const minutes = String(fecha.getMinutes()).padStart(2, '0');
-    
+
     this.fechaRecordatorio = `${year}-${month}-${day}`;
     this.horaRecordatorio = `${hours}:${minutes}`;
   }
@@ -258,7 +289,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
 
     const tarea: Tarea = {
       nombre: this.nombre.trim(),
-      descripcion: this.descripcion.trim() || undefined,
+      descripcion: this.descripcion.trim() || null,
       prioridad: this.prioridad,
       estado: 'P',
       fechaVencimiento: fechaVencimientoFinal || undefined,
@@ -268,7 +299,8 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       repetir: this.repetir,
       tipoRepeticion: this.repetir ? this.tipoRepeticion : undefined,
       configRepeticion: configRepeticion || undefined,
-      idLista: this.idLista || undefined
+      idLista: this.idLista || undefined,
+      miDia: this.miDia
     };
 
     try {
@@ -277,12 +309,19 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       } else {
         await this.tareasService.crearTarea(tarea);
       }
-      
+
       this.tareaGuardada.emit();
       this.limpiarFormulario();
     } catch (error) {
       console.error('Error al guardar tarea:', error);
       alert('Error al guardar la tarea');
     }
+  }
+  obtenerTextoListaSimple(lista: Lista): string {
+    // Solo mostrar emoji si realmente es un emoji, de lo contrario solo el nombre
+    if (this.esEmoji(lista.icono)) {
+      return `${lista.icono} ${lista.nombre}`;
+    }
+    return lista.nombre;
   }
 }
