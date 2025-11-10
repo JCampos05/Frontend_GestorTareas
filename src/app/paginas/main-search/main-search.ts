@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -26,7 +26,13 @@ interface ResultadoBusquedaLista {
 })
 export class MainSearchComponent implements OnInit {
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
-  
+
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: Event) {
+    event.preventDefault();
+    this.manejarEscape();
+  }
+
   query: string = '';
   resultadosTareas: ResultadoBusquedaTarea[] = [];
   resultadosListas: ResultadoBusquedaLista[] = [];

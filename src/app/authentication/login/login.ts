@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/authentication/authentication';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +13,6 @@ import { AuthService } from '../../core/services/authentication/authentication';
   styleUrl: './login.css'
 })
 export class LoginComponent {
-  
   // Campos del formulario
   email: string = '';
   password: string = '';
@@ -25,7 +25,8 @@ export class LoginComponent {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificacionesService: NotificacionesService 
   ) {}
 
   togglePasswordVisibility() {
@@ -45,9 +46,16 @@ export class LoginComponent {
       next: (response) => {
         console.log('Login exitoso:', response);
         this.isLoading = false;
-        
+        // Obtener el nombre del usuario desde la respuesta
+
+        // Obtener el usuario actual del servicio de autenticación
+        const usuarioActual = this.authService.obtenerUsuarioActual();
+        const nombreUsuario = usuarioActual?.nombre || 'Usuario';
+      
+        // Mostrar notificación de bienvenida
+        this.notificacionesService.exito(`¡Bienvenido de nuevo, ${nombreUsuario}!`);
         // Redirigir a la aplicación principal
-        this.router.navigate(['/app']);
+        this.router.navigate(['/app/mi-dia']);
       },
       error: (error) => {
         console.error('Error en el login:', error);
