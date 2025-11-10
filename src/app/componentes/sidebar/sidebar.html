@@ -5,6 +5,10 @@
       <i class="fas fa-sun"></i>
       <span>Mi día</span>
     </div>
+    <div class="sidebar-item" (click)="cargarMiSemana()">
+      <i class="fa-solid fa-calendar-week"></i>
+      <span>Mi semana</span>
+    </div>
     <div class="sidebar-item" (click)="cargarTodasLasTareas()">
       <i class="fas fa-th-list"></i>
       <span>Mis tareas</span>
@@ -38,7 +42,7 @@
       <span>Listas importantes</span>
     </div>
     <div class="sidebar-item" (click)="mostrarCalendario()">
-      <i class="far fa-calendar-alt"></i>
+      <i class="far fa-calendar"></i>
       <span>Calendario</span>
     </div>
     <div class="sidebar-item" (click)="mostrarImportante()">

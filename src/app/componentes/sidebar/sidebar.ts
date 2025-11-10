@@ -132,8 +132,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   mostrarCalendario() {
-    console.log('Función pendiente: mostrar calendario');
-    // TODO: Crear página
+    //console.log('Función pendiente: mostrar calendario');
+    this.router.navigate(['/app/calendar']);
   }
 
   mostrarImportante() {
@@ -146,12 +146,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   // ==================== VISTAS ====================
+  cargarMiDia() {
+    this.router.navigate(['/app/mi-dia']);
+  }  
+  
+  cargarMiSemana(){
+    this.router.navigate(['/app/mi-semana']);
+  }
+
   cargarTodasLasTareas() {
     this.router.navigate(['/app/todas-tareas']);
   }
-  cargarMiDia() {
-    this.router.navigate(['/app/mi-dia']);
-  }
+
   cargarPendientes() {
     this.router.navigate(['/app/pendientes']);
   }

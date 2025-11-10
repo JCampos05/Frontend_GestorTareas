@@ -71,10 +71,13 @@ export class HeaderComponent implements OnInit {
     this.toggleSidebarEvent.emit();
   }
 
-  onSearch() {
-    console.log('Buscando:', this.searchQuery);
-    // TODO: Implementar búsqueda
+onSearch() {
+  if (this.searchQuery.trim()) {
+    this.router.navigate(['/app/buscar'], {
+      queryParams: { q: this.searchQuery }
+    });
   }
+}
 
   cambiarVista() {
     console.log('Función pendiente: cambiar vista de día');

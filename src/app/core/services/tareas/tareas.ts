@@ -20,7 +20,7 @@ export interface Tarea {
   nombreLista?: string;
   iconoLista?: string;
   colorLista?: string;
-  importante?: boolean;  
+  importante?: boolean;
   fechaCreacion?: string;
 }
 
@@ -30,7 +30,7 @@ export interface Tarea {
 export class TareasService {
   private API_URL = 'http://localhost:3000/api/tareas';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   async crearTarea(tarea: Tarea): Promise<any> {
     return firstValueFrom(this.http.post(this.API_URL, tarea));
@@ -67,7 +67,11 @@ export class TareasService {
     const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/vencidas`));
     return response.success ? response.data : [];
   }
-  
+
+async actualizarFechaVencimiento(id: number, fechaVencimiento: string): Promise<any> {
+  return firstValueFrom(this.http.put(`${this.API_URL}/${id}`, { fechaVencimiento }));
+}
+
   async alternarMiDia(id: number, miDia: boolean): Promise<any> {
     return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/mi-dia`, { miDia }));
   }

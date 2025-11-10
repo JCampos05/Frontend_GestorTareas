@@ -69,7 +69,9 @@
 .sidebar-item i.fa-th-list {
   color: #505f79;
 }
-
+.sidebar-item i.fa-calendar-week{
+  color: #1e4ea1;
+}
 .sidebar-item i.fa-clock {
   color: #ff991f;
 }

@@ -1,0 +1,688 @@
+.semana-container {
+    padding: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Header */
+.semana-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-right: 0;
+    transition: margin-right 0.3s;
+}
+
+.semana-container:has(.panel-dia) .semana-header {
+    margin-right: 350px;
+}
+
+.navegacion {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-nav {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.btn-nav:hover {
+    background: #e0e0e0;
+}
+
+.rango-semana {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    min-width: 300px;
+    text-align: center;
+}
+
+.btn-crear {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.btn-crear:hover {
+    background: #0056b3;
+}
+
+/* Grilla de la semana */
+.grilla-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    margin-right: 0;
+    transition: margin-right 0.3s;
+}
+
+.semana-container:has(.panel-dia) .grilla-semana {
+    margin-right: 350px;
+}
+
+.columna-dia {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.columna-dia.hoy {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.columna-dia.seleccionado {
+    border: 2px solid #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+/* Header del dÃ­a */
+.dia-header {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.dia-header:hover {
+    background: #e9ecef;
+}
+
+.columna-dia.hoy .dia-header {
+    background: #007bff;
+    color: white;
+}
+
+.columna-dia.seleccionado .dia-header {
+    background: #28a745;
+    color: white;
+}
+
+.dia-nombre {
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.dia-numero {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Tareas en columna */
+.tareas-columna {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.tarea-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-left: 4px solid;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.tarea-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tarea-card.prioridad-alta {
+    background: #ffe0e0;
+    border-left-color: #dc3545;
+}
+
+.tarea-card.prioridad-normal {
+    background: #e0f0ff;
+    border-left-color: #007bff;
+}
+
+.tarea-card.prioridad-baja {
+    background: #f0f0f0;
+    border-left-color: #6c757d;
+}
+
+.tarea-card.completada {
+    opacity: 0.6;
+}
+
+.tarea-card.completada .tarea-nombre {
+    text-decoration: line-through;
+}
+
+.tarea-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.tarea-contenido {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tarea-nombre {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 0;
+    color: #333;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.tarea-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #666;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 1400px) {
+    .tarea-meta {
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+}
+
+.lista-emoji {
+    font-size: 14px;
+}
+
+.lista-nombre {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sin-tareas {
+    text-align: center;
+    color: #999;
+    padding: 40px 10px;
+    font-size: 13px;
+}
+
+/* Panel lateral - FIJO en la pantalla */
+.panel-dia {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 350px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+.btn-cerrar:hover {
+    color: #000;
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.sin-tareas-panel {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+}
+
+/* Lista de tareas del dÃ­a */
+.lista-tareas-dia {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.tarea-completa {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+    transition: all 0.3s;
+}
+
+.tarea-completa:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tarea-completa.completada {
+    opacity: 0.7;
+    border-left-color: #28a745;
+}
+
+.tarea-completa .tarea-check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.tarea-info {
+    flex: 1;
+}
+
+.tarea-titulo {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.tarea-completa.completada .tarea-titulo {
+    text-decoration: line-through;
+}
+
+.tarea-detalles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.tarea-lista i {
+    margin-right: 4px;
+}
+
+.badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.badge.prioridad-alta {
+    background: #dc3545;
+    color: white;
+}
+
+.badge.prioridad-normal {
+    background: #007bff;
+    color: white;
+}
+
+.badge.prioridad-baja {
+    background: #6c757d;
+    color: white;
+}
+
+.tarea-descripcion {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Estilos para Drag and Drop */
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.4;
+    background: #e0e0e0;
+    border: 2px dashed #999;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.tareas-columna.cdk-drop-list-dragging .tarea-card:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.tareas-columna.cdk-drop-list-receiving {
+    background: rgba(0, 123, 255, 0.05);
+    border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .grilla-semana {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .rango-semana {
+        font-size: 20px;
+        min-width: 250px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .semana-container:has(.panel-dia) .grilla-semana {
+        margin-right: 0;
+        opacity: 0.3;
+    }
+
+    .panel-dia {
+        width: 100%;
+    }
+
+    .grilla-semana {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .rango-semana {
+        font-size: 18px;
+        min-width: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .semana-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .rango-semana {
+        font-size: 16px;
+        min-width: auto;
+    }
+
+    .grilla-semana {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .columna-dia {
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .semana-container {
+        padding: 10px;
+    }
+    
+    .grilla-semana {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .columna-dia {
+        min-height: auto;
+    }
+    
+    .dia-nombre {
+        font-size: 12px;
+    }
+    
+    .dia-numero {
+        font-size: 20px;
+    }
+    
+    .tarea-card {
+        padding: 10px;
+    }
+    
+    .tarea-nombre {
+        font-size: 13px;
+    }
+    
+    .tarea-meta {
+        font-size: 11px;
+    }
+}
+
+/* Agregar estos estilos al final del archivo CSS */
+
+/* Navegación con calendario */
+.navegacion-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.selector-fecha {
+    position: relative;
+}
+
+.rango-semana {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s;
+}
+
+.rango-semana:hover {
+    color: #007bff;
+}
+
+.icono-calendario {
+    font-size: 18px;
+    opacity: 0.7;
+}
+
+/* Calendario desplegable */
+.calendario-desplegable {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    z-index: 100;
+    width: 350px;
+    animation: fadeInDown 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.btn-mes {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.3s;
+    color: #333;
+}
+
+.btn-mes:hover {
+    background: #f0f0f0;
+}
+
+.mes-anio {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.calendario-dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.dia-semana-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: #666;
+    padding: 8px 0;
+}
+
+.calendario-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.dia-calendario {
+    aspect-ratio: 1;
+    border: none;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    color: #999;
+    font-weight: 500;
+}
+
+.dia-calendario.mes-actual {
+    color: #333;
+}
+
+.dia-calendario:hover {
+    background: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.dia-calendario.hoy-calendario {
+    background: #e3f2fd;
+    color: #007bff;
+    font-weight: 700;
+}
+
+.dia-calendario.seleccionado-calendario {
+    background: #007bff;
+    color: white;
+    font-weight: 700;
+}
+
+.dia-calendario.seleccionado-calendario:hover {
+    background: #0056b3;
+}
+
+/* Responsive para el calendario */
+@media (max-width: 768px) {
+    .calendario-desplegable {
+        width: 300px;
+    }
+    
+    .dia-calendario {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendario-desplegable {
+        width: calc(100vw - 40px);
+        left: 20px;
+        right: 20px;
+        transform: none;
+    }
+    
+    .rango-semana {
+        font-size: 14px;
+    }
+    
+    .icono-calendario {
+        font-size: 16px;
+    }
+}

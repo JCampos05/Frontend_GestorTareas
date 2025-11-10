@@ -7,7 +7,9 @@ export const routes: Routes = [
     {path: 'app', loadComponent: () => import('./paginas/main-layout/main-layout').then(m => m.MainLayoutComponent),
         children: [
             {path: '', redirectTo: 'mi-dia', pathMatch: 'full'},
+            {path: 'buscar' , loadComponent: () => import('./paginas/main-search/main-search').then(m => m.MainSearchComponent)},
             {path: 'mi-dia', loadComponent: () => import('./paginas/main-layout/mi-dia/mi-dia').then(m =>m.MiDiaComponent)},
+            {path: 'mi-semana' , loadComponent: () => import('./paginas/main-layout/mi-semana/mi-semana').then(m => m.MiSemanaComponent)},
             {path: 'todas-tareas', loadComponent: () => import('./paginas/main-layout/todas-tareas/todas-tareas').then(m => m.TodasTareasComponent)},
             {path: 'pendientes', loadComponent: () => import('./paginas/main-layout/pendientes/pendientes').then(m => m.PendientesComponent)},
             {path: 'progreso', loadComponent: () => import('./paginas/main-layout/progreso/progreso').then(m => m.ProgresoComponent)},
@@ -16,8 +18,9 @@ export const routes: Routes = [
             {path: 'listas-individuales' , loadComponent: () => import('./paginas/main-layout/listas-individuales/listas-individuales').then(m =>m.ListasIndividualesComponent)},
             {path: 'listas-importantes' , loadComponent: () => import('./paginas/main-layout/listas-importantes/listas-importantes').then(m => m.ListasImportantesComponent)},
             {path: 'lista/:id', loadComponent: () => import('./paginas/main-layout/detalles-lista/detalles-lista').then(m => m.DetalleListaComponent)},
-            {path: 'notas', loadComponent: () => import('./paginas/notas/notas').then(m => m.Notas)},
-            {path: 'operator', loadComponent: () => import('./componentes/operator-section/operator-section').then(m => m.AdminSectionsComponent)}
+            {path: 'calendar', loadComponent: () => import('./paginas/main-layout/calendario/calendario').then(m =>m.CalendarioComponent)},
+            {path: 'notas', loadComponent: () => import('./paginas/notas/notas').then(m => m.Notas)}
+            //{path: 'operator', loadComponent: () => import('./componentes/operator-section/operator-section').then(m => m.AdminSectionsComponent)}
         ]
     },
     {path: 'compartida/:id', loadComponent: () => import('./paginas/lista-compartida/lista-compartida').then(m => m.ListaCompartida)},
