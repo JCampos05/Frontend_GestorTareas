@@ -5,11 +5,12 @@ import { Subscription } from 'rxjs';
 import { CategoriasService } from '../../core/services/categorias/categorias';
 import { ListasService } from '../../core/services/listas/listas';
 import { NotificacionesService } from '../../core/services/notification/notification';
+import { ModalCompartirComponent } from '../modal-compartir/modal-compartir';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalCompartirComponent],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
@@ -22,6 +23,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   listasSinCategoria: any[] = [];
   categoriaExpandida: { [key: string]: boolean } = {};
   categoriaAEliminar: any = null;
+  modalCompartirAbierto = false;
+  categoriaParaCompartir: any = null;
+  tipoCompartir: 'categoria' | 'lista' = 'categoria';
 
   // Suscripción para detectar cambios
   private listasSubscription?: Subscription;
@@ -136,8 +140,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/app/calendar']);
   }
 
-  mostrarImportante() {
-    console.log('Función pendiente: mostrar tareas importantes');
+  mostrarListasCompartidas() {
+    this.router.navigate(['app/compartida/:id']);
     // TODO: Crear página
   }
 
@@ -148,9 +152,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   // ==================== VISTAS ====================
   cargarMiDia() {
     this.router.navigate(['/app/mi-dia']);
-  }  
-  
-  cargarMiSemana(){
+  }
+
+  cargarMiSemana() {
     this.router.navigate(['/app/mi-semana']);
   }
 
@@ -243,5 +247,24 @@ export class SidebarComponent implements OnInit, OnDestroy {
       console.error('Error al eliminar categoría:', error);
       this.notificacionesService.error('Error al eliminar la categoría. Por favor, intenta de nuevo.');
     }
+  }
+  // Método para abrir modal de compartir categoría
+  abrirModalCompartirCategoria(categoria: any, event: Event) {
+    event.stopPropagation();
+    this.categoriaParaCompartir = categoria;
+    this.tipoCompartir = 'categoria';
+    this.modalCompartirAbierto = true;
+  }
+
+  // Método para cerrar modal de compartir
+  cerrarModalCompartir() {
+    this.modalCompartirAbierto = false;
+    this.categoriaParaCompartir = null;
+  }
+
+  // Callback cuando se comparte exitosamente
+  alCompartir(clave: string) {
+    this.notificacionesService.exito(`Categoría compartida con clave: ${clave}`);
+    this.cerrarModalCompartir();
   }
 }

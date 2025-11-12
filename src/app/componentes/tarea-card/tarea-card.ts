@@ -60,7 +60,7 @@ export class TareaCardComponent {
     if (confirmacion) {
       try {
         await this.tareasService.eliminarTarea(this.tarea.idTarea!);
-        this.notificacionesService.exito('Tarea eliminada exitosamente')
+        this.notificacionesService.exito('Tarea eliminada exitosamente');
         this.tareaEliminada.emit();
       } catch (error) {
         console.error('Error al eliminar tarea:', error);

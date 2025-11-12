@@ -17,13 +17,13 @@ export const routes: Routes = [
             {path: 'vencidas', loadComponent: () => import('./paginas/main-layout/vencidas/vencidas').then(m => m.VencidasComponent)},
             {path: 'listas-individuales' , loadComponent: () => import('./paginas/main-layout/listas-individuales/listas-individuales').then(m =>m.ListasIndividualesComponent)},
             {path: 'listas-importantes' , loadComponent: () => import('./paginas/main-layout/listas-importantes/listas-importantes').then(m => m.ListasImportantesComponent)},
+            {path: 'compartida/:id', loadComponent: () => import('./paginas/lista-compartida/lista-compartida').then(m => m.ListaCompartidaComponent)},
             {path: 'lista/:id', loadComponent: () => import('./paginas/main-layout/detalles-lista/detalles-lista').then(m => m.DetalleListaComponent)},
             {path: 'calendar', loadComponent: () => import('./paginas/main-layout/calendario/calendario').then(m =>m.CalendarioComponent)},
             {path: 'notas', loadComponent: () => import('./paginas/notas/notas').then(m => m.Notas)}
             //{path: 'operator', loadComponent: () => import('./componentes/operator-section/operator-section').then(m => m.AdminSectionsComponent)}
         ]
     },
-    {path: 'compartida/:id', loadComponent: () => import('./paginas/lista-compartida/lista-compartida').then(m => m.ListaCompartida)},
     {path: '', redirectTo: 'landing', pathMatch: 'full'},
     {path: '**', redirectTo: 'landing'}
 ];

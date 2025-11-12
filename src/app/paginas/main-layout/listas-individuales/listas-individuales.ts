@@ -4,11 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { ModalCompartirComponent } from '../../../componentes/modal-compartir/modal-compartir';
+import { CompartirService } from '../../../core/services/compartir/compartir';
+import { NotificacionesService } from '../../../core/services/notification/notification';
+
 
 @Component({
   selector: 'app-listas-individuales',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalCompartirComponent],
   templateUrl: './listas-individuales.html',
   styleUrl: './listas-individuales.css'
 })
@@ -18,6 +22,9 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
   errorMessage = '';
   listaAEliminar: Lista | null = null;
   listaAEditar: Lista | null = null;
+  modalCompartirAbierto = false;
+  listaParaCompartir: any = null;
+
 
   // Colores predefinidos comunes
   coloresPredefinidos = [
@@ -95,7 +102,9 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
 
   constructor(
     private listasService: ListasService,
-    private router: Router
+    private router: Router,
+    private compartirService: CompartirService,
+    private notificacionesService: NotificacionesService
   ) { }
 
   async ngOnInit() {
@@ -114,34 +123,61 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async cargarListas() {
-    this.isLoading = true;
-    this.errorMessage = '';
+async cargarListas() {
+  this.isLoading = true;
+  this.errorMessage = '';
 
+  try {
+    console.log('🔵 Cargando MIS listas...');
+    
+    // Obtener TODAS las listas
+    const todasLasListas = await this.listasService.obtenerListas();
+    
+    // Obtener las listas compartidas CONMIGO para excluirlas
+    let idsListasCompartidas: number[] = [];
     try {
-      this.listas = await this.listasService.obtenerListas();
-
-      if (!Array.isArray(this.listas)) {
-        console.warn('obtenerListas() no devolvió un array válido');
-        this.listas = [];
-      }
-
-    } catch (error: any) {
-      console.error('Error al cargar listas:', error);
-
-      if (error.status === 401) {
-        this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
-      } else if (error.status === 403) {
-        this.errorMessage = 'No tienes permisos para ver estas listas.';
-      } else {
-        this.errorMessage = 'No se pudieron cargar las listas. Por favor, intenta de nuevo.';
-      }
-
-      this.listas = [];
-    } finally {
-      this.isLoading = false;
+      const response: any = await this.compartirService.obtenerListasCompartidas().toPromise();
+      const compartidas = response?.listas || response || [];
+      idsListasCompartidas = compartidas.map((l: any) => l.idLista);
+      console.log('📋 IDs de listas compartidas CONMIGO a excluir:', idsListasCompartidas);
+    } catch (error) {
+      console.warn('⚠️ No se pudieron obtener listas compartidas:', error);
     }
+    
+    // Filtrar: SOLO mis listas (excluir las compartidas conmigo)
+    this.listas = todasLasListas.filter((lista: Lista) => {
+      const esCompartidaConmigo = idsListasCompartidas.includes(lista.idLista!);
+      return !esCompartidaConmigo;
+    });
+
+    console.log('✅ MIS listas cargadas:', this.listas.length);
+    console.log('Listas:', this.listas.map(l => ({
+      id: l.idLista,
+      nombre: l.nombre,
+      compartible: l.compartible
+    })));
+
+    if (!Array.isArray(this.listas)) {
+      console.warn('obtenerListas() no devolvió un array válido');
+      this.listas = [];
+    }
+
+  } catch (error: any) {
+    console.error('❌ Error al cargar listas:', error);
+
+    if (error.status === 401) {
+      this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+    } else if (error.status === 403) {
+      this.errorMessage = 'No tienes permisos para ver estas listas.';
+    } else {
+      this.errorMessage = 'No se pudieron cargar las listas. Por favor, intenta de nuevo.';
+    }
+
+    this.listas = [];
+  } finally {
+    this.isLoading = false;
   }
+}
 
   abrirLista(idLista: number) {
     if (!idLista) {
@@ -274,5 +310,67 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
     }
 
     return 'fas fa-clipboard-list';
+  }
+
+  abrirModalCompartir(event: Event, lista: Lista) {
+    event.stopPropagation();
+
+    // Debug
+    this.debugLista(lista.idLista!);
+    console.log('Abriendo modal para lista:', lista);
+
+    if (!lista.idLista) {
+      console.error('Lista sin ID válido:', lista);
+      return;
+    }
+
+    this.listaParaCompartir = {
+      idLista: lista.idLista,
+      nombre: lista.nombre,
+      compartible: lista.compartible
+    };
+    this.modalCompartirAbierto = true;
+  }
+
+  cerrarModalCompartir() {
+    this.modalCompartirAbierto = false;
+    this.listaParaCompartir = null;
+    // Recargar listas para reflejar cambios
+    this.cargarListas();
+  }
+
+
+
+  alCompartir(clave: string) {
+    console.log('✅ Clave recibida del modal (de la BD):', clave);
+
+    if (!this.listaParaCompartir?.idLista) {
+      console.error('❌ No hay lista seleccionada para compartir');
+      this.notificacionesService.error('Error: No se pudo identificar la lista');
+      return;
+    }
+
+    // ✅ ACTUALIZAR INMEDIATAMENTE el estado local con la clave que YA viene del modal
+    const listaIndex = this.listas.findIndex(l => l.idLista === this.listaParaCompartir?.idLista);
+    if (listaIndex !== -1) {
+      this.listas[listaIndex].compartible = true;
+      this.listas[listaIndex].claveCompartir = clave; // ✅ Usar la clave del modal
+    }
+
+    this.notificacionesService.exito(`Lista compartida con clave: ${clave}`);
+    
+    // Recargar para sincronizar con el servidor
+    setTimeout(() => {
+      this.cargarListas();
+    }, 300);
+  }
+  
+  async debugLista(idLista: number) {
+    try {
+      const lista = await this.listasService.obtenerLista(idLista);
+      console.log('Debug - Lista:', lista);
+    } catch (error) {
+      console.error('Debug - Error al obtener lista:', error);
+    }
   }
 }

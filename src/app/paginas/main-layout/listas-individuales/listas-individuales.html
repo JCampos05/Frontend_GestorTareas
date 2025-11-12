@@ -25,11 +25,10 @@
             <!-- Contenido clicable -->
             <div class="lista-content" (click)="abrirLista(lista.idLista!)">
                 <div class="lista-icon" [style.background-color]="lista.color || '#f4f5f7'">
-                    <span *ngIf="esEmoji(lista.icono)" style="font-size: 24px;">
+                    <span *ngIf="esEmoji(lista.icono)" style="font-size: 24px">
                         {{ lista.icono }}
                     </span>
-                    <i *ngIf="!esEmoji(lista.icono)" [class]="obtenerClaseIcono(lista.icono)">
-                    </i>
+                    <i *ngIf="!esEmoji(lista.icono)" [class]="obtenerClaseIcono(lista.icono)"> </i>
                 </div>
                 <div class="lista-info">
                     <h3>{{ lista.nombre }}</h3>
@@ -37,31 +36,42 @@
                         <i class="fas fa-folder"></i> {{ lista.nombreCategoria }}
                     </span>
                     <span class="lista-sin-categoria" *ngIf="!lista.nombreCategoria">
-                        <i class="fas fa-folder-open"></i> Sin categoría
+                        <i class="fas fa-folder-open"></i> Sin categorÃ­a
                     </span>
                 </div>
                 <div class="lista-badge" *ngIf="lista.importante">
                     <i class="fas fa-star"></i>
                 </div>
+                <div class="lista-badge compartida" *ngIf="lista.compartible">
+                    <i class="fas fa-share-alt"></i> Compartida
+                </div>
             </div>
 
             <!-- Acciones -->
             <div class="lista-acciones">
+                <!-- BotÃ³n compartir (solo si la lista es compartible) -->
+                <button (click)="abrirModalCompartir($event, lista)" class="btn-accion btn-compartir"
+                    [class.active]="lista.compartible"
+                    [title]="lista.compartible ? 'Gestionar compartir' : 'Compartir lista'">
+                    <i [class]="lista.compartible ? 'fas fa-users' : 'fas fa-share-alt'"></i>
+                </button>
+
                 <button (click)="toggleImportante($event, lista)" class="btn-accion btn-importante"
                     [class.active]="lista.importante"
                     [title]="lista.importante ? 'Quitar de importantes' : 'Marcar como importante'">
                     <i class="fas fa-star"></i>
                 </button>
+
                 <button (click)="editarLista($event, lista)" class="btn-accion btn-editar" title="Editar lista">
                     <i class="fas fa-edit"></i>
                 </button>
+
                 <button (click)="confirmarEliminar($event, lista)" class="btn-accion btn-eliminar"
                     title="Eliminar lista">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
-
         <!-- Sin listas -->
         <div *ngIf="listas.length === 0" class="sin-listas">
             <i class="fas fa-list"></i>
@@ -71,15 +81,19 @@
     </div>
 </div>
 
-<!-- Modal de confirmación de eliminación -->
+<!-- Modal de confirmaciÃ³n de eliminaciÃ³n -->
 <div *ngIf="listaAEliminar" class="modal-overlay" (click)="cancelarEliminar()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar eliminación</h3>
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar eliminaciÃ³n</h3>
         </div>
         <div class="modal-body">
-            <p>¿Estás seguro que deseas eliminar la lista <strong>"{{ listaAEliminar.nombre }}"</strong>?</p>
-            <p class="advertencia">Esta acción también eliminará todas las tareas asociadas y no se puede deshacer.</p>
+            <p>
+                Â¿EstÃ¡s seguro que deseas eliminar la lista <strong>"{{ listaAEliminar.nombre }}"</strong>?
+            </p>
+            <p class="advertencia">
+                Esta acciÃ³n tambiÃ©n eliminarÃ¡ todas las tareas asociadas y no se puede deshacer.
+            </p>
         </div>
         <div class="modal-footer">
             <button (click)="cancelarEliminar()" class="btn-cancelar">
@@ -92,7 +106,7 @@
     </div>
 </div>
 
-<!-- Modal de edición -->
+<!-- Modal de ediciÃ³n -->
 <div *ngIf="listaAEditar" class="modal-overlay" (click)="cancelarEdicion()">
     <div class="modal-content modal-editar" (click)="$event.stopPropagation()">
         <div class="modal-header">
@@ -104,7 +118,7 @@
                 <div class="form-group">
                     <label>Nombre de la lista</label>
                     <input type="text" [(ngModel)]="listaAEditar.nombre" name="nombre" class="form-control"
-                        placeholder="Ej: Tareas del día" required autofocus>
+                        placeholder="Ej: Tareas del dÃ­a" required autofocus />
                 </div>
 
                 <!-- Selector de Color -->
@@ -124,7 +138,7 @@
                         <div class="color-personalizado">
                             <label class="color-picker-label">
                                 <input type="color" [(ngModel)]="listaAEditar.color" name="color"
-                                    class="color-picker-input">
+                                    class="color-picker-input" />
                                 <span class="color-picker-button">
                                     <i class="fas fa-palette"></i>
                                     Color personalizado
@@ -141,7 +155,7 @@
                 <div class="form-group">
                     <label>Icono</label>
 
-                    <!-- Pestañas de categorías -->
+                    <!-- PestaÃ±as de categorÃ­as -->
                     <div class="icono-categorias">
                         <button *ngFor="let categoria of categorias" type="button" class="categoria-tab"
                             [class.active]="categoriaSeleccionada === categoria"
@@ -164,7 +178,7 @@
                 <div class="form-group">
                     <label class="checkbox-label">
                         <input type="checkbox" [(ngModel)]="listaAEditar.importante" name="importante"
-                            class="checkbox-input">
+                            class="checkbox-input" />
                         <span class="checkbox-text">
                             <i class="fas fa-star"></i>
                             Marcar como importante
@@ -183,3 +197,7 @@
         </div>
     </div>
 </div>
+<!-- Modal de compartir -->
+<app-modal-compartir [isOpen]="modalCompartirAbierto" [tipo]="'lista'" [itemId]="listaParaCompartir?.idLista"
+    [itemNombre]="listaParaCompartir?.nombre" (close)="cerrarModalCompartir()" (compartido)="alCompartir($event)">
+</app-modal-compartir>

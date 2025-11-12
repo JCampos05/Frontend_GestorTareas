@@ -45,9 +45,9 @@
       <i class="far fa-calendar"></i>
       <span>Calendario</span>
     </div>
-    <div class="sidebar-item" (click)="mostrarImportante()">
-      <i class="fas fa-exclamation-circle"></i>
-      <span>Importante</span>
+    <div class="sidebar-item" (click)="mostrarListasCompartidas()">
+      <i class="fa-solid fa-users"></i>
+      <span>Listas compartidas</span>
     </div>
     <div class="sidebar-item" (click)="mostrarNotas()">
       <i class="far fa-sticky-note"></i>
@@ -70,9 +70,13 @@
           <span>
             <i class="fas"
               [ngClass]="isCategoriaExpandida(categoria.idCategoria) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
-            {{ categoria.nombre }}
+            <span>{{ categoria.nombre }}</span>
           </span>
           <div class="categoria-actions">
+            <button class="btn-share-categoria" (click)="abrirModalCompartirCategoria(categoria, $event)"
+              title="Compartir categoría">
+              <i class="fas fa-share-nodes"></i>
+            </button>
             <button class="btn-add-lista" (click)="abrirModalLista(categoria.idCategoria, $event)"
               title="Agregar lista">
               <i class="fas fa-plus"></i>
@@ -146,3 +150,8 @@
     </div>
   </div>
 </div>
+<!-- Modal de compartir -->
+<app-modal-compartir [isOpen]="modalCompartirAbierto" [tipo]="tipoCompartir"
+  [itemId]="categoriaParaCompartir?.idCategoria" [itemNombre]="categoriaParaCompartir?.nombre"
+  (close)="cerrarModalCompartir()" (compartido)="alCompartir($event)">
+</app-modal-compartir>
