@@ -17,7 +17,7 @@ export class AdminSectionsComponent implements OnInit {
   categorias: Categoria[] = [];
   nombreCategoria = '';
   categoriaEditando: number | null = null;
-  
+
   // Listas
   listas: Lista[] = [];
   nombreLista = '';
@@ -30,7 +30,7 @@ export class AdminSectionsComponent implements OnInit {
     private categoriasService: CategoriasService,
     private listasService: ListasService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.cargarCategorias();
@@ -38,7 +38,7 @@ export class AdminSectionsComponent implements OnInit {
   }
 
   // ============ CATEGORÍAS ============
-  
+
   async cargarCategorias() {
     try {
       this.categorias = await this.categoriasService.obtenerCategorias();
@@ -195,7 +195,7 @@ export class AdminSectionsComponent implements OnInit {
     return this.listaEditando ? 'Actualizar Lista' : 'Agregar Lista';
   }
 
-  getNombreCategoria(idCategoria: number | undefined): string {
+  getNombreCategoria(idCategoria: number | null | undefined): string {
     if (!idCategoria) return 'Sin categoría';
     const categoria = this.categorias.find(c => c.idCategoria === idCategoria);
     return categoria ? categoria.nombre : 'Sin categoría';
