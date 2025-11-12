@@ -5,9 +5,7 @@ import { TareasService, Tarea } from '../../core/services/tareas/tareas';
 import { ListasService } from '../../core/services/listas/listas';
 import { TareaCardComponent } from '../tarea-card/tarea-card';
 import { PanelDetallesComponent } from '../panel-detalles/panel-detalles';
-import { CdkDrag, CdkDropList,CdkDragDrop,moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-//import { CdkDragDrop,moveItemInArray,transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
-//imports: [CommonModule, TareaCardComponent, PanelDetallesComponent, DragDropModule]
+import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-columnas',
@@ -21,7 +19,8 @@ export class ColumnasComponent implements OnInit {
   tareasPendientes: Tarea[] = [];
   tareasEnProceso: Tarea[] = [];
   tareasTerminadas: Tarea[] = [];
-  
+  idListaActual: number | null = null;
+  esMiDia: boolean = false;
   panelAbierto = false;
   tareaSeleccionada: number | null = null;
 
@@ -29,11 +28,12 @@ export class ColumnasComponent implements OnInit {
     private tareasService: TareasService,
     private listasService: ListasService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       if (params['id']) {
+        this.idListaActual = +params['id'];
         this.cargarTareasDeLista(params['id']);
       } else {
         this.cargarTareas();
@@ -48,6 +48,11 @@ export class ColumnasComponent implements OnInit {
       } else if (!this.route.snapshot.params['id']) {
         this.cargarTareas();
       }
+    });
+
+    // Detectar si estamos en la ruta de Mi Día
+    this.route.url.subscribe(segments => {
+      this.esMiDia = segments.some(segment => segment.path === 'mi-dia');
     });
   }
 
@@ -95,17 +100,30 @@ export class ColumnasComponent implements OnInit {
     this.tareasEnProceso = [];
     this.tareasTerminadas = [];
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+    //const hoy = new Date();
+    //hoy.setHours(0, 0, 0, 0);
+
+    const filtro = this.route.snapshot.queryParams['filtro'];
 
     tareas.forEach(tarea => {
-      // Tareas de hoy
-      if (tarea.fechaVencimiento) {
-        const fechaVencimiento = new Date(tarea.fechaVencimiento);
-        fechaVencimiento.setHours(0, 0, 0, 0);
-        if (fechaVencimiento.getTime() === hoy.getTime() && tarea.estado !== 'C') {
-          this.tareasToday.push(tarea);
+      // Si estamos en vista de vencidas, solo distribuir por estado
+      // NO agregar a tareasToday ni tareasPendientes generales
+      if (filtro === 'vencidas') {
+        // En vista vencidas, solo distribuir por estado actual
+        if (tarea.estado === 'P') {
+          this.tareasPendientes.push(tarea);
+        } else if (tarea.estado === 'N') {
+          this.tareasEnProceso.push(tarea);
+        } else if (tarea.estado === 'C') {
+          this.tareasTerminadas.push(tarea);
         }
+        return; // No seguir con la lógica de "today"
+      }
+
+
+      // Tareas de hoy (solo si NO estamos en vista vencidas)
+      if (tarea.miDia && tarea.estado) {
+        this.tareasToday.push(tarea);
       }
 
       // Distribución por estado
@@ -119,23 +137,54 @@ export class ColumnasComponent implements OnInit {
     });
   }
 
-  abrirPanelDetalles(idTarea: number | null = null) {
+  abrirPanelDetalles(idTarea: number | null = null, desdeToday: boolean = false) {
     this.tareaSeleccionada = idTarea;
+    if (desdeToday && !idTarea) {
+      this.esMiDia = true;
+    }
     this.panelAbierto = true;
   }
 
   cerrarPanelDetalles() {
     this.panelAbierto = false;
     this.tareaSeleccionada = null;
+    this.route.url.subscribe(segments => {
+      this.esMiDia = segments.some(segment => segment.path === 'mi-dia');
+    });
   }
 
   async onTareaGuardada() {
-    await this.cargarTareas();
+    const idLista = this.route.snapshot.params['id'];
+    const estado = this.route.snapshot.queryParams['estado'];
+    const filtro = this.route.snapshot.queryParams['filtro'];
+
+    if (idLista) {
+      await this.cargarTareasDeLista(idLista);
+    } else if (estado) {
+      await this.filtrarPorEstado(estado);
+    } else if (filtro === 'vencidas') {
+      await this.cargarTareasVencidas();
+    } else {
+      await this.cargarTareas();
+    }
+
     this.cerrarPanelDetalles();
   }
 
   async onEstadoCambiado() {
-    await this.cargarTareas();
+    const estado = this.route.snapshot.queryParams['estado'];
+    const filtro = this.route.snapshot.queryParams['filtro'];
+    const idLista = this.route.snapshot.params['id'];
+
+    if (idLista) {
+      await this.cargarTareasDeLista(idLista);
+    } else if (estado) {
+      await this.filtrarPorEstado(estado);
+    } else if (filtro === 'vencidas') {
+      await this.cargarTareasVencidas();
+    } else {
+      await this.cargarTareas();
+    }
   }
   async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
     if (event.previousContainer === event.container) {
@@ -147,12 +196,13 @@ export class ColumnasComponent implements OnInit {
         event.previousIndex,
         event.currentIndex
       );
-    
+
       // Actualizar el estado de la tarea
       const tarea = event.container.data[event.currentIndex];
       if (tarea.idTarea) {
         try {
-          await this.tareasService.actualizarTarea(tarea.idTarea, { ...tarea, estado: nuevoEstado as any });
+          await this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado as any);
+          tarea.estado = nuevoEstado as any;
         } catch (error) {
           console.error('Error al actualizar estado:', error);
           // Revertir el cambio si falla
@@ -164,6 +214,22 @@ export class ColumnasComponent implements OnInit {
           );
         }
       }
+    }
+  }
+
+  async onTareaEliminada() {
+    const estado = this.route.snapshot.queryParams['estado'];
+    const filtro = this.route.snapshot.queryParams['filtro'];
+    const idLista = this.route.snapshot.params['id'];
+
+    if (idLista) {
+      await this.cargarTareasDeLista(idLista);
+    } else if (estado) {
+      await this.filtrarPorEstado(estado);
+    } else if (filtro === 'vencidas') {
+      await this.cargarTareasVencidas();
+    } else {
+      await this.cargarTareas();
     }
   }
 }

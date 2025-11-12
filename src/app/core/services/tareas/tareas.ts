@@ -5,10 +5,11 @@ import { firstValueFrom } from 'rxjs';
 export interface Tarea {
   idTarea?: number;
   nombre: string;
-  descripcion?: string;
+  descripcion?: string | null;
   prioridad: 'A' | 'N' | 'B';
   estado: 'P' | 'N' | 'C';
   fechaVencimiento?: string;
+  miDia?: boolean;
   pasos?: string[];
   notas?: string;
   recordatorio?: string;
@@ -16,6 +17,10 @@ export interface Tarea {
   tipoRepeticion?: string;
   configRepeticion?: string;
   idLista?: number;
+  nombreLista?: string;
+  iconoLista?: string;
+  colorLista?: string;
+  importante?: boolean;
   fechaCreacion?: string;
 }
 
@@ -25,41 +30,109 @@ export interface Tarea {
 export class TareasService {
   private API_URL = 'http://localhost:3000/api/tareas';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   async crearTarea(tarea: Tarea): Promise<any> {
-    return firstValueFrom(this.http.post(this.API_URL, tarea));
+    try {
+      return firstValueFrom(this.http.post(this.API_URL, tarea));
+    } catch (error) {
+      console.error('Error al crear tarea:', error);
+      throw error;
+    }
   }
 
   async obtenerTareas(): Promise<Tarea[]> {
-    const response: any = await firstValueFrom(this.http.get(this.API_URL));
-    return response.success ? response.data : [];
+    try {
+      const response: any = await firstValueFrom(this.http.get(this.API_URL));
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error('Error al obtener tareas:', error);
+      return [];
+    }
   }
 
   async obtenerTarea(id: number): Promise<Tarea | null> {
-    const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
-    return response.success ? response.data : null;
+    try {
+      const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
+      return response.success ? response.data : null;
+    } catch (error) {
+      console.error('Error al obtener tarea:', error);
+      return null;
+    }
   }
 
   async actualizarTarea(id: number, tarea: Tarea): Promise<any> {
-    return firstValueFrom(this.http.put(`${this.API_URL}/${id}`, tarea));
+    try {
+      return firstValueFrom(this.http.put(`${this.API_URL}/${id}`, tarea));
+    } catch (error) {
+      console.error('Error al actualizar tarea:', error);
+      throw error;
+    }
   }
 
   async eliminarTarea(id: number): Promise<any> {
-    return firstValueFrom(this.http.delete(`${this.API_URL}/${id}`));
+    try {
+      return firstValueFrom(this.http.delete(`${this.API_URL}/${id}`));
+    } catch (error) {
+      console.error('Error al eliminar tarea:', error);
+      throw error;
+    }
   }
 
   async cambiarEstado(id: number, estado: 'P' | 'N' | 'C'): Promise<any> {
-    return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/estado`, { estado }));
+    try {
+      return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/estado`, { estado }));
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      throw error;
+    }
   }
 
   async obtenerTareasPorEstado(estado: string): Promise<Tarea[]> {
-    const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/estado/${estado}`));
-    return response.success ? response.data : [];
+    try {
+      const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/estado/${estado}`));
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error('Error al obtener tareas por estado:', error);
+      return [];
+    }
   }
 
   async obtenerTareasVencidas(): Promise<Tarea[]> {
-    const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/vencidas`));
-    return response.success ? response.data : [];
+    try {
+      const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/vencidas`));
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error('Error al obtener tareas vencidas:', error);
+      return [];
+    }
+  }
+
+  async actualizarFechaVencimiento(id: number, fechaVencimiento: string): Promise<any> {
+    try {
+      return firstValueFrom(this.http.put(`${this.API_URL}/${id}`, { fechaVencimiento }));
+    } catch (error) {
+      console.error('Error al actualizar fecha vencimiento:', error);
+      throw error;
+    }
+  }
+
+  async alternarMiDia(id: number, miDia: boolean): Promise<any> {
+    try {
+      return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/mi-dia`, { miDia }));
+    } catch (error) {
+      console.error('Error al alternar Mi Día:', error);
+      throw error;
+    }
+  }
+
+  async obtenerTareasMiDia(): Promise<Tarea[]> {
+    try {
+      const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/mi-dia`));
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error('Error al obtener tareas Mi Día:', error);
+      return [];
+    }
   }
 }

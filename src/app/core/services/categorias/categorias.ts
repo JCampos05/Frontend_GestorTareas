@@ -5,6 +5,13 @@ import { firstValueFrom } from 'rxjs';
 export interface Categoria {
   idCategoria?: number;
   nombre: string;
+  color?: string;
+  icono?: string;
+  esPropietario?: boolean;
+  rol?: string;
+  compartida?: boolean;
+  cantidadListas?: number;
+  claveCompartir?: string;
   listas?: any[];
 }
 
@@ -21,13 +28,24 @@ export class CategoriasService {
   }
 
   async obtenerCategorias(): Promise<Categoria[]> {
-    const response: any = await firstValueFrom(this.http.get(this.API_URL));
-    return response.success ? response.data : [];
+    try {
+      const response: any = await firstValueFrom(this.http.get(this.API_URL));
+      // El backend devuelve { categorias: [...] }
+      return response.categorias || [];
+    } catch (error) {
+      console.error('Error al obtener categorías:', error);
+      return [];
+    }
   }
 
   async obtenerCategoria(id: number): Promise<Categoria | null> {
-    const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
-    return response.success ? response.data : null;
+    try {
+      const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
+      return response.success ? response.data : null;
+    } catch (error) {
+      console.error('Error al obtener categoría:', error);
+      return null;
+    }
   }
 
   async actualizarCategoria(id: number, categoria: Categoria): Promise<any> {
@@ -39,10 +57,15 @@ export class CategoriasService {
   }
 
   async obtenerListasPorCategoria(id: number): Promise<any[]> {
-    const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}/listas`));
-    if (response.success && response.data && response.data.listas) {
-      return response.data.listas;
+    try {
+      const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}/listas`));
+      if (response.success && response.data && response.data.listas) {
+        return response.data.listas;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error al obtener listas por categoría:', error);
+      return [];
     }
-    return [];
   }
 }

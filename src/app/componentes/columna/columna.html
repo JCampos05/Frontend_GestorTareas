@@ -2,10 +2,11 @@
   <div class="columna">
     <div class="columna-header">
       Today
-      <button (click)="abrirPanelDetalles()" class="btn-agregar">+</button>
+      <button (click)="abrirPanelDetalles(null, true)" class="btn-agregar">+</button>
     </div>
     <div 
       class="columna-content" 
+      id="tareasToday"
       cdkDropList
       [cdkDropListData]="tareasToday"
       [cdkDropListConnectedTo]="['tareasPendientes', 'tareasEnProceso', 'tareasTerminadas']"
@@ -16,7 +17,8 @@
         [tarea]="tarea"
         cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
-        (estadoCambiado)="onEstadoCambiado()">
+        (estadoCambiado)="onEstadoCambiado()"
+        (tareaEliminada)="onTareaEliminada()">
       </app-tarea-card>
     </div>
   </div>
@@ -39,7 +41,8 @@
         [tarea]="tarea"
         cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
-        (estadoCambiado)="onEstadoCambiado()">
+        (estadoCambiado)="onEstadoCambiado()"
+        (tareaEliminada)="onTareaEliminada()">
       </app-tarea-card>
     </div>
   </div>
@@ -59,7 +62,8 @@
         [tarea]="tarea"
         cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
-        (estadoCambiado)="onEstadoCambiado()">
+        (estadoCambiado)="onEstadoCambiado()"
+        (tareaEliminada)="onTareaEliminada()">
       </app-tarea-card>
     </div>
   </div>
@@ -79,7 +83,8 @@
         [tarea]="tarea"
         cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
-        (estadoCambiado)="onEstadoCambiado()">
+        (estadoCambiado)="onEstadoCambiado()"
+        (tareaEliminada)="onTareaEliminada()">
       </app-tarea-card>
     </div>
   </div>
@@ -88,6 +93,8 @@
 <app-panel-detalles 
   [abierto]="panelAbierto"
   [idTarea]="tareaSeleccionada"
+  [idListaPredeterminada]="idListaActual"
+  [miDiaPredeterminado]="esMiDia"
   (cerrar)="cerrarPanelDetalles()"
   (tareaGuardada)="onTareaGuardada()">
 </app-panel-detalles>

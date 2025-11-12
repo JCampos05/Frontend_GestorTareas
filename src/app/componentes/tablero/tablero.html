@@ -1,0 +1,29 @@
+<div id="contentArea" class="tablero-layout">
+  <div class="columna columna-principal">
+    <div 
+      class="columna-content-full" 
+      id="tareasColumna"
+      cdkDropList
+      [cdkDropListData]="tareasColumna"
+      (cdkDropListDropped)="onDrop($event)">
+      <p *ngIf="tareasColumna.length === 0" class="sin-tareas">Sin tareas</p>
+      <app-tarea-card 
+        *ngFor="let tarea of tareasColumna" 
+        [tarea]="tarea"
+        cdkDrag
+        (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
+        (estadoCambiado)="onEstadoCambiado()"
+        (tareaEliminada)="onTareaEliminada()">
+      </app-tarea-card>
+    </div>
+  </div>
+</div>
+
+<app-panel-detalles 
+  [abierto]="panelAbierto"
+  [idTarea]="tareaSeleccionada"
+  (cerrar)="cerrarPanelDetalles()"
+  (tareaGuardada)="onTareaGuardada()">
+</app-panel-detalles>
+
+<button class="btn-flotante" (click)="abrirPanelDetalles()">+</button>

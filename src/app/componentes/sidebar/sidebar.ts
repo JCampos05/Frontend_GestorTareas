@@ -1,52 +1,116 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CategoriasService } from '../../core/services/categorias/categorias';
 import { ListasService } from '../../core/services/listas/listas';
+import { NotificacionesService } from '../../core/services/notification/notification';
+import { ModalCompartirComponent } from '../modal-compartir/modal-compartir';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalCompartirComponent],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   @Input() visible: boolean = true;
+  @Output() abrirModalCategoriaEvent = new EventEmitter<void>();
+  @Output() abrirModalListaEvent = new EventEmitter<number | null>();
 
   categorias: any[] = [];
+  listasSinCategoria: any[] = [];
   categoriaExpandida: { [key: string]: boolean } = {};
+  categoriaAEliminar: any = null;
+  modalCompartirAbierto = false;
+  categoriaParaCompartir: any = null;
+  tipoCompartir: 'categoria' | 'lista' = 'categoria';
+
+  // Suscripción para detectar cambios
+  private listasSubscription?: Subscription;
 
   constructor(
     private categoriasService: CategoriasService,
     private listasService: ListasService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private notificacionesService: NotificacionesService
+  ) { }
 
   ngOnInit() {
     this.cargarCategorias();
+
+    // Suscribirse a los cambios en las listas
+    this.listasSubscription = this.listasService.listasCambiadas$.subscribe(() => {
+      this.cargarCategorias();
+    });
+  }
+
+  ngOnDestroy() {
+    // Limpiar la suscripción para evitar memory leaks
+    if (this.listasSubscription) {
+      this.listasSubscription.unsubscribe();
+    }
+  }
+
+  esEmoji(icono: string | null | undefined): boolean {
+    if (!icono || icono === 'null' || icono === '') return false;
+
+    // Si empieza con 'fa', es un icono Font Awesome
+    if (icono.trim().startsWith('fa')) {
+      return false;
+    }
+
+    // Si es otra cosa (emoji), devolver true
+    return true;
+  }
+
+  obtenerClaseIcono(icono: string | null | undefined): string {
+    // Si no hay icono o es null
+    if (!icono || icono === 'null' || icono === '') {
+      return 'fas fa-clipboard-list';
+    }
+
+    // Limpiar espacios
+    const iconoLimpio = icono.trim();
+
+    // Si ya tiene el prefijo 'fas ' o 'far '
+    if (iconoLimpio.startsWith('fas ') || iconoLimpio.startsWith('far ')) {
+      return iconoLimpio;
+    }
+
+    // Si empieza con 'fa-', agregar prefijo 'fas'
+    if (iconoLimpio.startsWith('fa-')) {
+      return `fas ${iconoLimpio}`;
+    }
+
+    // Default
+    return 'fas fa-clipboard-list';
   }
 
   async cargarCategorias() {
     try {
       const categorias = await this.categoriasService.obtenerCategorias();
-      
+
       for (const categoria of categorias) {
         const listas = await this.categoriasService.obtenerListasPorCategoria(categoria.idCategoria ?? 0);
         categoria.listas = listas;
       }
 
-      const listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
-      
+      this.listasSinCategoria = await this.listasService.obtenerListasSinCategoria();
+
       this.categorias = categorias;
-      
-      if (listasSinCategoria.length > 0) {
-        this.categorias.push({
-          idCategoria: 'sin-categoria',
-          nombre: 'Sin categoría',
-          listas: listasSinCategoria
+
+      //console.log('Todas las listas:');
+      this.categorias.forEach(cat => {
+        cat.listas?.forEach((lista: any) => {
+          //console.log(`"${lista.nombre}": icono="${lista.icono}"`);
         });
-      }
+      });
+      this.listasSinCategoria.forEach(lista => {
+        //console.log(`"${lista.nombre}" (sin cat): icono="${lista.icono}"`);
+      });
+
     } catch (error) {
       console.error('Error al cargar categorías:', error);
     }
@@ -60,40 +124,147 @@ export class SidebarComponent implements OnInit {
     return this.categoriaExpandida[idCategoria] || false;
   }
 
-  // Navegación
-  mostrarAdminSections() {
-    this.router.navigate(['/admin']);
+  // ==================== TOOLS ====================
+  mostrarListasIndividuales() {
+    //console.log('Función pendiente: mostrar listas individuales');
+    this.router.navigate(['/app/listas-individuales']);
   }
 
   mostrarListasImportantes() {
-    console.log('Función pendiente: mostrar listas importantes');
+    //console.log('Función pendiente: mostrar listas importantes');
+    this.router.navigate(['/app/listas-importantes']);
   }
 
   mostrarCalendario() {
-    console.log('Función pendiente: mostrar calendario');
+    //console.log('Función pendiente: mostrar calendario');
+    this.router.navigate(['/app/calendar']);
   }
 
-  mostrarImportante() {
-    console.log('Función pendiente: mostrar tareas importantes');
+  mostrarListasCompartidas() {
+    this.router.navigate(['app/compartida/:id']);
+    // TODO: Crear página
   }
 
   mostrarNotas() {
-    console.log('Función pendiente: mostrar notas');
+    this.router.navigate(['/app/notas']);
+  }
+
+  // ==================== VISTAS ====================
+  cargarMiDia() {
+    this.router.navigate(['/app/mi-dia']);
+  }
+
+  cargarMiSemana() {
+    this.router.navigate(['/app/mi-semana']);
   }
 
   cargarTodasLasTareas() {
-    this.router.navigate(['/tareas']);
+    this.router.navigate(['/app/todas-tareas']);
   }
 
-  filtrarPorEstado(estado: string) {
-    this.router.navigate(['/tareas'], { queryParams: { estado } });
+  cargarPendientes() {
+    this.router.navigate(['/app/pendientes']);
+  }
+
+  cargarEnProgreso() {
+    this.router.navigate(['/app/progreso']);
+  }
+
+  cargarCompletadas() {
+    this.router.navigate(['/app/completadas']);
   }
 
   cargarTareasVencidas() {
-    this.router.navigate(['/tareas'], { queryParams: { filtro: 'vencidas' } });
+    this.router.navigate(['/app/vencidas']);
   }
 
+  // Método legacy para compatibilidad (puedes cambiarlo en el HTML)
+  filtrarPorEstado(estado: string) {
+    switch (estado) {
+      case 'P':
+        this.cargarPendientes();
+        break;
+      case 'N':
+        this.cargarEnProgreso();
+        break;
+      case 'C':
+        this.cargarCompletadas();
+        break;
+    }
+  }
+
+  // ==================== DETALLES ====================
   cargarTareasDeLista(idLista: number) {
-    this.router.navigate(['/lista', idLista]);
+    this.router.navigate(['/app/lista', idLista]);
+  }
+
+  cargarCategoria(idCategoria: number) {
+    console.log('Función pendiente: mostrar categoría', idCategoria);
+    // TODO: Crear página detalle-categoria
+  }
+
+  // ==================== ADMIN ====================
+  /*mostrarAdminSections() {
+    this.router.navigate(['/app/operator']);
+  }*/
+  // ==================== MODALS ====================
+  abrirModalCategoria() {
+    this.abrirModalCategoriaEvent.emit();
+  }
+
+  abrirModalLista(idCategoria: string | number, event?: Event) {
+    if (event) {
+      event.stopPropagation(); // Evita que se expanda/contraiga la categoría
+    }
+    const categoriaId = idCategoria === 'sin-categoria' ? null : Number(idCategoria);
+    this.abrirModalListaEvent.emit(categoriaId);
+  }
+
+  abrirModalListaSinCategoria() {
+    this.abrirModalListaEvent.emit(null);
+  }
+  // ==================== ELIMINACIÓN DE CATEGORÍAS ====================
+  confirmarEliminarCategoria(categoria: any, event: Event) {
+    event.stopPropagation();
+    this.categoriaAEliminar = categoria;
+  }
+
+  cancelarEliminarCategoria() {
+    this.categoriaAEliminar = null;
+  }
+
+  async eliminarCategoria() {
+    if (!this.categoriaAEliminar || !this.categoriaAEliminar.idCategoria) {
+      return;
+    }
+
+    try {
+      await this.categoriasService.eliminarCategoria(this.categoriaAEliminar.idCategoria);
+      this.notificacionesService.exito('Categoría eliminada exitosamente');
+      this.categoriaAEliminar = null;
+      await this.cargarCategorias();
+    } catch (error) {
+      console.error('Error al eliminar categoría:', error);
+      this.notificacionesService.error('Error al eliminar la categoría. Por favor, intenta de nuevo.');
+    }
+  }
+  // Método para abrir modal de compartir categoría
+  abrirModalCompartirCategoria(categoria: any, event: Event) {
+    event.stopPropagation();
+    this.categoriaParaCompartir = categoria;
+    this.tipoCompartir = 'categoria';
+    this.modalCompartirAbierto = true;
+  }
+
+  // Método para cerrar modal de compartir
+  cerrarModalCompartir() {
+    this.modalCompartirAbierto = false;
+    this.categoriaParaCompartir = null;
+  }
+
+  // Callback cuando se comparte exitosamente
+  alCompartir(clave: string) {
+    this.notificacionesService.exito(`Categoría compartida con clave: ${clave}`);
+    this.cerrarModalCompartir();
   }
 }

@@ -1,0 +1,61 @@
+    :host {
+      display: block;
+      height: 100%;
+      overflow: auto;
+    }
+
+    .detalle-lista-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lista-header {
+      padding: 20px;
+      background-color: #F5F3F5;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .lista-header h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .lista-header p {
+      margin: 0;
+      color: #546e7a;
+      font-size: 14px;
+    }
+
+    app-columnas {
+      flex: 1;
+      overflow: auto;
+    }
+
+    .lista-icono {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: white;
+    }
+
+    .lista-icono i {
+      font-size: 20px;
+      color: white;
+    }
+
+    .lista-icono span {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    app-columnas {
+      flex: 1;
+      overflow: auto;
+    }
