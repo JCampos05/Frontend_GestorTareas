@@ -111,7 +111,7 @@ export class ModalListaComponent implements OnInit, OnChanges {
     private categoriasService: CategoriasService,
     private notificacionesService: NotificacionesService,
     private compartirService: CompartirService
-  ) {}
+  ) { }
 
   async ngOnInit() {
     await this.cargarCategorias();
@@ -157,55 +157,55 @@ export class ModalListaComponent implements OnInit, OnChanges {
     }
   }
 
-async guardar() {
-  if (!this.nombreLista.trim()) return;
+  async guardar() {
+    if (!this.nombreLista.trim()) return;
 
-  const listaData: any = {
-    nombre: this.nombreLista,
-    color: this.colorLista,
-    icono: this.iconoLista.startsWith('fas ') ? this.iconoLista : `fas ${this.iconoLista}`,
-    importante: this.importanteLista,
-    compartible: this.compartible,
-    idCategoria: this.idCategoriaSeleccionada || undefined
-  };
+    const listaData: any = {
+      nombre: this.nombreLista,
+      color: this.colorLista,
+      icono: this.iconoLista.startsWith('fas ') ? this.iconoLista : `fas ${this.iconoLista}`,
+      importante: this.importanteLista,
+      compartible: this.compartible,
+      idCategoria: this.idCategoriaSeleccionada || undefined
+    };
 
-  try {
-    if (this.listaEditando) {
-      await this.listasService.actualizarLista(this.listaEditando.idLista, listaData);
-      this.notificacionesService.exito('Lista actualizada exitosamente');
-      
-      // Si se activó compartible y antes no lo era, abrir modal para generar clave
-      if (this.compartible && !this.listaEditando.compartible) {
-        this.listaParaCompartir = {
-          idLista: this.listaEditando.idLista,
-          nombre: this.nombreLista
-        };
-        this.modalCompartirAbierto = true;
+    try {
+      if (this.listaEditando) {
+        await this.listasService.actualizarLista(this.listaEditando.idLista, listaData);
+        this.notificacionesService.exito('Lista actualizada exitosamente');
+
+        // Si se activó compartible y antes no lo era, abrir modal para generar clave
+        if (this.compartible && !this.listaEditando.compartible) {
+          this.listaParaCompartir = {
+            idLista: this.listaEditando.idLista,
+            nombre: this.nombreLista
+          };
+          this.modalCompartirAbierto = true;
+        } else {
+          this.listaGuardada.emit();
+          this.cerrar();
+        }
       } else {
-        this.listaGuardada.emit();
-        this.cerrar();
+        const response = await this.listasService.crearLista(listaData);
+        this.notificacionesService.exito('Lista creada exitosamente');
+
+        // Si es compartible, abrir modal automáticamente con la lista recién creada
+        if (this.compartible && response.data && response.data.idLista) {
+          this.listaParaCompartir = {
+            idLista: response.data.idLista,
+            nombre: this.nombreLista
+          };
+          this.modalCompartirAbierto = true;
+        } else {
+          this.listaGuardada.emit();
+          this.cerrar();
+        }
       }
-    } else {
-      const response = await this.listasService.crearLista(listaData);
-      this.notificacionesService.exito('Lista creada exitosamente');
-      
-      // Si es compartible, abrir modal automáticamente con la lista recién creada
-      if (this.compartible && response.data && response.data.idLista) {
-        this.listaParaCompartir = {
-          idLista: response.data.idLista,
-          nombre: this.nombreLista
-        };
-        this.modalCompartirAbierto = true;
-      } else {
-        this.listaGuardada.emit();
-        this.cerrar();
-      }
+    } catch (error) {
+      console.error('Error al guardar lista:', error);
+      this.notificacionesService.error('Error al guardar la lista');
     }
-  } catch (error) {
-    console.error('Error al guardar lista:', error);
-    this.notificacionesService.error('Error al guardar la lista');
   }
-}
 
   mostrarClaveCompartir(clave: string) {
     alert(`Clave para compartir: ${clave}\n\nGuarda esta clave para compartir la lista con otros usuarios.`);
@@ -230,56 +230,56 @@ async guardar() {
   }
 
   // Abrir modal de compartir desde el botón
-abrirModalCompartir() {
-  if (this.listaEditando) {
-    this.listaParaCompartir = this.listaEditando;
-    this.modalCompartirAbierto = true;
+  abrirModalCompartir() {
+    if (this.listaEditando) {
+      this.listaParaCompartir = this.listaEditando;
+      this.modalCompartirAbierto = true;
+    }
   }
-}
 
-cerrarModalCompartir() {
-  this.modalCompartirAbierto = false;
-  this.listaParaCompartir = null;
-  // Después de compartir, cerrar el modal principal
-  this.listaGuardada.emit();
-  this.cerrar();
-}
-
-alCompartir(clave: string) {
-  // Aquí podrías usar el servicio de notificaciones si lo tienes
-  console.log(`Lista compartida. Clave: ${clave}`);
-}
-
-abrirModalDescompartir() {
-  this.modalDescompartirAbierto = true;
-}
-
-cerrarModalDescompartir() {
-  this.modalDescompartirAbierto = false;
-}
-
-async confirmarDescompartir() {
-  if (!this.listaEditando) return;
-
-  this.procesandoDescompartir = true;
-  
-  try {
-    await this.compartirService.descompartir('lista', this.listaEditando.idLista).toPromise();
-    
-    this.compartible = false;
-    this.claveCompartir = '';
-    
-    this.notificacionesService.exito('Lista descompartida exitosamente');
-    this.modalDescompartirAbierto = false;
-    this.procesandoDescompartir = false;
-    
+  cerrarModalCompartir() {
+    this.modalCompartirAbierto = false;
+    this.listaParaCompartir = null;
+    // Después de compartir, cerrar el modal principal
     this.listaGuardada.emit();
-  } catch (error) {
-    console.error('Error al descompartir:', error);
-    this.notificacionesService.error('Error al descompartir la lista');
-    this.procesandoDescompartir = false;
+    this.cerrar();
   }
-}
+
+  alCompartir(clave: string) {
+    // Aquí podrías usar el servicio de notificaciones si lo tienes
+    console.log(`Lista compartida. Clave: ${clave}`);
+  }
+
+  abrirModalDescompartir() {
+    this.modalDescompartirAbierto = true;
+  }
+
+  cerrarModalDescompartir() {
+    this.modalDescompartirAbierto = false;
+  }
+
+  async confirmarDescompartir() {
+    if (!this.listaEditando) return;
+
+    this.procesandoDescompartir = true;
+
+    try {
+      await this.compartirService.descompartir('lista', this.listaEditando.idLista).toPromise();
+
+      this.compartible = false;
+      this.claveCompartir = '';
+
+      this.notificacionesService.exito('Lista descompartida exitosamente');
+      this.modalDescompartirAbierto = false;
+      this.procesandoDescompartir = false;
+
+      this.listaGuardada.emit();
+    } catch (error) {
+      console.error('Error al descompartir:', error);
+      this.notificacionesService.error('Error al descompartir la lista');
+      this.procesandoDescompartir = false;
+    }
+  }
 
   get iconosFiltrados() {
     return this.iconosDisponibles.filter(

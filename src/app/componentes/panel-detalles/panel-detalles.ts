@@ -21,6 +21,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
   @Input() idTarea: number | null = null;
   @Input() idListaPredeterminada: number | null = null;
   @Input() miDiaPredeterminado: boolean = false;
+  @Input() puedeEditar: boolean = true;
   @Output() cerrar = new EventEmitter<void>();
   @Output() tareaGuardada = new EventEmitter<void>();
 

@@ -53,7 +53,7 @@
 #header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 /* Buscador estilo Jira */
@@ -341,5 +341,86 @@
 @media (max-width: 480px) {
   #header-left span {
     display: none;
+  }
+}
+
+
+
+/* Botón de notificaciones */
+.btn-notificaciones {
+  position: relative;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.btn-notificaciones:hover {
+  background: #f3f4f6;
+  color: #2563eb;
+}
+
+.btn-notificaciones:active {
+  transform: scale(0.95);
+}
+
+/* Badge con el número de notificaciones */
+.badge-notificaciones {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Asegurar que el icono se vea bien */
+.btn-notificaciones i {
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-notificaciones {
+    padding: 8px 12px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .badge-notificaciones {
+    font-size: 0.6rem;
+    min-width: 16px;
+    height: 16px;
+    top: 4px;
+    right: 6px;
   }
 }

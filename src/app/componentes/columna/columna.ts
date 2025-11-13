@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TareasService, Tarea } from '../../core/services/tareas/tareas';
@@ -15,6 +15,9 @@ import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray, transferArrayItem }
   styleUrl: './columna.css'
 })
 export class ColumnasComponent implements OnInit {
+  @Input() puedeEditar: boolean = true;
+  @Input() puedeEliminar: boolean = true;
+
   tareasToday: Tarea[] = [];
   tareasPendientes: Tarea[] = [];
   tareasEnProceso: Tarea[] = [];
@@ -186,36 +189,86 @@ export class ColumnasComponent implements OnInit {
       await this.cargarTareas();
     }
   }
-  async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
 
-      // Actualizar el estado de la tarea
-      const tarea = event.container.data[event.currentIndex];
-      if (tarea.idTarea) {
-        try {
-          await this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado as any);
+  async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
+  // ✅ Verificar permisos al inicio
+  if (!this.puedeEditar) {
+    console.warn('⚠️ No tienes permisos para mover tareas');
+    alert('No tienes permisos para modificar tareas en esta lista');
+    return;
+  }
+
+  if (event.previousContainer === event.container) {
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+  } else {
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+
+    const tarea = event.container.data[event.currentIndex];
+    
+    // ✅ VALIDAR que la tarea tenga ID
+    if (!tarea.idTarea) {
+      console.error('❌ Tarea sin ID, no se puede actualizar');
+      // Revertir cambio
+      transferArrayItem(
+        event.container.data,
+        event.previousContainer.data,
+        event.currentIndex,
+        event.previousIndex
+      );
+      alert('Error: La tarea no tiene un ID válido');
+      return;
+    }
+
+    console.log('🔄 Actualizando tarea:', tarea.idTarea, 'a estado:', nuevoEstado);
+
+    try {
+      this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado as any).subscribe({
+        next: () => {
+          console.log('✅ Estado actualizado correctamente');
           tarea.estado = nuevoEstado as any;
-        } catch (error) {
-          console.error('Error al actualizar estado:', error);
-          // Revertir el cambio si falla
+        },
+        error: (error) => {
+          console.error('❌ Error al actualizar estado:', error);
+          
+          // Revertir el cambio visual
           transferArrayItem(
             event.container.data,
             event.previousContainer.data,
             event.currentIndex,
             event.previousIndex
           );
+          
+          // ✅ MANEJO MEJORADO DE ERRORES
+          if (error.status === 403) {
+            alert('No tienes permisos para modificar tareas en esta lista');
+          } else if (error.status === 404) {
+            // La tarea no existe, removerla del listado
+            console.warn('⚠️ Tarea no encontrada en el servidor, removiéndola del listado');
+            alert('Esta tarea ya no existe. Se actualizará la lista.');
+            
+            // Recargar todas las tareas
+            this.onTareaEliminada();
+          } else {
+            alert('Error al actualizar la tarea. Intenta de nuevo.');
+          }
         }
-      }
+      });
+    } catch (error) {
+      console.error('Error al actualizar estado:', error);
+      transferArrayItem(
+        event.container.data,
+        event.previousContainer.data,
+        event.currentIndex,
+        event.previousIndex
+      );
     }
   }
+}
 
   async onTareaEliminada() {
     const estado = this.route.snapshot.queryParams['estado'];

@@ -12,6 +12,8 @@ import { NotificacionesService } from '../../core/services/notification/notifica
 })
 export class TareaCardComponent {
   @Input() tarea!: Tarea;
+  @Input() puedeEditar: boolean = true;
+  @Input() puedeEliminar: boolean = true;
   @Output() tareaClick = new EventEmitter<void>();
   @Output() estadoCambiado = new EventEmitter<void>();
   @Output() tareaEliminada = new EventEmitter<void>();

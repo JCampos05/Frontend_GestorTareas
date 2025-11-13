@@ -8,10 +8,15 @@ export interface Categoria {
   color?: string;
   icono?: string;
   esPropietario?: boolean;
+  esCreador?: boolean;
   rol?: string;
   compartida?: boolean;
+  compartible?: boolean;
   cantidadListas?: number;
   claveCompartir?: string;
+  tipoPrivacidad?: string;
+  nombrePropietario?: string;
+  fechaCompartido?: Date;
   listas?: any[];
 }
 
@@ -20,6 +25,7 @@ export interface Categoria {
 })
 export class CategoriasService {
   private API_URL = 'http://localhost:3000/api/categorias';
+  private COMPARTIR_URL = 'http://localhost:3000/api/compartir';
 
   constructor(private http: HttpClient) {}
 
@@ -66,6 +72,72 @@ export class CategoriasService {
     } catch (error) {
       console.error('Error al obtener listas por categoría:', error);
       return [];
+    }
+  }
+
+  // ✅ NUEVO: Obtener categorías compartidas
+  async obtenerCategoriasCompartidas(): Promise<Categoria[]> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/categoria/mis-compartidas`)
+      );
+      // El endpoint devuelve { categorias: [...] }
+      return response.categorias || [];
+    } catch (error) {
+      console.error('Error al obtener categorías compartidas:', error);
+      return [];
+    }
+  }
+
+  // ✅ NUEVO: Generar clave para compartir categoría
+  async generarClaveCompartir(id: number): Promise<any> {
+    try {
+      const result: any = await firstValueFrom(
+        this.http.post(`${this.COMPARTIR_URL}/categoria/${id}/generar-clave`, {})
+      );
+      return result;
+    } catch (error) {
+      console.error('Error al generar clave:', error);
+      throw error;
+    }
+  }
+
+  // ✅ NUEVO: Descompartir categoría
+  async descompartirCategoria(id: number): Promise<any> {
+    try {
+      const result: any = await firstValueFrom(
+        this.http.post(`${this.COMPARTIR_URL}/categoria/${id}/descompartir`, {})
+      );
+      return result;
+    } catch (error) {
+      console.error('Error al descompartir categoría:', error);
+      throw error;
+    }
+  }
+
+  // ✅ NUEVO: Obtener usuarios con acceso a la categoría
+  async obtenerUsuariosConAcceso(id: number): Promise<any[]> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/categoria/${id}/usuarios`)
+      );
+      return response.usuarios || [];
+    } catch (error) {
+      console.error('Error al obtener usuarios con acceso:', error);
+      return [];
+    }
+  }
+
+  // ✅ NUEVO: Obtener información completa de compartidos
+  async obtenerInfoCompartidos(id: number): Promise<any> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/categoria/${id}/info-compartidos`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al obtener info de compartidos:', error);
+      return null;
     }
   }
 }

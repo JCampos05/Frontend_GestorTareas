@@ -21,8 +21,12 @@ export interface Lista {
   nombreCategoria?: string;
   idUsuario?: number;
   esPropietario?: boolean; 
+  esCompartidaConmigo?: boolean;
   fechaCreacion?: Date;
   fechaActualizacion?: Date;
+  rol?: string; // Rol del usuario en lista compartida
+  nombrePropietario?: string;
+  emailPropietario?: string;
 }
 
 @Injectable({
@@ -30,6 +34,7 @@ export interface Lista {
 })
 export class ListasService {
   private API_URL = 'http://localhost:3000/api/listas';
+  private COMPARTIR_URL = 'http://localhost:3000/api/compartir';
 
   // Evento para notificar cambios en las listas
   private listasCambiadasSubject = new Subject<void>();
@@ -134,14 +139,16 @@ export class ListasService {
     }
   }
 
+  // ✅ ACTUALIZADO: Usar el nuevo endpoint de compartir
   async obtenerListasCompartidas(): Promise<Lista[]> {
     try {
-      const response = await firstValueFrom(
-        this.http.get<ApiResponse<Lista[]>>(`${this.API_URL}/compartidas`)
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/lista/mis-compartidas`)
       );
 
-      if (response && response.data) {
-        return Array.isArray(response.data) ? response.data : [];
+      // El endpoint devuelve { listas: [...] }
+      if (response && response.listas) {
+        return Array.isArray(response.listas) ? response.listas : [];
       }
       return [];
     } catch (error) {
@@ -150,39 +157,63 @@ export class ListasService {
     }
   }
 
+  // ✅ ACTUALIZADO: Generar clave para compartir
   async hacerCompartible(id: number): Promise<any> {
     try {
-      console.log('Marcando lista como compartible, ID:', id);
+      console.log('🔵 Generando clave para lista, ID:', id);
 
-      // CORRECCIÓN: Usar el endpoint correcto en /api/listas/:id/compartir
-      const result = await firstValueFrom(
-        this.http.put(`${this.API_URL}/${id}/compartir`, {})
+      // Usar el nuevo endpoint de compartir
+      const result: any = await firstValueFrom(
+        this.http.post(`${this.COMPARTIR_URL}/lista/${id}/generar-clave`, {})
       );
 
-      console.log('Lista marcada como compartible exitosamente:', result);
+      console.log('✅ Clave generada exitosamente:', result);
       this.notificarCambio();
       return result;
 
     } catch (error) {
-      console.error('Error completo al hacer lista compartible:', error);
+      console.error('❌ Error al generar clave:', error);
       throw error;
     }
   }
 
-  // Quitar compartir de una lista
+  // ✅ ACTUALIZADO: Descompartir lista (revocar todos los accesos)
   async quitarCompartir(id: number): Promise<any> {
     try {
-      const result = await firstValueFrom(
-        this.http.put(`${this.API_URL}/${id}`, {
-          compartible: false,
-          claveCompartir: null // Limpiar la clave también
-        })
+      const result: any = await firstValueFrom(
+        this.http.post(`${this.COMPARTIR_URL}/lista/${id}/descompartir`, {})
       );
       this.notificarCambio();
       return result;
     } catch (error) {
-      console.error('Error al quitar compartir:', error);
+      console.error('Error al descompartir lista:', error);
       throw error;
+    }
+  }
+
+  // ✅ NUEVO: Obtener información de usuarios con acceso
+  async obtenerUsuariosConAcceso(id: number): Promise<any[]> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/lista/${id}/usuarios`)
+      );
+      return response.usuarios || [];
+    } catch (error) {
+      console.error('Error al obtener usuarios con acceso:', error);
+      return [];
+    }
+  }
+
+  // ✅ NUEVO: Obtener información completa de compartidos
+  async obtenerInfoCompartidos(id: number): Promise<any> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/lista/${id}/info-compartidos`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al obtener info de compartidos:', error);
+      return null;
     }
   }
 }

@@ -3,11 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/authentication/authentication';
+import { NotificationService } from '../../core/services/notification-user/notification-user';
+import { ModalNotificacionesComponent } from '../modal-noti-user/modal-noti-user';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ModalNotificacionesComponent],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -15,6 +17,8 @@ export class HeaderComponent implements OnInit {
   @Output() toggleSidebarEvent = new EventEmitter<void>();
   searchQuery: string = '';
   showUserMenu: boolean = false;
+  showNotificaciones: boolean = false;
+  cantidadNoLeidas: number = 0;
   
   usuario: {
     nombre: string;
@@ -28,17 +32,22 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
     this.cargarDatosUsuario();
     
-    // Suscribirse a cambios del usuario
     this.authService.usuarioActual$.subscribe(usuario => {
       if (usuario) {
         this.actualizarDatosUsuario(usuario);
       }
+    });
+
+    // Suscribirse a las notificaciones no leídas
+    this.notificationService.cantidadNoLeidas$.subscribe(cantidad => {
+      this.cantidadNoLeidas = cantidad;
     });
   }
 
@@ -71,34 +80,44 @@ export class HeaderComponent implements OnInit {
     this.toggleSidebarEvent.emit();
   }
 
-onSearch() {
-  if (this.searchQuery.trim()) {
-    this.router.navigate(['/app/buscar'], {
-      queryParams: { q: this.searchQuery }
-    });
+  onSearch() {
+    if (this.searchQuery.trim()) {
+      this.router.navigate(['/app/buscar'], {
+        queryParams: { q: this.searchQuery }
+      });
+    }
   }
-}
 
   cambiarVista() {
     console.log('Función pendiente: cambiar vista de día');
-    // TODO: Implementar cambio de vista
   }
 
   loginGoogle() {
     console.log('Login con Google');
-    // TODO: Implementar autenticación
   }
 
   toggleUserMenu() {
     this.showUserMenu = !this.showUserMenu;
+    if (this.showUserMenu) {
+      this.showNotificaciones = false;
+    }
   }
 
-  // Cerrar el menú al hacer clic fuera de él
+  toggleNotificaciones() {
+    this.showNotificaciones = !this.showNotificaciones;
+    if (this.showNotificaciones) {
+      this.showUserMenu = false;
+    }
+  }
+
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const target = event.target as HTMLElement;
     if (!target.closest('.user-profile') && !target.closest('.user-menu')) {
       this.showUserMenu = false;
+    }
+    if (!target.closest('.btn-notificaciones') && !target.closest('.modal-notificaciones')) {
+      this.showNotificaciones = false;
     }
   }
 

@@ -130,28 +130,30 @@ async cargarListas() {
   try {
     console.log('🔵 Cargando MIS listas...');
     
-    // Obtener TODAS las listas
+    // Obtener TODAS las listas (ahora con esPropietario y esCompartidaConmigo)
     const todasLasListas = await this.listasService.obtenerListas();
+    console.log('📊 Total de listas obtenidas:', todasLasListas.length);
     
-    // Obtener las listas compartidas CONMIGO para excluirlas
-    let idsListasCompartidas: number[] = [];
-    try {
-      const response: any = await this.compartirService.obtenerListasCompartidas().toPromise();
-      const compartidas = response?.listas || response || [];
-      idsListasCompartidas = compartidas.map((l: any) => l.idLista);
-      console.log('📋 IDs de listas compartidas CONMIGO a excluir:', idsListasCompartidas);
-    } catch (error) {
-      console.warn('⚠️ No se pudieron obtener listas compartidas:', error);
-    }
-    
-    // Filtrar: SOLO mis listas (excluir las compartidas conmigo)
-    this.listas = todasLasListas.filter((lista: Lista) => {
-      const esCompartidaConmigo = idsListasCompartidas.includes(lista.idLista!);
-      return !esCompartidaConmigo;
+    // Filtrar: SOLO mis listas propias (excluir las compartidas conmigo)
+    this.listas = todasLasListas.filter((lista: any) => {
+      // Incluir SOLO si soy propietario Y NO es una compartida conmigo
+      const esMia = lista.esPropietario === true;
+      const esCompartidaConmigo = lista.esCompartidaConmigo === true;
+      
+      // 🔍 Debug detallado
+      console.log(`Lista "${lista.nombre}" (ID: ${lista.idLista}):`, {
+        compartible: lista.compartible,
+        esPropietario: lista.esPropietario,
+        esCompartidaConmigo: lista.esCompartidaConmigo,
+        seIncluye: esMia && !esCompartidaConmigo
+      });
+      
+      // Mostrar SOLO mis listas (que yo creé), excluyendo las que otros compartieron conmigo
+      return esMia && !esCompartidaConmigo;
     });
 
-    console.log('✅ MIS listas cargadas:', this.listas.length);
-    console.log('Listas:', this.listas.map(l => ({
+    console.log('✅ MIS listas filtradas:', this.listas.length);
+    console.log('Listas finales:', this.listas.map(l => ({
       id: l.idLista,
       nombre: l.nombre,
       compartible: l.compartible

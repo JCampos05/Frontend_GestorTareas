@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
@@ -79,14 +80,9 @@ export class TareasService {
     }
   }
 
-  async cambiarEstado(id: number, estado: 'P' | 'N' | 'C'): Promise<any> {
-    try {
-      return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/estado`, { estado }));
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-      throw error;
-    }
-  }
+cambiarEstado(id: number, estado: 'P' | 'N' | 'C'): Observable<any> {
+  return this.http.patch(`${this.API_URL}/${id}/estado`, { estado });
+}
 
   async obtenerTareasPorEstado(estado: string): Promise<Tarea[]> {
     try {

@@ -14,7 +14,9 @@
       <input
         type="checkbox"
         [checked]="tarea.estado === 'C'"
+        [disabled]="!puedeEditar"
         (change)="onCheckboxChange($event)"
+        class="tarea-checkbox"
         class="tarea-checkbox">
 
       <div class="tarea-info">
@@ -65,6 +67,7 @@
       </button>
 
       <button
+        *ngIf="puedeEditar"
         (click)="alternarMiDia($event)"
         class="btn-accion"
         [class.mi-dia-activo]="tarea.miDia"
@@ -73,6 +76,7 @@
       </button>
 
       <button
+        *ngIf="puedeEliminar"
         (click)="eliminarTarea($event)"
         class="btn-accion btn-eliminar"
         title="Eliminar tarea">

@@ -1,0 +1,209 @@
+/* modal-noti-user.css */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.btn-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    overflow-y: auto;
+    padding: 20px;
+    flex: 1;
+}
+
+.acciones-header {
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.btn-marcar-todas {
+    background: #f0f0f0;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.btn-marcar-todas:hover {
+    background: #e0e0e0;
+}
+
+.notificaciones-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notificacion-item {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.notificacion-item:hover {
+    background: #e9ecef;
+}
+
+.notificacion-item.no-leida {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.notif-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2196f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.notif-content {
+    flex: 1;
+}
+
+.notif-content h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.notif-content p {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.notif-acciones {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-aceptar,
+.btn-rechazar {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-aceptar {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-aceptar:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.btn-rechazar {
+    background: #f44336;
+    color: white;
+}
+
+.btn-rechazar:hover:not(:disabled) {
+    background: #da190b;
+}
+
+.btn-aceptar:disabled,
+.btn-rechazar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.notif-fecha {
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.notif-estado {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.badge-nuevo {
+    background: #2196f3;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.sin-notificaciones {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.sin-notificaciones i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #ccc;
+}
+
+.sin-notificaciones p {
+    margin: 0;
+    font-size: 1rem;
+}

@@ -385,3 +385,14 @@
 .btn-accion.mi-dia-activo i {
   color: #ff8c00;
 }
+
+.tarea-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: #f4f5f7 !important;
+}
+
+.tarea-checkbox:disabled:hover {
+  border-color: #dfe1e6 !important;
+  background-color: #f4f5f7 !important;
+}
