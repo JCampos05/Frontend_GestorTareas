@@ -239,8 +239,9 @@ body, html {
   padding: 8px;
   background: #ebecf0;
   border-radius: 12px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: column;
+  /*grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));*/
   gap: 8px;
   align-content: start;
 }
@@ -267,12 +268,75 @@ body, html {
   grid-column: 1 / -1;
 }
 
+/* Vista Lista (por defecto) */
+.columna-content-full.vista-lista {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  background: #ebecf0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-content: start;
+}
+
+/* Vista Cuadrícula */
+.columna-content-full.vista-cuadricula {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  background: #ebecf0;
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+/* Botón toggle vista */
+.btn-toggle-vista {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  color: #44546f;
+}
+
+.btn-toggle-vista:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0052cc;
+  transform: scale(1.05);
+}
+
+.btn-toggle-vista:active {
+  transform: scale(0.95);
+}
+
+.btn-toggle-vista i {
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-vista:hover i {
+  transform: scale(1.1);
+}
+
 @media (max-width: 768px) {
   .tablero-layout .columna-today {
     min-width: 280px;
     width: 280px;
   }
-  
+
   .columna-content-full {
     grid-template-columns: 1fr;
   }

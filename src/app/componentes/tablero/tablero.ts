@@ -16,11 +16,12 @@ import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray, transferArrayItem }
 })
 export class TableroComponent implements OnInit {
   @Input() tipoVista: 'pendientes' | 'progreso' | 'completadas' | 'vencidas' | 'mi-dia' = 'pendientes';
-  
+
   tareasColumna: Tarea[] = [];
-  
+
   panelAbierto = false;
   tareaSeleccionada: number | null = null;
+  vistaLista: boolean = true;
 
   constructor(
     private tareasService: TareasService,
@@ -35,7 +36,7 @@ export class TableroComponent implements OnInit {
   async cargarTareas() {
     try {
       let tareas: Tarea[] = [];
-      
+
       if (this.tipoVista === 'mi-dia') {
         // Usar el endpoint específico para Mi Día
         tareas = await this.tareasService.obtenerTareasMiDia();
@@ -49,7 +50,7 @@ export class TableroComponent implements OnInit {
         };
         tareas = await this.tareasService.obtenerTareasPorEstado(estadoMap[this.tipoVista]);
       }
-      
+
       this.tareasColumna = tareas;
     } catch (error) {
       console.error('Error al cargar tareas:', error);
@@ -99,5 +100,9 @@ export class TableroComponent implements OnInit {
 
   async onTareaEliminada() {
     await this.cargarTareas();
+  }
+
+  toggleVista(){
+    this.vistaLista = !this.vistaLista;
   }
 }

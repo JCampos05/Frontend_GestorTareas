@@ -1,14 +1,25 @@
 <div id="contentArea" class="tablero-layout">
   <div class="columna columna-principal">
-    <div 
-      class="columna-content-full" 
+    <div class="columna-header">
+      <span></span>
+      <button
+        class="btn-toggle-vista"
+        (click)="toggleVista()"
+        [title]="vistaLista ? 'Cambiar a cuadrícula' : 'Cambiar a lista'">
+        <i [class]="vistaLista ? 'fas fa-th' : 'fas fa-list'"></i>
+      </button>
+    </div>
+    <div
+      class="columna-content-full"
+      [class.vista-lista]="vistaLista"
+      [class.vista-cuadricula]="!vistaLista"
       id="tareasColumna"
       cdkDropList
       [cdkDropListData]="tareasColumna"
       (cdkDropListDropped)="onDrop($event)">
       <p *ngIf="tareasColumna.length === 0" class="sin-tareas">Sin tareas</p>
-      <app-tarea-card 
-        *ngFor="let tarea of tareasColumna" 
+      <app-tarea-card
+        *ngFor="let tarea of tareasColumna"
         [tarea]="tarea"
         cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
@@ -19,7 +30,7 @@
   </div>
 </div>
 
-<app-panel-detalles 
+<app-panel-detalles
   [abierto]="panelAbierto"
   [idTarea]="tareaSeleccionada"
   (cerrar)="cerrarPanelDetalles()"

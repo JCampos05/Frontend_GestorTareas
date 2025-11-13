@@ -2,99 +2,42 @@
 .tarea-card {
   background: white;
   border-radius: 8px;
-  padding: 12px;
+  padding: 14px 16px;
   margin-bottom: 8px;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.15);
+  box-shadow: 0 1px 3px rgba(9, 30, 66, 0.12);
   transition: all 0.2s ease;
   border-left: 3px solid transparent;
-  position: relative; /* Para el badge absoluto */
+  position: relative;
 }
 
 .tarea-card:hover {
   box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   background: #fafbfc;
 }
 
 .tarea-content {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ========== BADGE DE LISTA (ESQUINA SUPERIOR DERECHA) ========== */
-.tarea-lista-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: #f4f5f7;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #42526e;
-  font-weight: 500;
-  z-index: 1;
-  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.08);
-}
-
-.estrella-importante {
-  color: #ffab00;
-  font-size: 12px;
-  margin-left: 2px;
-}
-
-.lista-emoji {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.lista-icon-wrapper {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.lista-icon-wrapper i {
-  font-size: 10px;
-  color: white;
-}
-
-/* ========== HEADER CON CHECKBOX E INFO ========== */
-.tarea-header {
-  display: flex;
-  gap: 12px;
   align-items: flex-start;
-  padding-right: 140px; /* Espacio para el badge de lista */
-}
-
-/* Ajuste para tarjetas sin lista */
-.tarea-card:not(:has(.tarea-lista-badge)) .tarea-header {
-  padding-right: 0;
+  gap: 14px;
 }
 
 /* ========== CHECKBOX PERSONALIZADO ========== */
 .tarea-checkbox {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   margin: 0;
+  margin-top: 2px;
   cursor: pointer;
   border: 2px solid #dfe1e6;
-  border-radius: 3px;
+  border-radius: 50%;
   appearance: none;
   -webkit-appearance: none;
   position: relative;
   transition: all 0.2s;
   flex-shrink: 0;
   background: white;
-  align-self: flex-start;
 }
 
 .tarea-checkbox:hover {
@@ -118,23 +61,39 @@
   font-weight: bold;
 }
 
-/* ========== INFORMACIÓN DE LA TAREA ========== */
-.tarea-info {
+/* ========== CONTENIDO PRINCIPAL ========== */
+.tarea-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
+}
+
+/* ========== TÍTULO ========== */
+.tarea-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .tarea-info strong {
   color: #172b4d;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.4;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
-  word-break: break-word;
+  min-width: 0;
+}
+
+.tarea-nombre-texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .tarea-completada {
@@ -147,78 +106,151 @@
   color: #ff5630;
   font-size: 14px;
   flex-shrink: 0;
-  margin-left: 4px;
 }
 
 .tarea-descripcion {
   color: #5e6c84;
   font-size: 13px;
   margin: 0;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  white-space: nowrap;
   overflow: hidden;
-  word-break: break-word;
+  text-overflow: ellipsis;
 }
 
-/* ========== METADATA (FECHA) ========== */
+/* ========== METADATA EN LÍNEA CON ICONOS ========== */
+.tarea-bottom {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .tarea-metadata {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
   flex-wrap: wrap;
-  margin-top: 4px;
+}
+
+.tarea-metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #5e6c84;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.tarea-metadata-item i {
+  font-size: 14px;
+  color: #6b778c;
+  flex-shrink: 0;
 }
 
 .tarea-fecha {
-  color: #5e6c84;
-  font-size: 12px;
-  margin: 0;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  background: #f4f5f7;
-  border-radius: 4px;
-  width: fit-content;
-  font-weight: 500;
-  white-space: nowrap; /* Evita que se rompa en múltiples líneas */
+  gap: 6px;
+  color: #5e6c84;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
 }
 
 .tarea-fecha i {
-  color: #6554c0;
+  font-size: 14px;
+  color: #6b778c;
+  flex-shrink: 0;
+}
+
+/* ========== BADGE DE LISTA INLINE ========== */
+.tarea-lista-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #5e6c84;
   font-size: 13px;
-  flex-shrink: 0; /* El icono no se comprime */
+  font-weight: 400;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tarea-nombre-lista {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  max-width: 200px;
+}
+
+.estrella-importante {
+  color: #ffab00;
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.lista-emoji {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.lista-icon-wrapper {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lista-icon-wrapper i {
+  font-size: 10px;
+  color: white;
+}
+
+/* ========== BOTONES DE ACCIÓN AL HOVER ========== */
+.tarea-acciones-hover {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-left: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.tarea-card:hover .tarea-acciones-hover {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ========== BOTONES DE ACCIÓN ========== */
-.tarea-acciones {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-  flex-wrap: wrap;
-}
-
 .btn-accion {
-  padding: 6px 12px;
+  padding: 6px 10px;
   font-size: 12px;
   border: 1px solid #dfe1e6;
   border-radius: 4px;
   background: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   font-weight: 500;
   color: #42526e;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   white-space: nowrap;
+  height: 28px;
 }
 
 .btn-accion i {
   font-size: 12px;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .btn-accion:hover {
@@ -238,7 +270,7 @@
   transform: translateY(0);
 }
 
-/* Botón Iniciar (Play) */
+/* Estilos específicos de botones */
 .btn-accion:has(.fa-play) {
   border-color: #0052cc;
   color: #0052cc;
@@ -258,7 +290,6 @@
   color: #0065ff;
 }
 
-/* Botón Pausar */
 .btn-accion:has(.fa-pause) {
   border-color: #ff991f;
   color: #ff991f;
@@ -273,7 +304,6 @@
   color: #ff991f;
 }
 
-/* Botón Completar (Check) */
 .btn-accion:has(.fa-check) {
   border-color: #00875a;
   color: #00875a;
@@ -288,7 +318,6 @@
   color: #00875a;
 }
 
-/* Botón Reabrir (Redo) */
 .btn-accion:has(.fa-redo) {
   border-color: #6554c0;
   color: #6554c0;
@@ -303,7 +332,20 @@
   color: #6554c0;
 }
 
-/* Botón Eliminar */
+.btn-accion.mi-dia-activo {
+  background-color: #fff4e6;
+  color: #ff8c00;
+  border: 1px solid #ffd700;
+}
+
+.btn-accion.mi-dia-activo:hover {
+  background-color: #ffe4b3;
+}
+
+.btn-accion.mi-dia-activo i {
+  color: #ff8c00;
+}
+
 .btn-eliminar {
   background-color: transparent;
   color: #de350b;
@@ -341,26 +383,109 @@
 
 .tarea-card.cdk-drag-preview {
   box-shadow: 0 8px 24px rgba(9, 30, 66, 0.25);
-  transform: rotate(3deg);
+  transform: rotate(2deg);
+}
+
+/* ========== OCULTAR ELEMENTOS NO USADOS ========== */
+.tarea-header {
+  display: none;
+}
+
+/* ========== MODO CUADRÍCULA ========== */
+.vista-cuadricula .tarea-card {
+  padding: 14px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.vista-cuadricula .tarea-content {
+  flex-direction: row;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.vista-cuadricula .tarea-checkbox {
+  align-self: flex-start;
+  margin-bottom: 0;
+}
+
+.vista-cuadricula .tarea-main {
+  gap: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vista-cuadricula .tarea-info {
+  flex: 0 0 auto;
+}
+
+.vista-cuadricula .tarea-info strong {
+  font-size: 15px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vista-cuadricula .tarea-descripcion {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: clip;
+  line-height: 1.5;
+}
+
+.vista-cuadricula .tarea-bottom {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.vista-cuadricula .tarea-metadata {
+  flex-wrap: wrap;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.vista-cuadricula .tarea-acciones-hover {
+  opacity: 1;
+  visibility: visible;
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  margin-left: 0;
+  margin-top: 0;
 }
 
 /* ========== RESPONSIVE ========== */
+@media (max-width: 1200px) {
+  .tarea-acciones-hover {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 @media (max-width: 768px) {
   .tarea-card {
-    padding: 10px;
+    padding: 12px 14px;
   }
 
-  .tarea-header {
-    padding-right: 100px; /* Menos padding en móvil */
-  }
-
-  .tarea-lista-badge {
-    font-size: 11px;
-    padding: 3px 8px;
+  .tarea-content {
+    gap: 12px;
   }
 
   .tarea-info strong {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .tarea-descripcion {
@@ -368,20 +493,18 @@
   }
 
   .btn-accion {
-    padding: 5px 10px;
+    padding: 5px 8px;
     font-size: 11px;
   }
-}
-.btn-accion.mi-dia-activo {
-  background-color: #fff4e6;
-  color: #ff8c00;
-  border: 1px solid #ffd700;
-}
 
-.btn-accion.mi-dia-activo:hover {
-  background-color: #ffe4b3;
-}
+  .tarea-acciones-hover {
+    opacity: 1;
+    visibility: visible;
+  }
 
-.btn-accion.mi-dia-activo i {
-  color: #ff8c00;
+  .tarea-metadata {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
 }
