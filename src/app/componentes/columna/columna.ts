@@ -224,12 +224,12 @@ export class ColumnasComponent implements OnInit {
       return;
     }
 
-    console.log('🔄 Actualizando tarea:', tarea.idTarea, 'a estado:', nuevoEstado);
+    //console.log('🔄 Actualizando tarea:', tarea.idTarea, 'a estado:', nuevoEstado);
 
     try {
       this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado as any).subscribe({
         next: () => {
-          console.log('✅ Estado actualizado correctamente');
+          //console.log('✅ Estado actualizado correctamente');
           tarea.estado = nuevoEstado as any;
         },
         error: (error) => {

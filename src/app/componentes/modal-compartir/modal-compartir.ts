@@ -2,8 +2,6 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { CompartirService } from '../../core/services/compartir/compartir';
 
-// DEBUGGING: Agregar logs para rastrear el flujo
-
 @Component({
   selector: 'app-modal-compartir',
   standalone: true,
@@ -16,14 +14,18 @@ export class ModalCompartirComponent implements OnChanges {
   @Input() tipo: 'categoria' | 'lista' = 'categoria';
   @Input() itemId: number = 0;
   @Input() itemNombre: string = '';
-  @Input() claveExistente: string | null = null; // Nueva prop para recibir clave actual
+  @Input() claveExistente: string | null = null;
   @Output() close = new EventEmitter<void>();
-  @Output() compartido = new EventEmitter<string>();
+  // ✅ ACTUALIZADO: Emitir objeto completo con información de listas compartidas
+  @Output() compartido = new EventEmitter<any>();
 
   claveGenerada: string = '';
   urlCompartir: string = '';
   loading = false;
   copiado = false;
+  
+  // ✅ NUEVO: Información adicional para categorías
+  listasCompartidas: number = 0;
 
   constructor(private compartirService: CompartirService) { }
 
@@ -34,12 +36,13 @@ export class ModalCompartirComponent implements OnChanges {
         this.claveGenerada = this.claveExistente;
       } else {
         this.claveGenerada = '';
+        this.listasCompartidas = 0;
       }
       this.copiado = false;
     }
   }
 
-  // Generar NUEVA clave (actualiza BD)
+  // ✅ ACTUALIZADO: Generar NUEVA clave (actualiza BD)
   confirmarCompartir() {
     this.loading = true;
 
@@ -51,22 +54,44 @@ export class ModalCompartirComponent implements OnChanges {
       next: (response) => {
         console.log('✅ Respuesta completa del servidor:', response);
         
-        // CRITICAL: Usar la clave que viene en lista.claveCompartir (la que está en la BD)
-        if (response.lista?.claveCompartir) {
-          this.claveGenerada = response.lista.claveCompartir;
-          console.log('✅ Clave tomada de response.lista.claveCompartir:', this.claveGenerada);
-        } else if (response.clave) {
-          this.claveGenerada = response.clave;
-          console.log('⚠️ Clave tomada de response.clave:', this.claveGenerada);
-        } else {
-          console.error('❌ No se encontró clave en la respuesta');
+        // Para CATEGORÍAS
+        if (this.tipo === 'categoria') {
+          if (response.categoria?.claveCompartir) {
+            this.claveGenerada = response.categoria.claveCompartir;
+            console.log('✅ Clave de categoría:', this.claveGenerada);
+          } else if (response.clave) {
+            this.claveGenerada = response.clave;
+          }
+          
+          // Guardar información de listas compartidas
+          this.listasCompartidas = response.listasCompartidas || 0;
+          console.log('✅ Listas compartidas:', this.listasCompartidas);
+          
+          // Emitir objeto completo
+          this.compartido.emit({
+            clave: this.claveGenerada,
+            listasCompartidas: this.listasCompartidas,
+            tipo: 'categoria'
+          });
+        } 
+        // Para LISTAS
+        else {
+          if (response.lista?.claveCompartir) {
+            this.claveGenerada = response.lista.claveCompartir;
+            console.log('✅ Clave de lista:', this.claveGenerada);
+          } else if (response.clave) {
+            this.claveGenerada = response.clave;
+          }
+          
+          // Emitir objeto completo
+          this.compartido.emit({
+            clave: this.claveGenerada,
+            tipo: 'lista'
+          });
         }
         
         this.urlCompartir = response.url || '';
         this.loading = false;
-        
-        // Emitir la clave correcta que está en la BD
-        this.compartido.emit(this.claveGenerada);
       },
       error: (error) => {
         console.error('❌ Error al compartir:', error);
@@ -75,32 +100,33 @@ export class ModalCompartirComponent implements OnChanges {
     });
   }
 
-  // Copiar clave ACTUAL (sin modificar BD)
-  copiarClaveActual() {
+  copiarClave() {
     if (!this.claveGenerada) return;
     
     navigator.clipboard.writeText(this.claveGenerada).then(() => {
       this.copiado = true;
       setTimeout(() => this.copiado = false, 2000);
+    }).catch(err => {
+      console.error('Error al copiar:', err);
     });
   }
 
-  copiarClave() {
-    navigator.clipboard.writeText(this.claveGenerada);
-    this.copiado = true;
-    setTimeout(() => this.copiado = false, 2000);
-  }
-
   copiarUrl() {
-    navigator.clipboard.writeText(this.urlCompartir);
-    this.copiado = true;
-    setTimeout(() => this.copiado = false, 2000);
+    if (!this.urlCompartir) return;
+    
+    navigator.clipboard.writeText(this.urlCompartir).then(() => {
+      this.copiado = true;
+      setTimeout(() => this.copiado = false, 2000);
+    }).catch(err => {
+      console.error('Error al copiar URL:', err);
+    });
   }
 
   cerrar() {
     this.claveGenerada = '';
     this.urlCompartir = '';
     this.copiado = false;
+    this.listasCompartidas = 0;
     this.close.emit();
   }
 }

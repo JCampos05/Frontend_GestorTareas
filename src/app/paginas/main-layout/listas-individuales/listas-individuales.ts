@@ -130,33 +130,42 @@ async cargarListas() {
   try {
     console.log('🔵 Cargando MIS listas...');
     
-    // Obtener TODAS las listas (ahora con esPropietario y esCompartidaConmigo)
+    // Obtener TODAS las listas
     const todasLasListas = await this.listasService.obtenerListas();
     console.log('📊 Total de listas obtenidas:', todasLasListas.length);
     
-    // Filtrar: SOLO mis listas propias (excluir las compartidas conmigo)
-    this.listas = todasLasListas.filter((lista: any) => {
-      // Incluir SOLO si soy propietario Y NO es una compartida conmigo
-      const esMia = lista.esPropietario === true;
-      const esCompartidaConmigo = lista.esCompartidaConmigo === true;
-      
-      // 🔍 Debug detallado
-      console.log(`Lista "${lista.nombre}" (ID: ${lista.idLista}):`, {
-        compartible: lista.compartible,
-        esPropietario: lista.esPropietario,
-        esCompartidaConmigo: lista.esCompartidaConmigo,
-        seIncluye: esMia && !esCompartidaConmigo
-      });
-      
-      // Mostrar SOLO mis listas (que yo creé), excluyendo las que otros compartieron conmigo
-      return esMia && !esCompartidaConmigo;
-    });
+    // ✅ Filtrar: SOLO mis listas propias (que YO creé)
+    // ✅ CONVERTIR compartible a booleano para evitar problemas con 0/1
+    this.listas = todasLasListas
+      .filter((lista: any) => {
+        // Mostrar SOLO si soy el propietario original
+        const esPropietario = lista.esPropietario === true || lista.esPropietario === 1;
+        
+        console.log(`Lista "${lista.nombre}" (ID: ${lista.idLista}):`, {
+          compartible: lista.compartible,
+          esPropietario: lista.esPropietario,
+          idUsuario: lista.idUsuario,
+          seIncluye: esPropietario
+        });
+        
+        return esPropietario;
+      })
+      .map((lista: any) => ({
+        ...lista,
+        // ✅ CRÍTICO: Convertir compartible de number (0/1) a boolean
+        compartible: !!lista.compartible || lista.compartible === 1 || lista.compartible === true,
+        // ✅ También normalizar esPropietario
+        esPropietario: !!lista.esPropietario || lista.esPropietario === 1,
+        // ✅ Normalizar importante
+        importante: !!lista.importante || lista.importante === 1
+      }));
 
     console.log('✅ MIS listas filtradas:', this.listas.length);
     console.log('Listas finales:', this.listas.map(l => ({
       id: l.idLista,
       nombre: l.nombre,
-      compartible: l.compartible
+      compartible: l.compartible,
+      claveCompartir: l.claveCompartir
     })));
 
     if (!Array.isArray(this.listas)) {
@@ -319,7 +328,7 @@ async cargarListas() {
 
     // Debug
     this.debugLista(lista.idLista!);
-    console.log('Abriendo modal para lista:', lista);
+    //console.log('Abriendo modal para lista:', lista);
 
     if (!lista.idLista) {
       console.error('Lista sin ID válido:', lista);
@@ -344,7 +353,7 @@ async cargarListas() {
 
 
   alCompartir(clave: string) {
-    console.log('✅ Clave recibida del modal (de la BD):', clave);
+    //console.log('✅ Clave recibida del modal (de la BD):', clave);
 
     if (!this.listaParaCompartir?.idLista) {
       console.error('❌ No hay lista seleccionada para compartir');
@@ -370,9 +379,9 @@ async cargarListas() {
   async debugLista(idLista: number) {
     try {
       const lista = await this.listasService.obtenerLista(idLista);
-      console.log('Debug - Lista:', lista);
+      //console.log('Debug - Lista:', lista);
     } catch (error) {
-      console.error('Debug - Error al obtener lista:', error);
+      //console.error('Debug - Error al obtener lista:', error);
     }
   }
 }

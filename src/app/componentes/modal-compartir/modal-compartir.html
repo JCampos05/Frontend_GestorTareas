@@ -1,4 +1,3 @@
-<!-- src/app/componentes/modal-compartir/modal-compartir.component.html -->
 <div class="modal-overlay" *ngIf="isOpen" (click)="cerrar()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <!-- Si NO hay clave generada todavía -->
@@ -11,7 +10,20 @@
 
             <div class="modal-body">
                 <p>¿Estás seguro que deseas hacer compartible "{{ itemNombre }}"?</p>
-                <div class="info-box">
+                
+                <!-- ✅ NUEVO: Información adicional para categorías -->
+                <div class="info-box" *ngIf="tipo === 'categoria'">
+                    <i class="fas fa-info-circle"></i>
+                    <p>
+                        <strong>Se generará una clave de 8 caracteres</strong> que otros usuarios podrán usar
+                        para acceder a esta categoría.
+                        <br><br>
+                        <strong>Nota importante:</strong> Al compartir la categoría, también se compartirán 
+                        automáticamente todas las listas que contiene.
+                    </p>
+                </div>
+                
+                <div class="info-box" *ngIf="tipo === 'lista'">
                     <i class="fas fa-info-circle"></i>
                     <p>
                         <strong>Se generará una clave de 8 caracteres</strong> que otros usuarios podrán usar
@@ -48,6 +60,15 @@
                     ¡La clave se generó exitosamente!
                 </p>
 
+                <!-- ✅ NUEVO: Mostrar información de listas compartidas -->
+                <div class="listas-compartidas-info" *ngIf="tipo === 'categoria' && listasCompartidas > 0">
+                    <i class="fas fa-list"></i>
+                    <span>
+                        Se compartieron automáticamente <strong>{{ listasCompartidas }}</strong> 
+                        {{ listasCompartidas === 1 ? 'lista' : 'listas' }} de esta categoría
+                    </span>
+                </div>
+
                 <div class="clave-container">
                     <label><i class="fas fa-key"></i> Clave de acceso:</label>
                     <div class="clave-box">
@@ -72,7 +93,12 @@
 
                 <div class="info-box">
                     <i class="fas fa-lightbulb"></i>
-                    <p>Comparte esta clave con otras personas para que puedan acceder a tu {{ tipo }}.</p>
+                    <p>
+                        Comparte esta clave con otras personas para que puedan acceder a tu {{ tipo }}.
+                        <span *ngIf="tipo === 'categoria'">
+                            Al usar esta clave, también obtendrán acceso a todas las listas de la categoría.
+                        </span>
+                    </p>
                 </div>
             </div>
 

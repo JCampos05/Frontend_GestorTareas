@@ -702,18 +702,3 @@
     transform: translateY(0);
 }
 
-/* Badge para listas compartidas */
-.lista-badge.compartida {
-    background-color: #00875A;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.lista-badge.compartida i {
-    font-size: 10px;
-}

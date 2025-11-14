@@ -52,62 +52,49 @@ export class ListaCompartidaComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async cargarListasCompartidas() {
-    this.isLoading = true;
-    this.errorMessage = '';
+async cargarListasCompartidas() {
+  this.isLoading = true;
+  this.errorMessage = '';
 
-    try {
-      console.log('🔵 Cargando listas compartidas...');
-      
-      this.compartirService.obtenerListasCompartidas().subscribe({
-        next: (response: any) => {
-          console.log('🟢 Respuesta del backend:', response);
-          
-          // Manejar diferentes estructuras de respuesta
-          let listasRecibidas = [];
-          
-          if (Array.isArray(response)) {
-            listasRecibidas = response;
-          } else if (response.listas && Array.isArray(response.listas)) {
-            listasRecibidas = response.listas;
-          }
-          
-          // Asignar directamente - el backend YA debe filtrar correctamente
-          this.listas = listasRecibidas;
-          
-          console.log('✅ Listas compartidas cargadas:', this.listas.length);
-          console.log('Listas:', this.listas.map(l => ({ 
-            nombre: l.nombre, 
-            idLista: l.idLista,
-            compartible: l.compartible,
-            esPropietario: (l as any).esPropietario
-          })));
-          
-          this.isLoading = false;
-        },
-        error: (error: any) => {
-          console.error('❌ Error al cargar listas compartidas:', error);
-          
-          if (error.status === 401) {
-            this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
-          } else if (error.status === 403) {
-            this.errorMessage = 'No tienes permisos para ver estas listas.';
-          } else {
-            this.errorMessage = 'No se pudieron cargar las listas compartidas.';
-          }
-          
-          this.listas = [];
-          this.isLoading = false;
-        }
-      });
+  try {
+    console.log('🔵 Cargando listas compartidas...');
+    
+    // ✅ CAMBIO: Usar listasService en lugar de compartirService
+    const listasRecibidas = await this.listasService.obtenerListasCompartidas();
+    
+    console.log('🟢 Respuesta del backend:', listasRecibidas);
+    console.log('📊 Total listas recibidas:', listasRecibidas.length);
+    
+    // El backend ya devuelve el array correcto
+    this.listas = listasRecibidas;
+    
+    console.log('✅ Listas compartidas cargadas:', this.listas.length);
+    console.log('Listas:', this.listas.map(l => ({ 
+      nombre: l.nombre, 
+      idLista: l.idLista,
+      compartible: l.compartible,
+      esPropietario: l.esPropietario,
+      idCategoria: l.idCategoria,
+      nombreCategoria: l.nombreCategoria
+    })));
+    
+    this.isLoading = false;
 
-    } catch (error: any) {
-      console.error('❌ Error catch:', error);
-      this.errorMessage = 'Error inesperado al cargar listas compartidas.';
-      this.listas = [];
-      this.isLoading = false;
+  } catch (error: any) {
+    console.error('❌ Error al cargar listas compartidas:', error);
+    
+    if (error.status === 401) {
+      this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+    } else if (error.status === 403) {
+      this.errorMessage = 'No tienes permisos para ver estas listas.';
+    } else {
+      this.errorMessage = 'No se pudieron cargar las listas compartidas.';
     }
+    
+    this.listas = [];
+    this.isLoading = false;
   }
+}
   
   abrirLista(idLista: number) {
     if (!idLista) {
