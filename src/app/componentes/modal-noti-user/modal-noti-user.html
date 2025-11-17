@@ -18,38 +18,36 @@
 
       <!-- Lista de notificaciones -->
       <div class="notificaciones-lista">
-        <div 
-          *ngFor="let notif of notificaciones" 
-          class="notificacion-item"
-          [class.no-leida]="!notif.leida"
-          (click)="marcarComoLeida(notif)"
-        >
-          <div class="notif-icon">
+        <div *ngFor="let notif of notificaciones" class="notificacion-item" [class.no-leida]="!notif.leida"
+          (click)="marcarComoLeida(notif)">
+          <div class="notif-icon" [ngClass]="'notif-icon-' + notif.tipo">
             <i class="fas" [ngClass]="obtenerIcono(notif.tipo)"></i>
           </div>
 
           <div class="notif-content">
             <h4>{{ notif.titulo }}</h4>
             <p>{{ notif.mensaje }}</p>
-            
+
             <!-- Acciones para invitaciones -->
             <div class="notif-acciones" *ngIf="notif.tipo === 'invitacion_lista' && !notif.leida">
-              <button 
-                class="btn-aceptar" 
-                (click)="aceptarInvitacion(notif); $event.stopPropagation()"
-                [disabled]="procesando"
-              >
+              <button class="btn-aceptar" (click)="aceptarInvitacion(notif); $event.stopPropagation()"
+                [disabled]="procesando">
                 <i class="fas fa-check"></i>
                 <span>Aceptar</span>
               </button>
-              <button 
-                class="btn-rechazar" 
-                (click)="rechazarInvitacion(notif); $event.stopPropagation()"
-                [disabled]="procesando"
-              >
+              <button class="btn-rechazar" (click)="rechazarInvitacion(notif); $event.stopPropagation()"
+                [disabled]="procesando">
                 <i class="fas fa-times"></i>
                 <span>Rechazar</span>
               </button>
+            </div>
+
+            <!-- ✅ Badge FUERA del div de acciones -->
+            <div class="notif-badge" *ngIf="notif.tipo === 'tarea_repetir' || notif.tipo === 'recordatorio'">
+              <span class="badge-info">
+                <i class="fas fa-external-link-alt"></i>
+                Ver tarea
+              </span>
             </div>
 
             <small class="notif-fecha">{{ obtenerTiempoRelativo(notif.fechaCreacion) }}</small>

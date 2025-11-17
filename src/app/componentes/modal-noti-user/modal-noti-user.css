@@ -260,6 +260,52 @@
     color: #5e6c84;
 }
 
+/* ✅ Colores específicos por tipo de notificación */
+.notif-icon-invitacion_lista {
+    background: #0052cc;
+}
+
+.notif-icon-tarea_asignada {
+    background: #00875a;
+}
+
+.notif-icon-comentario {
+    background: #6554c0;
+}
+
+.notif-icon-tarea_repetir {
+    background: #ff991f;
+}
+
+.notif-icon-recordatorio {
+    background: #de350b;
+}
+
+.notif-icon-otro {
+    background: #5e6c84;
+}
+
+/* Badge de información */
+.notif-badge {
+    margin-top: 8px;
+}
+
+.badge-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e9f2ff;
+    color: #0052cc;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-info i {
+    font-size: 11px;
+}
+
 /* Scrollbar personalizada */
 .modal-body::-webkit-scrollbar {
     width: 6px;
@@ -300,3 +346,4 @@
         right: -12px;
     }
 }
+

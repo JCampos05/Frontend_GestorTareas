@@ -5,19 +5,22 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 export interface Notificacion {
-  idNotificacion: number; // ✅ Cambiado de 'id' a 'idNotificacion'
+  idNotificacion: number;
   idUsuario: number;
-  tipo: 'invitacion_lista' | 'tarea_asignada' | 'comentario' | 'otro';
+  tipo: 'invitacion_lista' | 'tarea_asignada' | 'comentario' | 'tarea_repetir' | 'recordatorio' | 'otro';  // ✅ AGREGAR los nuevos tipos
   titulo: string;
   mensaje: string;
   leida: boolean;
-  fechaCreacion: string; // ✅ Cambiado de 'fecha' a 'fechaCreacion'
+  fechaCreacion: string;
   datos?: {
     listaId?: number;
     listaNombre?: string;
     invitadoPor?: string;
     invitadoPorId?: number;
     rol?: string;
+    tareaId?: number;           //  AGREGAR
+    tareaNombre?: string;       //  AGREGAR
+    fechaVencimiento?: string;  //  AGREGAR
   };
 }
 
@@ -38,6 +41,7 @@ export class NotificationService {
 
   constructor(private http: HttpClient) {
     this.cargarNotificaciones();
+    setInterval(() => this.cargarNotificaciones(), 30000);
   }
 
   cargarNotificaciones(): void {
@@ -80,6 +84,28 @@ export class NotificationService {
 
   marcarTodasComoLeidas(): Observable<any> {
     return this.http.put(`${this.apiUrl}/leer-todas`, {}).pipe(
+      tap(() => this.cargarNotificaciones())
+    );
+  }
+
+  // AGREGAR: Crear notificación de repetición de tarea
+  crearNotificacionRepeticion(tareaId: number, tareaNombre: string, fechaVencimiento: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/crear-repeticion`, {
+      tareaId,
+      tareaNombre,
+      fechaVencimiento
+    }).pipe(
+      tap(() => this.cargarNotificaciones())
+    );
+  }
+
+  // AGREGAR: Programar notificación de recordatorio
+  programarRecordatorio(tareaId: number, tareaNombre: string, fechaRecordatorio: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/programar-recordatorio`, {
+      tareaId,
+      tareaNombre,
+      fechaRecordatorio
+    }).pipe(
       tap(() => this.cargarNotificaciones())
     );
   }

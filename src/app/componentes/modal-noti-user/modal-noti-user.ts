@@ -14,6 +14,7 @@ import { NotificationService, Notificacion } from '../../core/services/notificat
 export class ModalNotificacionesComponent implements OnInit {
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
+  @Output() abrirTarea = new EventEmitter<number>();
 
   notificaciones: Notificacion[] = [];
   procesando = false;
@@ -22,7 +23,7 @@ export class ModalNotificacionesComponent implements OnInit {
   constructor(
     private notificationService: NotificationService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.notificationService.notificaciones$.subscribe(notificaciones => {
@@ -32,14 +33,14 @@ export class ModalNotificacionesComponent implements OnInit {
   }
 
   private actualizarEstadoNoLeidas() {
-    this.tieneNotificacionesNoLeidas = this.notificaciones && 
-                                        this.notificaciones.length > 0 && 
-                                        this.notificaciones.some(n => !n.leida);
+    this.tieneNotificacionesNoLeidas = this.notificaciones &&
+      this.notificaciones.length > 0 &&
+      this.notificaciones.some(n => !n.leida);
   }
 
   aceptarInvitacion(notificacion: Notificacion) {
     if (this.procesando) return;
-    
+
     this.procesando = true;
     this.notificationService.aceptarInvitacion(notificacion.idNotificacion).subscribe({ // ✅ Cambiado
       next: () => {
@@ -62,7 +63,7 @@ export class ModalNotificacionesComponent implements OnInit {
 
   rechazarInvitacion(notificacion: Notificacion) {
     if (this.procesando) return;
-    
+
     if (!confirm('¿Seguro que deseas rechazar esta invitación?')) {
       return;
     }
@@ -82,7 +83,16 @@ export class ModalNotificacionesComponent implements OnInit {
 
   marcarComoLeida(notificacion: Notificacion) {
     if (!notificacion.leida) {
-      this.notificationService.marcarComoLeida(notificacion.idNotificacion).subscribe(); // ✅ Cambiado
+      this.notificationService.marcarComoLeida(notificacion.idNotificacion).subscribe();
+    }
+
+    //  AGREGAR: Si es una notificación de tarea, emitir evento
+    if ((notificacion.tipo === 'tarea_repetir' ||
+      notificacion.tipo === 'recordatorio' ||
+      notificacion.tipo === 'tarea_asignada')
+      && notificacion.datos?.tareaId) {
+      this.abrirTarea.emit(notificacion.datos.tareaId);
+      this.cerrar();
     }
   }
 
@@ -98,6 +108,10 @@ export class ModalNotificacionesComponent implements OnInit {
         return 'fa-tasks';
       case 'comentario':
         return 'fa-comment';
+      case 'tarea_repetir':        //  AGREGAR
+        return 'fa-redo';           //  AGREGAR
+      case 'recordatorio':          //  AGREGAR
+        return 'fa-bell';           //  AGREGAR
       default:
         return 'fa-bell';
     }
