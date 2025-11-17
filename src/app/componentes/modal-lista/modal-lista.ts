@@ -35,7 +35,7 @@ export class ModalListaComponent implements OnInit, OnChanges {
   procesandoDescompartir = false;
 
   // Colores predefinidos
-  coloresPredefinidos = [
+  /*coloresPredefinidos = [
     { hex: '#0052CC', nombre: 'Azul' },
     { hex: '#00875A', nombre: 'Verde' },
     { hex: '#FF5630', nombre: 'Rojo' },
@@ -46,8 +46,19 @@ export class ModalListaComponent implements OnInit, OnChanges {
     { hex: '#403294', nombre: 'Morado' },
     { hex: '#FF8B00', nombre: 'Naranja oscuro' },
     { hex: '#172B4D', nombre: 'Azul oscuro' }
+  ];*/
+    coloresPredefinidos = [
+    { hex: '#2B3252', nombre: 'Azul profundo' },
+    { hex: '#19264D', nombre: 'Azul oscuro' },
+    { hex: '#25458E', nombre: 'Azul grisáceo' },
+    { hex: '#3D7ADE', nombre: 'Azul sistema' },
+    { hex: '#6D7AA9', nombre: 'Gris azulado' },
+    { hex: '#BAC0CE', nombre: 'Azul interfaz' },
+    { hex: '#3B3B42', nombre: 'Gris roca' },
+    { hex: '#2D2D38', nombre: 'Pizarra' },
+    { hex: '#2F2A26', nombre: 'Grafeno' },
+    { hex: '#1A1919FF', nombre: 'Óxido suave' }
   ];
-
   // Iconos Font Awesome disponibles
   iconosDisponibles = [
     { icono: 'fa-list', categoria: 'Listas' },
@@ -125,16 +136,31 @@ export class ModalListaComponent implements OnInit, OnChanges {
     }
   }
 
+
   inicializarFormulario() {
     if (this.listaEditando) {
+      console.log('📝 Lista a editar:', this.listaEditando);
+      console.log('⭐ Importante valor:', this.listaEditando.importante);
+
       this.nombreLista = this.listaEditando.nombre;
       this.colorLista = this.listaEditando.color || '#0052CC';
       this.iconoLista = this.listaEditando.icono || 'fa-list';
-      this.importanteLista = this.listaEditando.importante || false;
+
+      // ✅ CORRECCIÓN: Convertir explícitamente a booleano
+      const valorImportante = this.listaEditando.importante;
+      this.importanteLista = valorImportante === true ||
+        Number(valorImportante) === 1 ||
+        String(valorImportante) === '1' ||
+        String(valorImportante).toLowerCase() === 'true';
+
       this.compartible = this.listaEditando.compartible || false;
       this.claveCompartir = this.listaEditando.claveCompartir || '';
       this.idCategoriaSeleccionada = this.listaEditando.idCategoria;
+
+      console.log('✅ importanteLista asignado:', this.importanteLista);
+      console.log('🔍 Tipo:', typeof this.importanteLista);
     } else {
+      // ✅ CORRECCIÓN: Al crear nueva lista, valores por defecto
       this.nombreLista = '';
       this.colorLista = '#0052CC';
       this.iconoLista = 'fa-list';
@@ -147,8 +173,19 @@ export class ModalListaComponent implements OnInit, OnChanges {
         this.idCategoriaSeleccionada = null;
       }
     }
-  }
 
+    setTimeout(() => {
+      console.log('🔄 Estado final de importanteLista:', this.importanteLista);
+      // Disparar detección de cambios si es necesario
+      if (this.listaEditando) {
+        const checkboxElement = document.querySelector('input[name="importanteLista"]') as HTMLInputElement;
+        if (checkboxElement) {
+          checkboxElement.checked = this.importanteLista;
+          console.log('✅ Checkbox forzado a:', checkboxElement.checked);
+        }
+      }
+    }, 50);
+  }
   async cargarCategorias() {
     try {
       this.categorias = await this.categoriasService.obtenerCategorias();

@@ -18,6 +18,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   @Input() visible: boolean = true;
   @Output() abrirModalCategoriaEvent = new EventEmitter<void>();
   @Output() abrirModalListaEvent = new EventEmitter<number | null>();
+  @Output() sidebarCollapsedChange = new EventEmitter<boolean>();
 
   categorias: any[] = [];
   listasSinCategoria: any[] = [];
@@ -26,6 +27,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
   modalCompartirAbierto = false;
   categoriaParaCompartir: any = null;
   tipoCompartir: 'categoria' | 'lista' = 'categoria';
+
+  // Nuevas propiedades para colapsar y tema
+  isCollapsed: boolean = false;
+  isLightMode: boolean = false;
+
+  categoriaCompartirAbierta: any = null;
+  itemParaCompartir: any = null;
 
   // Suscripción para detectar cambios
   private listasSubscription?: Subscription;
@@ -44,6 +52,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.listasSubscription = this.listasService.listasCambiadas$.subscribe(() => {
       this.cargarCategorias();
     });
+
+    // Cargar preferencias del localStorage
+    const savedTheme = localStorage.getItem('sidebar-theme');
+    if (savedTheme === 'light') {
+      this.isLightMode = true;
+    }
+
+    const savedCollapsed = localStorage.getItem('sidebar-collapsed');
+    if (savedCollapsed === 'true') {
+      this.isCollapsed = true;
+    }
   }
 
   ngOnDestroy() {
@@ -51,6 +70,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (this.listasSubscription) {
       this.listasSubscription.unsubscribe();
     }
+  }
+
+  // Toggle de colapsar sidebar
+  toggleCollapse() {
+    this.isCollapsed = !this.isCollapsed;
+    localStorage.setItem('sidebar-collapsed', this.isCollapsed.toString());
+    this.sidebarCollapsedChange.emit(this.isCollapsed);
+  }
+
+  // Toggle de tema
+  toggleTheme() {
+    this.isLightMode = !this.isLightMode;
+    localStorage.setItem('sidebar-theme', this.isLightMode ? 'light' : 'dark');
   }
 
   esEmoji(icono: string | null | undefined): boolean {
@@ -101,16 +133,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
       this.categorias = categorias;
 
-      //console.log('Todas las listas:');
-      this.categorias.forEach(cat => {
-        cat.listas?.forEach((lista: any) => {
-          //console.log(`"${lista.nombre}": icono="${lista.icono}"`);
-        });
-      });
-      this.listasSinCategoria.forEach(lista => {
-        //console.log(`"${lista.nombre}" (sin cat): icono="${lista.icono}"`);
-      });
-
     } catch (error) {
       console.error('Error al cargar categorías:', error);
     }
@@ -126,23 +148,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   // ==================== TOOLS ====================
   mostrarListasIndividuales() {
-    //console.log('Función pendiente: mostrar listas individuales');
     this.router.navigate(['/app/listas-individuales']);
   }
 
   mostrarListasImportantes() {
-    //console.log('Función pendiente: mostrar listas importantes');
     this.router.navigate(['/app/listas-importantes']);
   }
 
   mostrarCalendario() {
-    //console.log('Función pendiente: mostrar calendario');
     this.router.navigate(['/app/calendar']);
   }
 
   mostrarListasCompartidas() {
-    this.router.navigate(['app/compartida/:id']);
-    // TODO: Crear página
+    // Navegar a una ruta genérica de compartidas
+    this.router.navigate(['/app/compartida/0']);
   }
 
   mostrarNotas() {
@@ -178,7 +197,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/app/vencidas']);
   }
 
-  // Método legacy para compatibilidad (puedes cambiarlo en el HTML)
+  // Método legacy para compatibilidad
   filtrarPorEstado(estado: string) {
     switch (estado) {
       case 'P':
@@ -200,13 +219,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   cargarCategoria(idCategoria: number) {
     console.log('Función pendiente: mostrar categoría', idCategoria);
-    // TODO: Crear página detalle-categoria
   }
 
-  // ==================== ADMIN ====================
-  /*mostrarAdminSections() {
-    this.router.navigate(['/app/operator']);
-  }*/
+  verTablero(idCategoria: number, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.router.navigate(['/app/tablero', idCategoria]);
+  }
+
   // ==================== MODALS ====================
   abrirModalCategoria() {
     this.abrirModalCategoriaEvent.emit();
@@ -214,7 +235,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   abrirModalLista(idCategoria: string | number, event?: Event) {
     if (event) {
-      event.stopPropagation(); // Evita que se expanda/contraiga la categoría
+      event.stopPropagation();
     }
     const categoriaId = idCategoria === 'sin-categoria' ? null : Number(idCategoria);
     this.abrirModalListaEvent.emit(categoriaId);
@@ -223,6 +244,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   abrirModalListaSinCategoria() {
     this.abrirModalListaEvent.emit(null);
   }
+
   // ==================== ELIMINACIÓN DE CATEGORÍAS ====================
   confirmarEliminarCategoria(categoria: any, event: Event) {
     event.stopPropagation();
@@ -248,7 +270,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.notificacionesService.error('Error al eliminar la categoría. Por favor, intenta de nuevo.');
     }
   }
-  // Método para abrir modal de compartir categoría
+
+  // ==================== COMPARTIR ====================
   abrirModalCompartirCategoria(categoria: any, event: Event) {
     event.stopPropagation();
     this.categoriaParaCompartir = categoria;
@@ -256,15 +279,37 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.modalCompartirAbierto = true;
   }
 
-  // Método para cerrar modal de compartir
   cerrarModalCompartir() {
     this.modalCompartirAbierto = false;
     this.categoriaParaCompartir = null;
   }
 
-  // Callback cuando se comparte exitosamente
   alCompartir(clave: string) {
     this.notificacionesService.exito(`Categoría compartida con clave: ${clave}`);
     this.cerrarModalCompartir();
   }
+
+  // Toggle para mostrar/ocultar el dropdown de listas para compartir
+  toggleCompartirListas(categoria: any, event: Event) {
+    event.stopPropagation();
+
+    if (this.categoriaCompartirAbierta?.idCategoria === categoria.idCategoria) {
+      this.categoriaCompartirAbierta = null;
+    } else {
+      this.categoriaCompartirAbierta = categoria;
+    }
+  }
+
+  // Cerrar el dropdown de listas
+  cerrarCompartirListas() {
+    this.categoriaCompartirAbierta = null;
+  }
+
+  compartirLista(lista: any) {
+    this.itemParaCompartir = lista;
+    this.tipoCompartir = 'lista';
+    this.modalCompartirAbierto = true;
+    this.categoriaCompartirAbierta = null; // Cerrar el dropdown
+  }
+
 }

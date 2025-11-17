@@ -1,4 +1,4 @@
-<div class="tarea-card" [attr.data-tarea-id]="tarea.idTarea" [attr.data-estado]="tarea.estado" (click)="onTareaClick()">
+<div class="tarea-card" [attr.data-tarea-id]="tarea.idTarea" [attr.data-estado]="tarea.estado">
   <div class="tarea-content">
     <!-- Badge de lista en esquina superior derecha -->
     <span *ngIf="tarea.nombreLista" class="tarea-lista-badge">
@@ -16,10 +16,10 @@
         [checked]="tarea.estado === 'C'"
         [disabled]="!puedeEditar"
         (change)="onCheckboxChange($event)"
-        class="tarea-checkbox"
+        (click)="$event.stopPropagation()"
         class="tarea-checkbox">
 
-      <div class="tarea-info">
+      <div class="tarea-info" cdkDragHandle (click)="onTareaClick()">
         <strong [class.tarea-completada]="tarea.estado === 'C'">
           {{ tarea.nombre }}
           <i *ngIf="tarea.prioridad === 'A'" class="fas fa-exclamation-triangle prioridad-alta"></i>
@@ -32,6 +32,13 @@
         <div class="tarea-metadata">
           <span *ngIf="tarea.fechaVencimiento" class="tarea-fecha">
             <i class="far fa-calendar"></i> {{ formatearFecha(tarea.fechaVencimiento) }}
+          </span>
+
+          <span *ngIf="tarea.nombreUsuarioAsignado" class="usuario-asignado-badge">
+            <div class="usuario-avatar-mini">
+              {{ obtenerIniciales(tarea.nombreUsuarioAsignado) }}
+            </div>
+            <span class="usuario-nombre-mini">{{ tarea.nombreUsuarioAsignado }}</span>
           </span>
         </div>
       </div>
@@ -64,6 +71,15 @@
         (click)="cambiarEstado($event, 'P')"
         class="btn-accion">
         <i class="fas fa-redo"></i> Reabrir
+      </button>
+
+      <button
+        *ngIf="puedeAsignar"
+        (click)="abrirModalAsignar($event)"
+        class="btn-accion btn-asignar"
+        [title]="tarea.nombreUsuarioAsignado ? 'Reasignar tarea' : 'Asignar tarea'">
+        <i class="fas fa-user-plus"></i>
+        {{ tarea.nombreUsuarioAsignado ? 'Reasignar' : 'Asignar' }}
       </button>
 
       <button

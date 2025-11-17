@@ -21,7 +21,7 @@ import { NotificacionComponent } from '../../componentes/notification/notificati
   styleUrl: './main-layout.css'
 })
 export class MainLayoutComponent {
-  @ViewChild(SidebarComponent) sidebar!: SidebarComponent;
+  @ViewChild('sidebarComponent') sidebarComponent!: SidebarComponent;
   
   sidebarVisible = true;
   mostrarModalCategoria = false;
@@ -29,7 +29,9 @@ export class MainLayoutComponent {
   categoriaSeleccionadaParaLista: number | null = null;
 
   toggleSidebar() {
-    this.sidebarVisible = !this.sidebarVisible;
+    if (this.sidebarComponent) {
+      this.sidebarComponent.toggleCollapse();
+    }
   }
 
   // ==================== MODALS CATEGORÍAS ====================
@@ -42,7 +44,9 @@ export class MainLayoutComponent {
   }
 
   onCategoriaGuardada() {
-    this.sidebar.cargarCategorias();
+    if (this.sidebarComponent) {
+      this.sidebarComponent.cargarCategorias();
+    }
   }
 
   // ==================== MODALS LISTAS ====================
@@ -57,6 +61,8 @@ export class MainLayoutComponent {
   }
 
   onListaGuardada() {
-    this.sidebar.cargarCategorias();
+    if (this.sidebarComponent) {
+      this.sidebarComponent.cargarCategorias();
+    }
   }
 }

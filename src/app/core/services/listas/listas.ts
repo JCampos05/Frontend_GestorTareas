@@ -20,7 +20,7 @@ export interface Lista {
   idCategoria?: number | null;
   nombreCategoria?: string;
   idUsuario?: number;
-  esPropietario?: boolean; 
+  esPropietario?: boolean;
   esCompartidaConmigo?: boolean;
   fechaCreacion?: Date;
   fechaActualizacion?: Date;
@@ -42,6 +42,16 @@ export class ListasService {
 
   constructor(private http: HttpClient) { }
 
+  private transformarBooleanos(lista: any): Lista {
+    return {
+      ...lista,
+      importante: Boolean(lista.importante === 1 || lista.importante === true),
+      compartible: Boolean(lista.compartible === 1 || lista.compartible === true),
+      esPropietario: Boolean(lista.esPropietario),
+      esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
+    };
+  }
+
   // Método privado para notificar cambios
   private notificarCambio() {
     this.listasCambiadasSubject.next();
@@ -56,7 +66,14 @@ export class ListasService {
   async obtenerListas(): Promise<Lista[]> {
     try {
       const response: any = await firstValueFrom(this.http.get(this.API_URL));
-      return response.success ? response.data : [];
+      const listas = response.success ? response.data : [];
+      return listas.map((lista: any) => ({
+        ...lista,
+        importante: Boolean(lista.importante === 1 || lista.importante === true),
+        compartible: Boolean(lista.compartible === 1 || lista.compartible === true),
+        esPropietario: Boolean(lista.esPropietario),
+        esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
+      }));
     } catch (error) {
       console.error('Error al obtener listas:', error);
       return [];
@@ -66,7 +83,15 @@ export class ListasService {
   async obtenerLista(id: number): Promise<Lista | null> {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
-      return response.success ? response.data : null;
+      if (response.success && response.data) {
+        //  AGREGAR: Transformar booleanos
+        return {
+          ...response.data,
+          importante: Boolean(response.data.importante === 1 || response.data.importante === true),
+          compartible: Boolean(response.data.compartible === 1 || response.data.compartible === true)
+        };
+      }
+      return null;
     } catch (error) {
       console.error('Error al obtener lista:', error);
       return null;
@@ -139,16 +164,21 @@ export class ListasService {
     }
   }
 
-  // ✅ ACTUALIZADO: Usar el nuevo endpoint de compartir
   async obtenerListasCompartidas(): Promise<Lista[]> {
     try {
       const response: any = await firstValueFrom(
         this.http.get(`${this.COMPARTIR_URL}/lista/mis-compartidas`)
       );
 
-      // El endpoint devuelve { listas: [...] }
       if (response && response.listas) {
-        return Array.isArray(response.listas) ? response.listas : [];
+        //  AGREGAR: Transformar booleanos
+        return response.listas.map((lista: any) => ({
+          ...lista,
+          importante: Boolean(lista.importante === 1 || lista.importante === true),
+          compartible: Boolean(lista.compartible === 1 || lista.compartible === true),
+          esPropietario: Boolean(lista.esPropietario),
+          esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
+        }));
       }
       return [];
     } catch (error) {
@@ -157,7 +187,7 @@ export class ListasService {
     }
   }
 
-  // ✅ ACTUALIZADO: Generar clave para compartir
+  //  ACTUALIZADO: Generar clave para compartir
   async hacerCompartible(id: number): Promise<any> {
     try {
       console.log('🔵 Generando clave para lista, ID:', id);

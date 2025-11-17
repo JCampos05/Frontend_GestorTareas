@@ -3,14 +3,20 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ListasService } from '../../../core/services/listas/listas';
 import { CompartirService, UsuarioCompartido, InfoCompartidos } from '../../../core/services/compartir/compartir';
-import { TareasService } from '../../../core/services/tareas/tareas'; // ✅ AGREGAR
+import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
 import { ColumnasComponent } from '../../../componentes/columna/columna';
 import { ModalUsuariosListaComponent } from '../../../componentes/modal-usuarios-lista/modal-usuarios-lista';
+import { ModalAsignarTareaComponent } from '../../../componentes/modal-asignar-tarea/modal-asignar-tarea'; // ✅ NUEVO
 
 @Component({
   selector: 'app-detalle-lista',
   standalone: true,
-  imports: [CommonModule, ColumnasComponent, ModalUsuariosListaComponent],
+  imports: [
+    CommonModule,
+    ColumnasComponent,
+    ModalUsuariosListaComponent,
+    ModalAsignarTareaComponent // ✅ NUEVO
+  ],
   templateUrl: './detalles-lista.html',
   styleUrl: './detalles-lista.css'
 })
@@ -25,31 +31,33 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
   idUsuarioActual: number = 0;
   idCreadorLista: number = 0;
 
-  // Compartir
   usuariosCompartidos: UsuarioCompartido[] = [];
   esPropietario = false;
   esAdmin = false;
   compartible = false;
   modalUsuariosAbierto = false;
 
-  // ✅ AGREGAR: Info completa de compartidos
   infoCompartidos: InfoCompartidos | null = null;
+
+  // ✅ NUEVAS propiedades para asignación
+  modalAsignarAbierto = false;
+  tareaSeleccionada: Tarea | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private listasService: ListasService,
     private compartirService: CompartirService,
-    private tareasService: TareasService // ✅ AGREGAR servicio
+    private tareasService: TareasService
   ) {
     const authUsuario = localStorage.getItem('auth_usuario');
     if (authUsuario) {
       const usuarioData = JSON.parse(authUsuario);
       this.idUsuarioActual = usuarioData.idUsuario || 0;
-      //console.log('👤 Usuario actual cargado:', this.idUsuarioActual);
     } else {
-      console.error('❌ No se encontró auth_usuario en localStorage');
+      console.error('⚠️ No se encontró auth_usuario en localStorage');
     }
   }
+
   ngAfterViewInit() {
     setTimeout(() => this.actualizarPermisosColumnas());
   }
@@ -58,9 +66,10 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
     if (this.columnasComponent) {
       this.columnasComponent.puedeEditar = this.puedeEditarTareas();
       this.columnasComponent.puedeEliminar = this.puedeEliminarTareas();
-      //console.log('🔄 Permisos actualizados');
+      this.columnasComponent.puedeAsignar = this.puedeAsignarTareas(); // ✅ NUEVO
     }
   }
+
   async ngOnInit() {
     this.route.params.subscribe(async params => {
       this.idLista = +params['id'];
@@ -72,7 +81,6 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
   async cargarInfoLista() {
     try {
       const lista = await this.listasService.obtenerListaConTareas(this.idLista);
-      //console.log('📦 DATOS COMPLETOS DE LA LISTA:', lista);
 
       if (lista) {
         this.nombreLista = lista.nombre || '';
@@ -86,44 +94,24 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
   }
 
   cargarInfoCompartidos() {
-    //console.log('🔄 Cargando info de compartidos para lista:', this.idLista);
-
     this.compartirService.obtenerInfoCompartidosLista(this.idLista).subscribe({
       next: (infoCompartidos) => {
-        //console.log('📋 INFO COMPARTIDOS RECIBIDO:', infoCompartidos);
-
         this.infoCompartidos = infoCompartidos;
 
         if (infoCompartidos) {
           this.usuariosCompartidos = infoCompartidos.usuarios || [];
           this.compartible = !!infoCompartidos.lista?.claveCompartir;
 
-          // Buscar el creador en los usuarios
           const usuarioCreador = this.usuariosCompartidos.find(u => u.esCreador);
           this.idCreadorLista = usuarioCreador?.idUsuario || 0;
 
-          // Verificar si eres el propietario
           this.esPropietario = this.idCreadorLista === this.idUsuarioActual;
 
-          // Tu rol viene directo de tuRol
           const tuRol = infoCompartidos.lista?.tuRol;
           this.esAdmin = tuRol === 'admin' || this.esPropietario;
-
-          //console.log('🔍 === ESTADO DESPUÉS DE CARGAR ===');
-          /*console.log({
-            idCreadorLista: this.idCreadorLista,
-            idUsuarioActual: this.idUsuarioActual,
-            esPropietario: this.esPropietario,
-            esAdmin: this.esAdmin,
-            tuRol: tuRol,
-            compartible: this.compartible,
-            totalUsuarios: this.usuariosCompartidos.length
-          });*/
-          //console.log('===================================');
         }
       },
       error: (error) => {
-        //console.log('⚠️ No hay info de compartidos (lista no compartida):', error);
         this.compartible = false;
         this.usuariosCompartidos = [];
         this.infoCompartidos = null;
@@ -140,17 +128,9 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
         this.idCreadorLista = lista.idUsuario || 0;
         this.esPropietario = lista.idUsuario === this.idUsuarioActual;
 
-        // 🔧 FIX: Si eres propietario, también eres admin
         if (this.esPropietario) {
           this.esAdmin = true;
         }
-
-        /*console.log('✅ Verificación directa:', {
-          idCreadorLista: this.idCreadorLista,
-          idUsuarioActual: this.idUsuarioActual,
-          esPropietario: this.esPropietario,
-          esAdmin: this.esAdmin
-        });*/
       }
     } catch (error) {
       console.error('Error al verificar propietario:', error);
@@ -158,63 +138,51 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
   }
 
   puedeEditarTareas(): boolean {
-    //console.log('🔍 === VERIFICANDO PERMISOS DE EDICIÓN ===');
-
-    // 1️⃣ Verificar si eres propietario por ID directo
     if (this.idCreadorLista === this.idUsuarioActual && this.idCreadorLista !== 0) {
-      //console.log('✅ Eres propietario (por ID), puedes editar');
       return true;
     }
 
-    // 2️⃣ Si no hay info de compartidos, no puedes editar
     if (!this.infoCompartidos) {
-      //console.log('❌ No hay info de compartidos y no eres propietario');
       return false;
     }
 
-    // 3️⃣ Obtener tu rol desde la info de compartidos
     const tuRol = this.infoCompartidos.lista?.tuRol;
 
-    /*console.log('📊 Debug completo:', {
-      idCreadorLista: this.idCreadorLista,
-      idUsuarioActual: this.idUsuarioActual,
-      esPropietario: this.esPropietario,
-      tuRol: tuRol,
-      tieneInfoCompartidos: !!this.infoCompartidos
-    });*/
-
-    // 4️⃣ Verificar si el rol permite editar
     const rolesConPermiso = ['admin', 'editor', 'colaborador'];
     const puedeEditar = rolesConPermiso.includes(tuRol || '');
-
-    //console.log(`${puedeEditar ? '✅' : '❌'} Rol "${tuRol}" ${puedeEditar ? 'SÍ' : 'NO'} puede editar`);
-    //console.log('================================');
 
     return puedeEditar;
   }
 
   puedeEliminarTareas(): boolean {
-    // 1️⃣ Verificar propietario directo
     if (this.idCreadorLista === this.idUsuarioActual && this.idCreadorLista !== 0) {
-      //console.log('✅ Eres propietario, puedes eliminar');
       return true;
     }
 
-    // 2️⃣ Si no hay info compartidos, no puedes eliminar
     if (!this.infoCompartidos) {
-      //console.log('❌ No hay info compartidos, no puedes eliminar');
       return false;
     }
 
-    // 3️⃣ Verificar rol desde tuRol
     const tuRol = this.infoCompartidos.lista?.tuRol;
 
-    // Solo admin y editor pueden eliminar
     const puedeEliminar = ['admin', 'editor'].includes(tuRol || '');
 
-    //console.log(`${puedeEliminar ? '✅' : '❌'} Rol "${tuRol}" ${puedeEliminar ? 'SÍ' : 'NO'} puede eliminar`);
-
     return puedeEliminar;
+  }
+
+  // ✅ NUEVO: Permiso para asignar tareas
+  puedeAsignarTareas(): boolean {
+    // Solo propietario y admin pueden asignar
+    if (this.idCreadorLista === this.idUsuarioActual && this.idCreadorLista !== 0) {
+      return true;
+    }
+
+    if (!this.infoCompartidos) {
+      return false;
+    }
+
+    const tuRol = this.infoCompartidos.lista?.tuRol;
+    return tuRol === 'admin';
   }
 
   puedeCompartir(): boolean {
@@ -226,15 +194,11 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
       u => u.idUsuario === this.idUsuarioActual
     )?.rol;
 
-    // Solo admin puede compartir
     return tuRol === 'admin';
   }
 
-  // ✅ MÉTODO CORREGIDO para cambiar estado de tarea
   toggleTareaCompletada(tarea: any) {
-    // Verificar permisos ANTES de hacer cualquier cambio
     if (!this.puedeEditarTareas()) {
-      //console.warn('⚠️ Usuario sin permisos para editar tareas');
       alert('No tienes permisos para modificar tareas en esta lista. Tu rol es de solo lectura.');
       return;
     }
@@ -242,20 +206,15 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
     const estadoAnterior = tarea.estado;
     const nuevoEstado = tarea.estado === 'C' ? 'P' : 'C';
 
-    // Optimistic update
     tarea.estado = nuevoEstado;
 
     this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado).subscribe({
       next: (response) => {
-        //console.log('✅ Estado actualizado exitosamente');
+        // Éxito
       },
       error: (error) => {
-        //console.error('❌ Error al cambiar estado:', error);
-
-        // Revertir el cambio
         tarea.estado = estadoAnterior;
 
-        // Mostrar mensaje según el error
         if (error.status === 403) {
           const mensaje = error.error?.detalles || 'No tienes permisos para modificar tareas en esta lista';
           alert(mensaje);
@@ -266,18 +225,58 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
     });
   }
 
+  abrirModalAsignarTarea(tarea: Tarea) {
+    console.log('📋 Abriendo modal de asignación para tarea:', tarea);
+    this.tareaSeleccionada = tarea;
+    this.modalAsignarAbierto = true;
+  }
+
+  abrirModalAsignar() {
+    console.log('📋 Usuarios compartidos:', this.usuariosCompartidos.length);
+
+    // Verificar que hay usuarios compartidos
+    /*if (this.usuariosCompartidos.length <= 1) { // <= 1 porque el propietario también cuenta
+      alert('Primero debes compartir la lista con otros usuarios para poder asignar tareas.');
+      return;
+    }*/
+
+    // Abrir modal sin tarea específica
+    this.tareaSeleccionada = null;
+    this.modalAsignarAbierto = true;
+
+    console.log('📋 Abriendo modal de asignación (sin tarea específica)');
+  }
+
+  cerrarModalAsignar() {
+    this.modalAsignarAbierto = false;
+    this.tareaSeleccionada = null;
+  }
+
+  async onTareaAsignada() {
+    console.log('✅ Tarea asignada/desasignada exitosamente');
+
+    // Cerrar el modal primero
+    this.cerrarModalAsignar();
+
+    // Recargar SOLO las tareas de la lista actual, sin cambiar de vista
+    if (this.columnasComponent) {
+      const idLista = this.idLista;
+
+      if (idLista) {
+        // Recargar tareas de esta lista específica
+        await this.columnasComponent.cargarTareasDeLista(idLista);
+      } else {
+        // Recargar todas las tareas (para vista "Mis tareas")
+        await this.columnasComponent.cargarTareas();
+      }
+    }
+  }
+
   abrirModalUsuarios() {
-    //console.log('📂 Abriendo modal de usuarios');
-    /*console.log('📊 Estado actual:', {
-      compartible: this.compartible,
-      esPropietario: this.esPropietario,
-      esAdmin: this.esAdmin
-    });*/
     this.modalUsuariosAbierto = true;
   }
 
   cerrarModalUsuarios() {
-    //console.log('🔒 Cerrando modal de usuarios');
     this.modalUsuariosAbierto = false;
   }
 
@@ -296,17 +295,14 @@ export class DetalleListaComponent implements OnInit, AfterViewInit {
 
     try {
       await this.listasService.actualizarLista(this.idLista, datosActualizados);
-      //console.log('✅ Lista marcada como compartible');
       this.compartible = true;
       alert('Lista ahora es compartible. ¡Ya puedes gestionar usuarios!');
     } catch (error) {
-      //console.error('❌ Error al hacer compartible:', error);
       alert('Error al actualizar lista');
     }
   }
 
   onUsuariosActualizados() {
-    //console.log('🔄 Usuarios actualizados, recargando info...');
     this.cargarInfoCompartidos();
   }
 

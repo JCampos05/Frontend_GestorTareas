@@ -20,7 +20,8 @@ export const routes: Routes = [
             {path: 'compartida/:id', loadComponent: () => import('./paginas/lista-compartida/lista-compartida').then(m => m.ListaCompartidaComponent)},
             {path: 'lista/:id', loadComponent: () => import('./paginas/main-layout/detalles-lista/detalles-lista').then(m => m.DetalleListaComponent)},
             {path: 'calendar', loadComponent: () => import('./paginas/main-layout/calendario/calendario').then(m =>m.CalendarioComponent)},
-            {path: 'notas', loadComponent: () => import('./paginas/notas/notas').then(m => m.Notas)}
+            {path: 'notas', loadComponent: () => import('./paginas/notas/notas').then(m => m.Notas)},
+            {path: 'tablero/:id', loadComponent: () => import('./paginas/main-layout/vista-tablero/vista-tablero').then(m => m.VistaTableroComponent)}
             //{path: 'operator', loadComponent: () => import('./componentes/operator-section/operator-section').then(m => m.AdminSectionsComponent)}
         ]
     },

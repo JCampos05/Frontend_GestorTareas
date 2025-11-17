@@ -43,7 +43,11 @@ export class NotificationService {
   cargarNotificaciones(): void {
     this.http.get<NotificacionesResponse>(this.apiUrl).subscribe({
       next: (response) => {
-        const notificaciones = response.notificaciones || [];
+        const notificaciones = (response.notificaciones || []).map((n: any) => ({
+          ...n,
+          // AGREGAR: Transformar leida a boolean
+          leida: Boolean(n.leida === 1 || n.leida === true)
+        }));
         this.notificacionesSubject.next(notificaciones);
         this.actualizarCantidadNoLeidas(notificaciones);
       },

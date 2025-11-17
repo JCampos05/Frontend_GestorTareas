@@ -1,106 +1,71 @@
-/* Estilos globales del body y html */
-body, html {
-  margin: 0;
-  padding: 0;
-  background: #f4f5f7;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-}
-
+/* ✅ CONTENEDOR PRINCIPAL - Grid de 3 columnas */
 #contentArea {
-  display: flex;
-  height: calc(100vh - 60px); /* Ajusta según tu header */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
+  gap: 20px;
+  padding: 20px;
+  height: calc(100vh - 140px);
   overflow-x: auto;
-  overflow-y: hidden;
-  gap: 16px;
-  padding: 24px 20px;
-  background: #f4f5f7;
-  margin: 0;
 }
 
-/* Scrollbar horizontal del área de contenido */
-#contentArea::-webkit-scrollbar {
-  height: 10px;
-}
-
-#contentArea::-webkit-scrollbar-track {
-  background: #ebecf0;
-  border-radius: 5px;
-}
-
-#contentArea::-webkit-scrollbar-thumb {
-  background: rgba(9, 30, 66, 0.2);
-  border-radius: 5px;
-}
-
-#contentArea::-webkit-scrollbar-thumb:hover {
-  background: rgba(9, 30, 66, 0.35);
-}
-
+/* ✅ COLUMNA INDIVIDUAL */
 .columna {
-  min-width: 300px;
-  width: 300px;
-  flex-shrink: 0;
+  background: #f8f9fa;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  background: #ebecf0;
-  border-radius: 12px;
-  height: fit-content;
-  max-height: calc(100vh - 120px);
-  box-shadow: 0 1px 3px rgba(9, 30, 66, 0.12);
+  min-width: 280px;
+  max-height: 100%;
 }
 
 .columna-header {
-  padding: 14px 16px;
+  padding: 16px 20px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 16px;
+  color: #172b4d;
+  border-bottom: 2px solid #e4e6ea;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-shrink: 0;
-  color: #44546f;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  background: #ebecf0;
+  background: #fff;
   border-radius: 12px 12px 0 0;
-  border-bottom: 1px solid #dfe1e6;
 }
 
 .btn-agregar {
   width: 32px;
   height: 32px;
-  font-size: 22px;
-  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
   border: none;
+  background: #0052cc;
+  color: white;
+  font-size: 20px;
   cursor: pointer;
-  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  border-radius: 6px;
-  color: #44546f;
-  font-weight: 300;
-  line-height: 1;
+  transition: all 0.2s;
 }
 
-.btn-agregar:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: #172b4d;
+.btn-agregar:hover:not(:disabled) {
+  background: #0747a6;
   transform: scale(1.05);
 }
 
-.btn-agregar:active {
-  transform: scale(0.95);
+.btn-agregar:disabled {
+  background: #dfe1e6;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
+/* ✅ CONTENIDO DE LA COLUMNA */
 .columna-content {
-  flex: 1;
+  padding: 16px;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 8px;
-  min-height: 120px;
-  background: #ebecf0;
-  border-radius: 0 0 12px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100% - 60px);
 }
 
 .columna-content::-webkit-scrollbar {
@@ -109,126 +74,157 @@ body, html {
 
 .columna-content::-webkit-scrollbar-track {
   background: transparent;
-  margin: 4px 0;
 }
 
 .columna-content::-webkit-scrollbar-thumb {
-  background: rgba(9, 30, 66, 0.15);
+  background: #c1c7d0;
   border-radius: 4px;
 }
 
 .columna-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(9, 30, 66, 0.3);
+  background: #a5adba;
 }
 
 .sin-tareas {
-  padding: 32px 16px;
-  color: #626f86;
   text-align: center;
+  color: #7a869a;
+  padding: 40px 20px;
+  font-size: 14px;
   font-style: italic;
-  font-size: 13px;
-  line-height: 1.6;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  margin: 4px;
-  border: 2px dashed #c1c7d0;
 }
 
+/* ✅ BOTÓN FLOTANTE */
 .btn-flotante {
   position: fixed;
-  bottom: 32px;
-  right: 32px;
+  bottom: 30px;
+  right: 30px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0052cc 0%, #0065ff 100%);
+  background: #0052cc;
   color: white;
   border: none;
   font-size: 28px;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 82, 204, 0.4);
-  transition: all 0.3s ease;
-  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 300;
+  transition: all 0.3s;
+  z-index: 1000;
 }
 
-.btn-flotante:hover {
-  transform: scale(1.1) rotate(90deg);
-  background: linear-gradient(135deg, #0065ff 0%, #0747a6 100%);
-  box-shadow: 0 8px 24px rgba(0, 82, 204, 0.5);
+.btn-flotante:hover:not(:disabled) {
+  background: #0747a6;
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 82, 204, 0.5);
 }
 
-.btn-flotante:active {
-  transform: scale(1.05) rotate(90deg);
+.btn-flotante:disabled {
+  background: #dfe1e6;
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
 }
 
-/* Efectos de arrastrar y soltar */
+/* ✅ DRAG & DROP STYLES */
 .cdk-drag-preview {
-  box-shadow: 0 10px 30px rgba(9, 30, 66, 0.3);
-  opacity: 0.95;
-  transform: rotate(3deg);
+  opacity: 0.8;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
-  background: white;
 }
 
 .cdk-drag-placeholder {
-  opacity: 0;
-  background: rgba(9, 30, 66, 0.08);
-  border: 2px dashed #6b778c;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  opacity: 0.4;
 }
 
 .cdk-drag-animating {
-  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.columna-content.cdk-drop-list-dragging .app-tarea-card:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* Animación al soltar */
-.columna-content.cdk-drop-list-receiving {
-  background: rgba(0, 82, 204, 0.05);
-  border-radius: 0 0 12px 12px;
+.columna-content.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ✅ RESPONSIVE - TABLETS */
+@media (max-width: 1024px) {
   #contentArea {
-    padding: 16px 12px;
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+    gap: 16px;
+    padding: 16px;
   }
 
   .columna {
-    min-width: 280px;
-    width: 280px;
+    min-width: 250px;
+  }
+
+  .btn-flotante {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
   }
 }
 
+/* ✅ RESPONSIVE - MÓVILES */
+@media (max-width: 768px) {
+  #contentArea {
+    grid-template-columns: 1fr; /* 1 columna en móviles */
+    gap: 12px;
+    padding: 12px;
+    height: auto;
+    overflow-x: visible;
+  }
 
-.btn-agregar:disabled,
-.btn-flotante:disabled {
-  background-color: #ccc !important;
-  cursor: not-allowed;
-  opacity: 0.5;
-  pointer-events: none;
+  .columna {
+    min-width: 100%;
+    max-height: 400px; /* Altura fija en móvil */
+  }
+
+  .columna-header {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .btn-agregar {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+
+  .btn-flotante {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+
+  .columna-content {
+    padding: 12px;
+    gap: 8px;
+  }
 }
 
-.cdk-drop-list-disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
+/* ✅ MÓVILES PEQUEÑOS */
+@media (max-width: 480px) {
+  #contentArea {
+    padding: 8px;
+    gap: 8px;
+  }
 
-.cdk-drag-disabled {
-  cursor: not-allowed !important;
-  opacity: 0.7;
-}
+  .columna {
+    min-width: 100%;
+    max-height: 350px;
+  }
 
-.cdk-drag-disabled:hover {
-  transform: none !important;
-  box-shadow: none !important;
+  .columna-header {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .columna-content {
+    padding: 8px;
+  }
 }

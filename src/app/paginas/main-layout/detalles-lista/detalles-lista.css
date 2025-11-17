@@ -19,7 +19,8 @@
   gap: 12px;
   margin: 0;
   font-size: 1.8rem;
-  color: #333;
+  color: #2c3e50;
+  font-weight: 600;
 }
 
 .lista-icono {
@@ -31,18 +32,20 @@
   justify-content: center;
   font-size: 1.5rem;
   color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .lista-descripcion {
-  color: #666;
+  color: #7f8c8d;
   margin: 10px 0 0 57px;
   font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .usuarios-avatares {
@@ -105,7 +108,8 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.btn-gestionar-usuarios {
+/* Botón Asignar Tareas */
+.btn-asignar-tareas {
   padding: 10px 18px;
   background: #0052CC;
   color: white;
@@ -114,16 +118,74 @@
   cursor: pointer;
   font-weight: 500;
   font-size: 0.95rem;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0, 82, 204, 0.2);
+}
+
+.btn-asignar-tareas:hover {
+  background: #0747A6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 82, 204, 0.3);
+}
+
+.btn-asignar-tareas i {
+  font-size: 1rem;
+}
+
+/* Botón Gestionar Usuarios */
+.btn-gestionar-usuarios {
+  padding: 10px 18px;
+  background: white;
+  color: #0052CC;
+  border: 2px solid #0052CC;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .btn-gestionar-usuarios:hover {
-  background: #0747A6;
+  background: #0052CC;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 82, 204, 0.3);
 }
 
+.btn-gestionar-usuarios i {
+  font-size: 1rem;
+}
+
+/* Alerta de Solo Lectura */
+.alert-solo-lectura {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 15px 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #856404;
+  font-size: 0.95rem;
+}
+
+.alert-solo-lectura i {
+  font-size: 1.1rem;
+  color: #ffc107;
+}
+
+.alert-solo-lectura strong {
+  font-weight: 600;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .header-top {
     flex-direction: column;
@@ -133,29 +195,38 @@
 
   .header-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .lista-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .lista-descripcion {
+    margin-left: 0;
+  }
+
+  .btn-asignar-tareas,
+  .btn-gestionar-usuarios {
+    padding: 8px 14px;
+    font-size: 0.9rem;
   }
 }
 
 
-.alert-solo-lectura {
-  background: #E3FCEF;
-  border: 1px solid #57D9A3;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 15px 0 20px 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #006644;
-  font-size: 0.95rem;
+.btn-tablero-categoria {
+  background: none;
+  border: none;
+  color: #7a869a;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-size: 13px;
 }
 
-.alert-solo-lectura i {
-  font-size: 1.1rem;
-  color: #00875A;
-}
-
-.alert-solo-lectura strong {
-  font-weight: 600;
+.btn-tablero-categoria:hover {
+  background: #e8f4ff;
+  color: #0052cc;
 }

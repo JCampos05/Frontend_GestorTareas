@@ -1,6 +1,5 @@
-<!-- modal-noti-user.html -->
-<div class="modal-overlay" *ngIf="isOpen" (click)="cerrar()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<div class="modal-overlay" [class.show]="isOpen">
+  <div class="modal-content">
     <div class="modal-header">
       <h2>Notificaciones</h2>
       <button class="btn-close" (click)="cerrar()">
@@ -12,7 +11,8 @@
       <!-- Botón para marcar todas como leídas -->
       <div class="acciones-header" *ngIf="tieneNotificacionesNoLeidas">
         <button class="btn-marcar-todas" (click)="marcarTodasLeidas()">
-          <i class="fas fa-check-double"></i> Marcar todas como leídas
+          <i class="fas fa-check-double"></i>
+          <span>Marcar todas como leídas</span>
         </button>
       </div>
 
@@ -39,14 +39,16 @@
                 (click)="aceptarInvitacion(notif); $event.stopPropagation()"
                 [disabled]="procesando"
               >
-                <i class="fas fa-check"></i> Aceptar
+                <i class="fas fa-check"></i>
+                <span>Aceptar</span>
               </button>
               <button 
                 class="btn-rechazar" 
                 (click)="rechazarInvitacion(notif); $event.stopPropagation()"
                 [disabled]="procesando"
               >
-                <i class="fas fa-times"></i> Rechazar
+                <i class="fas fa-times"></i>
+                <span>Rechazar</span>
               </button>
             </div>
 

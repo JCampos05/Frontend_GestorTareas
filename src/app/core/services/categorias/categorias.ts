@@ -27,7 +27,7 @@ export class CategoriasService {
   private API_URL = 'http://localhost:3000/api/categorias';
   private COMPARTIR_URL = 'http://localhost:3000/api/compartir';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   async crearCategoria(categoria: Categoria): Promise<any> {
     return firstValueFrom(this.http.post(this.API_URL, categoria));
@@ -36,8 +36,14 @@ export class CategoriasService {
   async obtenerCategorias(): Promise<Categoria[]> {
     try {
       const response: any = await firstValueFrom(this.http.get(this.API_URL));
-      // El backend devuelve { categorias: [...] }
-      return response.categorias || [];
+      const categorias = response.categorias || [];
+      //  AGREGAR: Transformar booleanos
+      return categorias.map((cat: any) => ({
+        ...cat,
+        esPropietario: Boolean(cat.esPropietario),
+        esCreador: Boolean(cat.esCreador),
+        compartible: Boolean(cat.compartible === 1 || cat.compartible === true)
+      }));
     } catch (error) {
       console.error('Error al obtener categorías:', error);
       return [];
@@ -47,7 +53,16 @@ export class CategoriasService {
   async obtenerCategoria(id: number): Promise<Categoria | null> {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
-      return response.success ? response.data : null;
+      if (response.success && response.data) {
+        //  AGREGAR: Transformar booleanos
+        return {
+          ...response.data,
+          esPropietario: Boolean(response.data.esPropietario),
+          esCreador: Boolean(response.data.esCreador),
+          compartible: Boolean(response.data.compartible === 1 || response.data.compartible === true)
+        };
+      }
+      return null;
     } catch (error) {
       console.error('Error al obtener categoría:', error);
       return null;

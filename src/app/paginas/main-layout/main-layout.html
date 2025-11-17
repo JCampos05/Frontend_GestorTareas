@@ -1,7 +1,9 @@
 <div class="app-container">
   <app-header (toggleSidebarEvent)="toggleSidebar()"></app-header>
+  
   <div class="main-container">
     <app-sidebar 
+      #sidebarComponent 
       [visible]="sidebarVisible"
       (abrirModalCategoriaEvent)="abrirModalCategoria()"
       (abrirModalListaEvent)="abrirModalLista($event)">
@@ -25,5 +27,6 @@
     (cerrarModal)="cerrarModalLista()"
     (listaGuardada)="onListaGuardada()">
   </app-modal-lista>
+  
   <app-notificacion></app-notificacion>
 </div>

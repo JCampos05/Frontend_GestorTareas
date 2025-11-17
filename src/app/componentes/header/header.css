@@ -44,9 +44,9 @@
 }
 
 #header-left span {
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 600;
-  color: #172b4d;
+  color: #1B264F;
   letter-spacing: -0.2px;
 }
 
@@ -345,28 +345,29 @@
 }
 
 
-
+.notificaciones-wrapper {
+  position: relative;
+}
 /* Botón de notificaciones */
 .btn-notificaciones {
   position: relative;
   background: none;
   border: none;
-  color: #6b7280;
+  color: #5e6c84;
   cursor: pointer;
-  padding: 10px 14px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   transition: all 0.2s;
-  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
+  padding: 0;
 }
 
 .btn-notificaciones:hover {
-  background: #f3f4f6;
-  color: #2563eb;
+  background: #f4f5f7;
+  color: #172b4d;
 }
 
 .btn-notificaciones:active {
@@ -392,6 +393,23 @@
   line-height: 1;
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
   animation: pulse-badge 2s infinite;
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-notificaciones {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .btn-notificaciones i {
+    font-size: 16px;
+  }
+  
+  .badge-notificaciones {
+    font-size: 9px;
+    min-width: 14px;
+    height: 14px;
+  }
 }
 
 @keyframes pulse-badge {

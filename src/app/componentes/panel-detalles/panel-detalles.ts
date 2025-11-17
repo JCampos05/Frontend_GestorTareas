@@ -5,6 +5,7 @@ import { TareasService, Tarea } from '../../core/services/tareas/tareas';
 import { Lista, ListasService } from '../../core/services/listas/listas';
 import { DropdownListaComponent } from '../dropdown-lista/dropdown-lista';
 import { NotificacionesService } from '../../core/services/notification/notification';
+import { NotificationService } from '../../core/services/notification-user/notification-user';
 
 @Component({
   selector: 'app-panel-detalles',
@@ -63,33 +64,23 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
   constructor(
     private tareasService: TareasService,
     private listasService: ListasService,
-    private notificacionesService: NotificacionesService
+    private notificacionesService: NotificacionesService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
     this.cargarListas();
   }
 
-  
-
-ngOnChanges(changes: SimpleChanges) {
-    /*console.log('🔍 Panel Detalles - ngOnChanges:', {
-      abierto: this.abierto,
-      miDiaPredeterminado: this.miDiaPredeterminado,
-      changes: changes
-    });*/
-    
+  ngOnChanges(changes: SimpleChanges) {
     if (changes['abierto'] && this.abierto) {
-      // Recargar listas cada vez que se abre el panel
       this.cargarListas();
 
       if (this.idTarea) {
         this.cargarTarea(this.idTarea);
       } else {
         this.limpiarFormulario();
-        // Siempre aplicar miDiaPredeterminado después de limpiar
         this.miDia = this.miDiaPredeterminado;
-        //console.log('✅ miDia establecido a:', this.miDia);
       }
     } else if (changes['idTarea'] && this.idTarea && !changes['abierto']) {
       this.cargarTarea(this.idTarea);
@@ -99,12 +90,6 @@ ngOnChanges(changes: SimpleChanges) {
   async cargarListas() {
     try {
       this.listas = await this.listasService.obtenerListas();
-      // DEBUG: Ver qué iconos tienen las listas
-      /*console.log('📋 Listas cargadas:', this.listas.map(l => ({
-        nombre: l.nombre,
-        icono: l.icono,
-        esEmoji: this.esEmoji(l.icono)
-      })));*/
     } catch (error) {
       console.error('Error al cargar listas:', error);
     }
@@ -121,7 +106,6 @@ ngOnChanges(changes: SimpleChanges) {
   }
 
   obtenerIconoTexto(icono: string | null | undefined): string {
-    // Para el select, mostramos un símbolo genérico si es un icono FA
     if (!icono || icono === 'null' || icono === '') return '📋';
     if (icono.trim().startsWith('fa')) return '📋';
     return icono;
@@ -204,6 +188,14 @@ ngOnChanges(changes: SimpleChanges) {
 
   agregarPaso() {
     this.pasos.push('');
+    // Enfocar el nuevo input después de que Angular actualice el DOM
+    setTimeout(() => {
+      const index = this.pasos.length - 1;
+      const input = document.getElementById(`paso-input-${index}`) as HTMLInputElement;
+      if (input) {
+        input.focus();
+      }
+    }, 100);
   }
 
   eliminarPaso(index: number) {
@@ -278,6 +270,73 @@ ngOnChanges(changes: SimpleChanges) {
     this.horaRecordatorio = `${hours}:${minutes}`;
   }
 
+  // NUEVO: Método para programar notificaciones de repetición
+  private programarNotificacionRepeticion(tarea: Tarea) {
+    if (!tarea.repetir || !tarea.fechaVencimiento) return;
+
+    // Calcular la próxima fecha según el tipo de repetición
+    const proximaFecha = this.calcularProximaFechaRepeticion(
+      tarea.fechaVencimiento,
+      tarea.tipoRepeticion || 'diario',
+      tarea.configRepeticion
+    );
+
+    // Aquí podrías hacer una llamada al backend para programar la notificación
+    // Por ahora, lo dejamos preparado para cuando implementes el endpoint
+    console.log('Próxima repetición programada para:', proximaFecha);
+  }
+
+  // NUEVO: Calcular próxima fecha de repetición
+  private calcularProximaFechaRepeticion(
+    fechaBase: string,
+    tipoRepeticion: string,
+    configRepeticion?: string
+  ): Date {
+    const fecha = new Date(fechaBase);
+
+    switch (tipoRepeticion) {
+      case 'diario':
+        fecha.setDate(fecha.getDate() + 1);
+        break;
+      case 'laborales':
+        // Saltar al siguiente día laboral
+        do {
+          fecha.setDate(fecha.getDate() + 1);
+        } while (fecha.getDay() === 0 || fecha.getDay() === 6);
+        break;
+      case 'semanal':
+        fecha.setDate(fecha.getDate() + 7);
+        break;
+      case 'mensual':
+        fecha.setMonth(fecha.getMonth() + 1);
+        break;
+      case 'personalizado':
+        if (configRepeticion) {
+          const config = typeof configRepeticion === 'string'
+            ? JSON.parse(configRepeticion)
+            : configRepeticion;
+
+          switch (config.unidad) {
+            case 'dias':
+              fecha.setDate(fecha.getDate() + config.cada);
+              break;
+            case 'semanas':
+              fecha.setDate(fecha.getDate() + (config.cada * 7));
+              break;
+            case 'meses':
+              fecha.setMonth(fecha.getMonth() + config.cada);
+              break;
+            case 'años':
+              fecha.setFullYear(fecha.getFullYear() + config.cada);
+              break;
+          }
+        }
+        break;
+    }
+
+    return fecha;
+  }
+
   async onSubmit() {
     if (!this.nombre.trim()) {
       this.notificacionesService.advertencia('El nombre es requerido');
@@ -332,18 +391,41 @@ ngOnChanges(changes: SimpleChanges) {
         this.notificacionesService.exito('Tarea creada exitosamente');
       }
 
+      //Programar notificación de repetición si aplica
+      if (tarea.repetir && fechaVencimientoFinal) {
+        this.programarNotificacionRepeticion(tarea);
+      }
+
       this.tareaGuardada.emit();
       this.limpiarFormulario();
     } catch (error) {
       console.error('Error al guardar tarea:', error);
-      alert('Error al guardar la tarea');
+      this.notificacionesService.error('Error al guardar la tarea');
     }
   }
+
   obtenerTextoListaSimple(lista: Lista): string {
-    // Solo mostrar emoji si realmente es un emoji, de lo contrario solo el nombre
     if (this.esEmoji(lista.icono)) {
       return `${lista.icono} ${lista.nombre}`;
     }
     return lista.nombre;
+  }
+
+  // Método para actualizar paso sin usar ngModel
+  actualizarPaso(index: number, event: any) {
+    this.pasos[index] = event.target.value;
+  }
+
+  // Método simplificado para agregar paso con Enter
+  agregarPasoDesdeEnter(index: number, event: Event) {
+    event.preventDefault();
+
+    // Si el paso actual tiene contenido, agregar uno nuevo
+    if (this.pasos[index] && this.pasos[index].trim()) {
+      this.agregarPaso();
+    }
+  }
+  trackByIndex(index: number, item: any): number {
+    return index;
   }
 }

@@ -41,7 +41,7 @@
                     </span>
                 </div>
 
-                <!-- ✅ BADGES: Mostrar AMBOS si aplican -->
+                <!--  BADGES: Mostrar AMBOS si aplican -->
                 <div class="lista-badges-container">
                     <div class="lista-badge badge-importante" *ngIf="lista.importante">
                         <i class="fas fa-star"></i> Importante
@@ -86,18 +86,18 @@
     </div>
 </div>
 
-<!-- Modal de confirmaciÃ³n de eliminaciÃ³n -->
+<!-- Modal de confirmación de eliminación -->
 <div *ngIf="listaAEliminar" class="modal-overlay" (click)="cancelarEliminar()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar eliminaciÃ³n</h3>
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar eliminación</h3>
         </div>
         <div class="modal-body">
             <p>
-                Â¿EstÃ¡s seguro que deseas eliminar la lista <strong>"{{ listaAEliminar.nombre }}"</strong>?
+                ¿Estás seguro que deseas eliminar la lista <strong>"{{ listaAEliminar.nombre }}"</strong>?
             </p>
             <p class="advertencia">
-                Esta acciÃ³n tambiÃ©n eliminarÃ¡ todas las tareas asociadas y no se puede deshacer.
+                Esta acción también eliminará todas las tareas asociadas y no se puede deshacer.
             </p>
         </div>
         <div class="modal-footer">

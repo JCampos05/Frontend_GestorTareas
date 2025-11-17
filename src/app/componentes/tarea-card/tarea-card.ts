@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TareasService, Tarea } from '../../core/services/tareas/tareas';
 import { NotificacionesService } from '../../core/services/notification/notification';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tarea-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CdkDragHandle],
   templateUrl: './tarea-card.html',
   styleUrl: './tarea-card.css'
 })
@@ -14,51 +15,73 @@ export class TareaCardComponent {
   @Input() tarea!: Tarea;
   @Input() puedeEditar: boolean = true;
   @Input() puedeEliminar: boolean = true;
+  @Input() puedeAsignar: boolean = false; // ✅ NUEVO: Permiso para asignar tareas
+
   @Output() tareaClick = new EventEmitter<void>();
   @Output() estadoCambiado = new EventEmitter<void>();
   @Output() tareaEliminada = new EventEmitter<void>();
+  @Output() asignarClick = new EventEmitter<void>(); // ✅ NUEVO: Evento para abrir modal
 
   constructor(
     private tareasService: TareasService,
     private notificacionesService: NotificacionesService
-  ) {}
+  ) { }
 
   onTareaClick() {
     this.tareaClick.emit();
   }
 
-  async onCheckboxChange(event: Event) {
-    event.stopPropagation();
-    const checkbox = event.target as HTMLInputElement;
-    const nuevoEstado = checkbox.checked ? 'C' : 'P';
-    
-    try {
-      await this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado);
-      this.tarea.estado = nuevoEstado;
+onCheckboxChange(event: Event) {
+  event.stopPropagation();
+  const checkbox = event.target as HTMLInputElement;
+  const nuevoEstado = checkbox.checked ? 'C' : 'P';
+
+  // Guardar el estado anterior por si falla
+  const estadoAnterior = this.tarea.estado;
+
+  // Actualizar UI inmediatamente para feedback visual rápido
+  this.tarea.estado = nuevoEstado;
+
+  // Hacer la llamada al servicio
+  this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado).subscribe({
+    next: () => {
+      // Éxito: emitir evento para actualizar otras vistas
       this.estadoCambiado.emit();
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-      checkbox.checked = !checkbox.checked;
+      console.log('✅ Estado cambiado exitosamente:', nuevoEstado);
+    },
+    error: (error) => {
+      // Error: revertir cambios
+      console.error('❌ Error al cambiar estado:', error);
+      this.tarea.estado = estadoAnterior;
+      checkbox.checked = estadoAnterior === 'C';
+      this.notificacionesService.error('Error al actualizar el estado de la tarea');
     }
-  }
+  });
+}
+
 
   async cambiarEstado(event: Event, nuevoEstado: 'P' | 'N' | 'C') {
     event.stopPropagation();
-    
-    try {
-      await this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado);
-      this.tarea.estado = nuevoEstado;
-      this.estadoCambiado.emit();
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-    }
+
+    //  FIX: Usar subscribe en lugar de await si cambiarEstado retorna Observable
+    this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado).subscribe({
+      next: () => {
+        this.tarea.estado = nuevoEstado;
+        this.estadoCambiado.emit(); //  Esto hace que columnas redistribuya las cards
+        //console.log(` Estado cambiado a: ${nuevoEstado}`);
+      },
+      error: (error) => {
+        console.error(' Error al cambiar estado:', error);
+        this.notificacionesService.error('Error al actualizar el estado de la tarea');
+      }
+    });
   }
 
   async eliminarTarea(event: Event) {
     event.stopPropagation();
-    
+
     const confirmacion = confirm(`¿Estás seguro de que deseas eliminar la tarea "${this.tarea.nombre}"?`);
-    
+
     if (confirmacion) {
       try {
         await this.tareasService.eliminarTarea(this.tarea.idTarea!);
@@ -71,47 +94,57 @@ export class TareaCardComponent {
     }
   }
 
+  //  NUEVO: Abrir modal de asignación
+  abrirModalAsignar(event: Event) {
+    event.stopPropagation();
+    console.log('🎯 tarea-card: Emitiendo evento asignarClick para tarea:', this.tarea.idTarea, this.tarea.nombre);
+    this.asignarClick.emit();
+  }
+
   formatearFecha(fecha: string): string {
     const date = new Date(fecha);
-    return date.toLocaleDateString('es-MX', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('es-MX', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
+  }
+
+  // ✅ NUEVO: Obtener iniciales del usuario
+  obtenerIniciales(nombre: string): string {
+    if (!nombre) return '?';
+    const palabras = nombre.trim().split(' ');
+    if (palabras.length === 1) {
+      return palabras[0].substring(0, 2).toUpperCase();
+    }
+    return (palabras[0][0] + palabras[palabras.length - 1][0]).toUpperCase();
   }
 
   esEmoji(icono: string | null | undefined): boolean {
     if (!icono || icono === 'null' || icono === '') return false;
-    
-    // Si empieza con 'fa', es un icono Font Awesome
+
     if (icono.trim().startsWith('fa')) {
       return false;
     }
-    
-    // Si es otra cosa (emoji), devolver true
+
     return true;
   }
 
   obtenerClaseIcono(icono: string | null | undefined): string {
-    // Si no hay icono o es null
     if (!icono || icono === 'null' || icono === '') {
       return 'fas fa-clipboard-list';
     }
 
-    // Limpiar espacios
     const iconoLimpio = icono.trim();
 
-    // Si ya tiene el prefijo 'fas ' o 'far '
     if (iconoLimpio.startsWith('fas ') || iconoLimpio.startsWith('far ')) {
       return iconoLimpio;
     }
 
-    // Si empieza con 'fa-', agregar prefijo 'fas'
     if (iconoLimpio.startsWith('fa-')) {
       return `fas ${iconoLimpio}`;
     }
 
-    // Default
     return 'fas fa-clipboard-list';
   }
 
@@ -120,27 +153,25 @@ export class TareaCardComponent {
 
     try {
       const nuevoValor = !this.tarea.miDia;
-      await this.tareasService.alternarMiDia(this.tarea.idTarea!, nuevoValor);
+      const response = await this.tareasService.alternarMiDia(this.tarea.idTarea!, nuevoValor);
+
+      // Actualizar tarea localmente
       this.tarea.miDia = nuevoValor;
+
+      //  IMPORTANTE: Emitir cambio para que se recarguen las vistas
       this.estadoCambiado.emit();
 
-      if (nuevoValor){
+      if (nuevoValor) {
         this.notificacionesService.exito('Tarea agregada a Mi Día');
       } else {
         this.notificacionesService.exito('Tarea eliminada de Mi Día');
       }
     } catch (error) {
-      //console.error('Error al alternar Mi Día:', error);
+      console.error('Error al actualizar Mi Día:', error);
       this.notificacionesService.error('Error al actualizar Mi Día. Por favor, intenta nuevamente.');
     }
   }
-/*ngOnInit() {
-    // Debug: verificar datos de la lista
-    console.log('Tarea:', this.tarea.nombre);
-    console.log('Lista:', this.tarea.nombreLista);
-    console.log('Icono Lista:', this.tarea.iconoLista);
-    console.log('Color Lista:', this.tarea.colorLista);
-  }*/
+
   get mostrarBotonIniciar(): boolean {
     return this.tarea.estado === 'P';
   }

@@ -27,7 +27,7 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
 
 
   // Colores predefinidos comunes
-  coloresPredefinidos = [
+  /*coloresPredefinidos = [
     { hex: '#0052CC', nombre: 'Azul' },
     { hex: '#00875A', nombre: 'Verde' },
     { hex: '#FF5630', nombre: 'Rojo' },
@@ -38,8 +38,19 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
     { hex: '#403294', nombre: 'Morado' },
     { hex: '#FF8B00', nombre: 'Naranja oscuro' },
     { hex: '#172B4D', nombre: 'Azul oscuro' }
+  ];*/
+    coloresPredefinidos = [
+    { hex: '#2B3252', nombre: 'Azul profundo' },
+    { hex: '#19264D', nombre: 'Azul oscuro' },
+    { hex: '#25458E', nombre: 'Azul grisáceo' },
+    { hex: '#3D7ADE', nombre: 'Azul sistema' },
+    { hex: '#6D7AA9', nombre: 'Gris azulado' },
+    { hex: '#BAC0CE', nombre: 'Azul interfaz' },
+    { hex: '#3B3B42', nombre: 'Gris roca' },
+    { hex: '#2D2D38', nombre: 'Pizarra' },
+    { hex: '#2F2A26', nombre: 'Grafeno' },
+    { hex: '#1A1919FF', nombre: 'Óxido suave' }
   ];
-
   // Iconos Font Awesome disponibles
   iconosDisponibles = [
     { icono: 'fa-list', categoria: 'Listas' },

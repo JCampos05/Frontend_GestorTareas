@@ -70,7 +70,7 @@ export class CompartirService {
 
   compartirCategoria(categoriaId: number): Observable<CompartirResponse> {
     return this.http.post<CompartirResponse>(
-      `${this.apiUrl}/categoria/${categoriaId}/generar-clave`, 
+      `${this.apiUrl}/categoria/${categoriaId}/generar-clave`,
       {}
     );
   }
@@ -85,7 +85,15 @@ export class CompartirService {
 
   obtenerUsuariosCategoria(categoriaId: number): Observable<UsuarioCompartido[]> {
     return this.http.get<any>(`${this.apiUrl}/categoria/${categoriaId}/usuarios`).pipe(
-      map(response => response.usuarios || [])
+      map(response => {
+        const usuarios = response.usuarios || [];
+        //  AGREGAR: Transformar booleanos
+        return usuarios.map((u: any) => ({
+          ...u,
+          esCreador: Boolean(u.esCreador === 1 || u.esCreador === true),
+          aceptado: Boolean(u.aceptado === 1 || u.aceptado === true)
+        }));
+      })
     );
   }
 
@@ -146,13 +154,21 @@ export class CompartirService {
 
   obtenerUsuariosLista(listaId: number): Observable<UsuarioCompartido[]> {
     return this.http.get<any>(`${this.apiUrl}/lista/${listaId}/usuarios`).pipe(
-      map(response => response.usuarios || [])
+      map(response => {
+        const usuarios = response.usuarios || [];
+        // AGREGAR: Transformar booleanos
+        return usuarios.map((u: any) => ({
+          ...u,
+          esCreador: Boolean(u.esCreador === 1 || u.esCreador === true),
+          aceptado: Boolean(u.aceptado === 1 || u.aceptado === true)
+        }));
+      })
     );
   }
 
   modificarRolLista(idLista: number, idUsuario: number, nuevoRol: string): Observable<any> {
     console.log('🔄 [Service] Modificando rol:', { idLista, idUsuario, nuevoRol });
-    
+
     return this.http.put(
       `${this.apiUrl}/lista/${idLista}/usuario/${idUsuario}/rol`,
       { nuevoRol }
@@ -210,7 +226,7 @@ export class CompartirService {
   // ============================================
 
   obtenerUsuariosCompartidos(tipo: 'categoria' | 'lista', id: number): Observable<UsuarioCompartido[]> {
-    return tipo === 'categoria' 
+    return tipo === 'categoria'
       ? this.obtenerUsuariosCategoria(id)
       : this.obtenerUsuariosLista(id);
   }
