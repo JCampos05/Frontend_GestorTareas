@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ColumnasComponent } from '../../../componentes/columna/columna';
+import { ColumnasComponent } from '../../../componentes/principal/columna/columna';
 
 @Component({
   selector: 'app-todas-tareas',

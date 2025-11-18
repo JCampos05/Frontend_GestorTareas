@@ -4,7 +4,7 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDrag, CdkDropList }
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
-import { PanelDetallesComponent } from '../../../componentes/panel-detalles/panel-detalles';
+import { PanelDetallesComponent } from '../../../componentes/principal/panel-detalles/panel-detalles';
 
 interface DiaSemana {
   fecha: Date;

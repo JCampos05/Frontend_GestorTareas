@@ -4,7 +4,7 @@ import { ListasService, Lista } from '../../core/services/listas/listas';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CompartirService } from '../../core/services/compartir/compartir';
-import { ModalUnirseComponent } from '../../componentes/modal-unirse/modal-unirse';
+import { ModalUnirseComponent } from '../../componentes/modales/modal-unirse/modal-unirse';
 
 @Component({
   selector: 'app-lista-compartida',

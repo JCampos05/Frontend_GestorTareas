@@ -4,9 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { ListasService } from '../../../core/services/listas/listas';
 import { CompartirService, UsuarioCompartido, InfoCompartidos } from '../../../core/services/compartir/compartir';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
-import { ColumnasComponent } from '../../../componentes/columna/columna';
-import { ModalUsuariosListaComponent } from '../../../componentes/modal-usuarios-lista/modal-usuarios-lista';
-import { ModalAsignarTareaComponent } from '../../../componentes/modal-asignar-tarea/modal-asignar-tarea'; // ✅ NUEVO
+import { ColumnasComponent } from '../../../componentes/principal/columna/columna';
+import { ModalUsuariosListaComponent } from '../../../componentes/modales/modal-usuarios-lista/modal-usuarios-lista';
+import { ModalAsignarTareaComponent } from '../../../componentes/modales/modal-asignar-tarea/modal-asignar-tarea'; // ✅ NUEVO
 
 @Component({
   selector: 'app-detalle-lista',
@@ -15,7 +15,7 @@ import { ModalAsignarTareaComponent } from '../../../componentes/modal-asignar-t
     CommonModule,
     ColumnasComponent,
     ModalUsuariosListaComponent,
-    ModalAsignarTareaComponent // ✅ NUEVO
+    ModalAsignarTareaComponent //  NUEVO
   ],
   templateUrl: './detalles-lista.html',
   styleUrl: './detalles-lista.css'

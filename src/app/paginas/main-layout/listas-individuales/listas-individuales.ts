@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { ModalCompartirComponent } from '../../../componentes/modal-compartir/modal-compartir';
+import { ModalCompartirComponent } from '../../../componentes/modales/modal-compartir/modal-compartir';
 import { CompartirService } from '../../../core/services/compartir/compartir';
 import { NotificacionesService } from '../../../core/services/notification/notification';
 

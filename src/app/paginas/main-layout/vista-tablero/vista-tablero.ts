@@ -5,13 +5,13 @@ import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray } from '@angular/cdk
 import { CategoriasService, Categoria } from '../../../core/services/categorias/categorias';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
-import { ColumnaTableroComponent } from '../../../componentes/columna-tablero/columna-tablero';
-import { ModalCompartirComponent } from '../../../componentes/modal-compartir/modal-compartir';
-import { ModalListaComponent } from '../../../componentes/modal-lista/modal-lista';
-import { ModalUsuariosCategoriaComponent } from '../../../componentes/modal-usuarios-cat/modal-usuarios-cat';
-import { PanelDetallesComponent } from '../../../componentes/panel-detalles/panel-detalles';
+import { ColumnaTableroComponent } from '../../../componentes/principal/columna-tablero/columna-tablero';
+import { ModalCompartirComponent } from '../../../componentes/modales/modal-compartir/modal-compartir';
+import { ModalListaComponent } from '../../../componentes/modales/modal-lista/modal-lista';
+import { ModalUsuariosCategoriaComponent } from '../../../componentes/modales/modal-usuarios-cat/modal-usuarios-cat';
+import { PanelDetallesComponent } from '../../../componentes/principal/panel-detalles/panel-detalles';
 import { NotificacionesService } from '../../../core/services/notification/notification';
-import { NotificacionComponent } from '../../../componentes/notification/notification';
+import { NotificacionComponent } from '../../../componentes/principal/notification/notification';
 
 interface ListaConTareas extends Lista {
   tareas?: Tarea[];
@@ -71,6 +71,9 @@ export class VistaTableroComponent implements OnInit {
   panelDetallesAbierto = false;
   tareaSeleccionadaId: number | null = null;
   puedeEditarTarea = true;
+
+  // Modal de eliminación inline
+  listaAEliminar: ListaConTareas | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -334,22 +337,30 @@ export class VistaTableroComponent implements OnInit {
     }
   }
 
-  eliminarLista(lista: ListaConTareas) {
-    if (!lista.idLista) return;
+  //  MÉTODOS ACTUALIZADOS PARA MODAL INLINE
+  confirmarEliminarLista(lista: ListaConTareas) {
+    this.listaAEliminar = lista;
+  }
 
-    const confirmar = confirm(`¿Estás seguro de eliminar la lista "${lista.nombre}"?`);
-    if (!confirmar) return;
+  cancelarEliminarLista() {
+    this.listaAEliminar = null;
+  }
 
-    this.listasService.eliminarLista(lista.idLista).then(
+  eliminarLista() {
+    if (!this.listaAEliminar?.idLista) return;
+
+    this.listasService.eliminarLista(this.listaAEliminar.idLista).then(
       () => {
-        this.listas = this.listas.filter(l => l.idLista !== lista.idLista);
+        this.listas = this.listas.filter(l => l.idLista !== this.listaAEliminar!.idLista);
         this.separarListas();
         this.notificacionesService.exito('Lista eliminada correctamente', 3000);
+        this.listaAEliminar = null;
       }
     ).catch(
       (err: any) => {
         console.error('Error al eliminar lista:', err);
         this.notificacionesService.error('Error al eliminar la lista', 3000);
+        this.listaAEliminar = null;
       }
     );
   }
@@ -381,4 +392,6 @@ export class VistaTableroComponent implements OnInit {
       }
     }
   }
+
+
 }

@@ -70,7 +70,7 @@
                         (tareasActualizadas)="recargarLista(lista.idLista!)"
                         (compartir)="abrirModalCompartir(lista)" 
                         (editar)="editarLista(lista)"
-                        (eliminar)="eliminarLista(lista)" 
+                        (eliminar)="confirmarEliminarLista(lista)" 
                         (tareaClick)="abrirPanelDetalles($event)">
                     </app-columna-tablero>
                 </div>
@@ -97,7 +97,7 @@
                         (tareasActualizadas)="recargarLista(lista.idLista!)"
                         (compartir)="abrirModalCompartir(lista)" 
                         (editar)="editarLista(lista)"
-                        (eliminar)="eliminarLista(lista)" 
+                        (eliminar)="confirmarEliminarLista(lista)" 
                         (tareaClick)="abrirPanelDetalles($event)">
                     </app-columna-tablero>
                 </div>
@@ -121,6 +121,31 @@
             title="Agregar nueva lista">
         <i class="fas fa-plus"></i>
     </button>
+
+    <!-- ✅ MODAL INLINE DE CONFIRMACIÓN DE ELIMINACIÓN -->
+    <div *ngIf="listaAEliminar" class="modal-overlay" (click)="cancelarEliminarLista()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmar eliminación</h3>
+            </div>
+            <div class="modal-body">
+                <p>
+                    ¿Estás seguro que deseas eliminar la lista <strong>"{{ listaAEliminar.nombre }}"</strong>?
+                </p>
+                <p class="advertencia">
+                    Esta acción también eliminará todas las tareas asociadas y no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button (click)="cancelarEliminarLista()" class="btn-cancelar">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button (click)="eliminarLista()" class="btn-confirmar-eliminar">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de compartir categoría -->
     <app-modal-compartir [isOpen]="modalCompartirCategoriaAbierto" [tipo]="'categoria'"

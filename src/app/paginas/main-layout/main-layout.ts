@@ -1,10 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from '../../componentes/header/header';
-import { SidebarComponent } from '../../componentes/sidebar/sidebar';
-import { ModalCategoriaComponent } from '../../componentes/modal-categoria/modal-categoria';
-import { ModalListaComponent } from '../../componentes/modal-lista/modal-lista';
-import { NotificacionComponent } from '../../componentes/notification/notification';
+import { HeaderComponent } from '../../componentes/principal/header/header';
+import { SidebarComponent } from '../../componentes/principal/sidebar/sidebar';
+import { ModalCategoriaComponent } from '../../componentes/modales/modal-categoria/modal-categoria';
+import { ModalListaComponent } from '../../componentes/modales/modal-lista/modal-lista';
+import { NotificacionComponent } from '../../componentes/principal/notification/notification';
 
 @Component({
   selector: 'app-main-layout',
