@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
-import { PanelDetallesComponent } from '../../../componentes/panel-detalles/panel-detalles';
+import { PanelDetallesComponent } from '../../../componentes/principal/panel-detalles/panel-detalles';
 
 interface DiaCalendario {
   fecha: Date;

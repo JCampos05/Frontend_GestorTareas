@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
-import { PanelDetallesComponent } from '../../../componentes/panel-detalles/panel-detalles';
+import { PanelDetallesComponent } from '../../../componentes/principal/panel-detalles/panel-detalles';
 
 interface DiaSemana {
   fecha: Date;
@@ -38,7 +38,8 @@ export class MiSemanaComponent implements OnInit {
   constructor(
     private tareasService: TareasService,
     private listasService: ListasService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   async ngOnInit() {
@@ -59,7 +60,6 @@ export class MiSemanaComponent implements OnInit {
     try {
       this.tareas = await this.tareasService.obtenerTareas();
 
-      // Agregar el icono de la lista a cada tarea
       this.tareas = this.tareas.map(tarea => {
         if (tarea.idLista) {
           const lista = this.listas.find(l => l.idLista === tarea.idLista);
@@ -140,7 +140,47 @@ export class MiSemanaComponent implements OnInit {
   }
 
   seleccionarDia(dia: DiaSemana) {
-    this.diaSeleccionado = dia;
+    this.diaSeleccionado = {
+      ...dia,
+      tareas: [...dia.tareas]
+    };
+    this.scrollToDia(dia);
+  }
+
+  // MÉTODO SCROLL CORREGIDO
+  scrollToDia(dia: DiaSemana) {
+    setTimeout(() => {
+      const index = this.diasSemana.findIndex(d => d.fecha.getTime() === dia.fecha.getTime());
+      const grilla = document.querySelector('.grilla-semana') as HTMLElement;
+      
+      if (grilla && index >= 0) {
+        const columnas = grilla.querySelectorAll('.columna-dia');
+        if (columnas[index]) {
+          const columna = columnas[index] as HTMLElement;
+          
+          // Obtener medidas reales del DOM
+          const columnaRect = columna.getBoundingClientRect();
+          const grillaRect = grilla.getBoundingClientRect();
+          
+          // Calcular el centro exacto de la grilla visible
+          const centroGrilla = grillaRect.width / 2;
+          
+          // Posición de la columna relativa al contenedor
+          const columnaLeft = columna.offsetLeft;
+          
+          // Centro de la columna
+          const columnaCentro = columnaRect.width / 2;
+          
+          // Fórmula para centrar: posición de columna + su centro - centro de grilla
+          const scrollPosition = columnaLeft + columnaCentro - centroGrilla;
+          
+          grilla.scrollTo({
+            left: Math.max(0, scrollPosition),
+            behavior: 'smooth'
+          });
+        }
+      }
+    }, 200);
   }
 
   cerrarPanel() {
@@ -160,15 +200,49 @@ export class MiSemanaComponent implements OnInit {
     await this.cargarTareas();
   }
 
-  async cambiarEstadoTarea(tarea: Tarea) {
+  //  MÉTODO CAMBIAR ESTADO CORREGIDO
+  async cambiarEstadoTarea(tarea: Tarea, event: Event) {
+    // Detener toda propagación inmediatamente
+    event.stopPropagation();
+    event.preventDefault();
+    
     if (!tarea.idTarea) return;
 
+    // Obtener el checkbox directamente
+    const checkbox = event.target as HTMLInputElement;
+    const nuevoEstado = checkbox.checked ? 'C' : 'P';
+
     try {
-      const nuevoEstado = tarea.estado === 'C' ? 'P' : 'C';
+      // Actualizar en servidor
       await this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado);
+      
+      // Actualizar estado local
+      tarea.estado = nuevoEstado;
+      
+      // Recargar todas las tareas
       await this.cargarTareas();
+      
+      // Actualizar panel lateral si está abierto
+      if (this.diaSeleccionado) {
+        const diaActualizado = this.diasSemana.find(
+          d => d.fecha.getTime() === this.diaSeleccionado!.fecha.getTime()
+        );
+        if (diaActualizado) {
+          this.diaSeleccionado = {
+            ...diaActualizado,
+            tareas: [...diaActualizado.tareas]
+          };
+        }
+      }
+      
+      // Forzar detección de cambios
+      this.cdr.detectChanges();
+
     } catch (error) {
       console.error('Error al cambiar estado:', error);
+      // Revertir el checkbox en caso de error
+      checkbox.checked = !checkbox.checked;
+      await this.cargarTareas();
     }
   }
 
@@ -246,7 +320,6 @@ export class MiSemanaComponent implements OnInit {
             nuevaFecha.setHours(0, 0, 0, 0);
           }
 
-          // Formato compatible con MySQL: YYYY-MM-DD HH:mm:ss
           const fechaFormateada = nuevaFecha.toISOString().slice(0, 19).replace('T', ' ');
 
           await this.tareasService.actualizarTarea(tarea.idTarea, {
@@ -275,7 +348,7 @@ export class MiSemanaComponent implements OnInit {
     return this.diasSemana.map((_, index) => `dia-${index}`);
   }
 
-    toggleCalendario() {
+  toggleCalendario() {
     this.calendarioAbierto = !this.calendarioAbierto;
     if (this.calendarioAbierto) {
       this.mesCalendario = new Date(this.fechaActual);
@@ -287,20 +360,18 @@ export class MiSemanaComponent implements OnInit {
     this.diasCalendario = [];
     const primerDiaMes = new Date(this.mesCalendario.getFullYear(), this.mesCalendario.getMonth(), 1);
     const ultimoDiaMes = new Date(this.mesCalendario.getFullYear(), this.mesCalendario.getMonth() + 1, 0);
-    
-    // Días del mes anterior para completar la primera semana
+
     const primerDiaSemana = primerDiaMes.getDay();
-    for (let i = primerDiaSemana - 1; i >= 0; i--) {
+    for (let i = 0; i < primerDiaSemana; i++) {
       const fecha = new Date(primerDiaMes);
-      fecha.setDate(fecha.getDate() - (i + 1));
+      fecha.setDate(primerDiaMes.getDate() - (primerDiaSemana - i));
       this.diasCalendario.push({
         fecha: fecha,
         numero: fecha.getDate(),
         mesActual: false
       });
     }
-    
-    // Días del mes actual
+
     for (let dia = 1; dia <= ultimoDiaMes.getDate(); dia++) {
       const fecha = new Date(this.mesCalendario.getFullYear(), this.mesCalendario.getMonth(), dia);
       this.diasCalendario.push({
@@ -309,9 +380,8 @@ export class MiSemanaComponent implements OnInit {
         mesActual: true
       });
     }
-    
-    // Días del mes siguiente para completar la última semana
-    const diasRestantes = 42 - this.diasCalendario.length; // 6 semanas * 7 días
+
+    const diasRestantes = 42 - this.diasCalendario.length;
     for (let i = 1; i <= diasRestantes; i++) {
       const fecha = new Date(ultimoDiaMes);
       fecha.setDate(fecha.getDate() + i);
@@ -357,5 +427,9 @@ export class MiSemanaComponent implements OnInit {
     return fecha.getDate() === this.fechaActual.getDate() &&
       fecha.getMonth() === this.fechaActual.getMonth() &&
       fecha.getFullYear() === this.fechaActual.getFullYear();
+  }
+
+  abrirDetallesTarea(tarea: Tarea) {
+    console.log('Abrir detalles de tarea:', tarea);
   }
 }

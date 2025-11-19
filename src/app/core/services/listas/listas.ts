@@ -20,9 +20,13 @@ export interface Lista {
   idCategoria?: number | null;
   nombreCategoria?: string;
   idUsuario?: number;
-  esPropietario?: boolean; 
+  esPropietario?: boolean;
+  esCompartidaConmigo?: boolean;
   fechaCreacion?: Date;
   fechaActualizacion?: Date;
+  rol?: string; // Rol del usuario en lista compartida
+  nombrePropietario?: string;
+  emailPropietario?: string;
 }
 
 @Injectable({
@@ -30,12 +34,23 @@ export interface Lista {
 })
 export class ListasService {
   private API_URL = 'http://localhost:3000/api/listas';
+  private COMPARTIR_URL = 'http://localhost:3000/api/compartir';
 
   // Evento para notificar cambios en las listas
   private listasCambiadasSubject = new Subject<void>();
   listasCambiadas$ = this.listasCambiadasSubject.asObservable();
 
   constructor(private http: HttpClient) { }
+
+  private transformarBooleanos(lista: any): Lista {
+    return {
+      ...lista,
+      importante: Boolean(lista.importante === 1 || lista.importante === true),
+      compartible: Boolean(lista.compartible === 1 || lista.compartible === true),
+      esPropietario: Boolean(lista.esPropietario),
+      esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
+    };
+  }
 
   // Método privado para notificar cambios
   private notificarCambio() {
@@ -51,7 +66,14 @@ export class ListasService {
   async obtenerListas(): Promise<Lista[]> {
     try {
       const response: any = await firstValueFrom(this.http.get(this.API_URL));
-      return response.success ? response.data : [];
+      const listas = response.success ? response.data : [];
+      return listas.map((lista: any) => ({
+        ...lista,
+        importante: Boolean(lista.importante === 1 || lista.importante === true),
+        compartible: Boolean(lista.compartible === 1 || lista.compartible === true),
+        esPropietario: Boolean(lista.esPropietario),
+        esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
+      }));
     } catch (error) {
       console.error('Error al obtener listas:', error);
       return [];
@@ -61,7 +83,15 @@ export class ListasService {
   async obtenerLista(id: number): Promise<Lista | null> {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
-      return response.success ? response.data : null;
+      if (response.success && response.data) {
+        //  AGREGAR: Transformar booleanos
+        return {
+          ...response.data,
+          importante: Boolean(response.data.importante === 1 || response.data.importante === true),
+          compartible: Boolean(response.data.compartible === 1 || response.data.compartible === true)
+        };
+      }
+      return null;
     } catch (error) {
       console.error('Error al obtener lista:', error);
       return null;
@@ -136,12 +166,19 @@ export class ListasService {
 
   async obtenerListasCompartidas(): Promise<Lista[]> {
     try {
-      const response = await firstValueFrom(
-        this.http.get<ApiResponse<Lista[]>>(`${this.API_URL}/compartidas`)
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/lista/mis-compartidas`)
       );
 
-      if (response && response.data) {
-        return Array.isArray(response.data) ? response.data : [];
+      if (response && response.listas) {
+        //  AGREGAR: Transformar booleanos
+        return response.listas.map((lista: any) => ({
+          ...lista,
+          importante: Boolean(lista.importante === 1 || lista.importante === true),
+          compartible: Boolean(lista.compartible === 1 || lista.compartible === true),
+          esPropietario: Boolean(lista.esPropietario),
+          esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
+        }));
       }
       return [];
     } catch (error) {
@@ -150,39 +187,63 @@ export class ListasService {
     }
   }
 
+  //  ACTUALIZADO: Generar clave para compartir
   async hacerCompartible(id: number): Promise<any> {
     try {
-      console.log('Marcando lista como compartible, ID:', id);
+      console.log('🔵 Generando clave para lista, ID:', id);
 
-      // CORRECCIÓN: Usar el endpoint correcto en /api/listas/:id/compartir
-      const result = await firstValueFrom(
-        this.http.put(`${this.API_URL}/${id}/compartir`, {})
+      // Usar el nuevo endpoint de compartir
+      const result: any = await firstValueFrom(
+        this.http.post(`${this.COMPARTIR_URL}/lista/${id}/generar-clave`, {})
       );
 
-      console.log('Lista marcada como compartible exitosamente:', result);
+      console.log('✅ Clave generada exitosamente:', result);
       this.notificarCambio();
       return result;
 
     } catch (error) {
-      console.error('Error completo al hacer lista compartible:', error);
+      console.error('❌ Error al generar clave:', error);
       throw error;
     }
   }
 
-  // Quitar compartir de una lista
+  // ✅ ACTUALIZADO: Descompartir lista (revocar todos los accesos)
   async quitarCompartir(id: number): Promise<any> {
     try {
-      const result = await firstValueFrom(
-        this.http.put(`${this.API_URL}/${id}`, {
-          compartible: false,
-          claveCompartir: null // Limpiar la clave también
-        })
+      const result: any = await firstValueFrom(
+        this.http.post(`${this.COMPARTIR_URL}/lista/${id}/descompartir`, {})
       );
       this.notificarCambio();
       return result;
     } catch (error) {
-      console.error('Error al quitar compartir:', error);
+      console.error('Error al descompartir lista:', error);
       throw error;
+    }
+  }
+
+  // ✅ NUEVO: Obtener información de usuarios con acceso
+  async obtenerUsuariosConAcceso(id: number): Promise<any[]> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/lista/${id}/usuarios`)
+      );
+      return response.usuarios || [];
+    } catch (error) {
+      console.error('Error al obtener usuarios con acceso:', error);
+      return [];
+    }
+  }
+
+  // ✅ NUEVO: Obtener información completa de compartidos
+  async obtenerInfoCompartidos(id: number): Promise<any> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.get(`${this.COMPARTIR_URL}/lista/${id}/info-compartidos`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al obtener info de compartidos:', error);
+      return null;
     }
   }
 }

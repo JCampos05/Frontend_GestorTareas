@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TableroComponent } from '../../../componentes/tablero/tablero';
+import { TableroComponent } from '../../../componentes/principal/tablero/tablero';
 
 @Component({
   selector: 'app-pendientes',

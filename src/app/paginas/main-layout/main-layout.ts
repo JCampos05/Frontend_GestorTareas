@@ -1,10 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from '../../componentes/header/header';
-import { SidebarComponent } from '../../componentes/sidebar/sidebar';
-import { ModalCategoriaComponent } from '../../componentes/modal-categoria/modal-categoria';
-import { ModalListaComponent } from '../../componentes/modal-lista/modal-lista';
-import { NotificacionComponent } from '../../componentes/notification/notification';
+import { HeaderComponent } from '../../componentes/principal/header/header';
+import { SidebarComponent } from '../../componentes/principal/sidebar/sidebar';
+import { ModalCategoriaComponent } from '../../componentes/modales/modal-categoria/modal-categoria';
+import { ModalListaComponent } from '../../componentes/modales/modal-lista/modal-lista';
+import { NotificacionComponent } from '../../componentes/principal/notification/notification';
 
 @Component({
   selector: 'app-main-layout',
@@ -21,7 +21,7 @@ import { NotificacionComponent } from '../../componentes/notification/notificati
   styleUrl: './main-layout.css'
 })
 export class MainLayoutComponent {
-  @ViewChild(SidebarComponent) sidebar!: SidebarComponent;
+  @ViewChild('sidebarComponent') sidebarComponent!: SidebarComponent;
   
   sidebarVisible = true;
   mostrarModalCategoria = false;
@@ -29,7 +29,9 @@ export class MainLayoutComponent {
   categoriaSeleccionadaParaLista: number | null = null;
 
   toggleSidebar() {
-    this.sidebarVisible = !this.sidebarVisible;
+    if (this.sidebarComponent) {
+      this.sidebarComponent.toggleCollapse();
+    }
   }
 
   // ==================== MODALS CATEGORÍAS ====================
@@ -42,7 +44,9 @@ export class MainLayoutComponent {
   }
 
   onCategoriaGuardada() {
-    this.sidebar.cargarCategorias();
+    if (this.sidebarComponent) {
+      this.sidebarComponent.cargarCategorias();
+    }
   }
 
   // ==================== MODALS LISTAS ====================
@@ -57,6 +61,8 @@ export class MainLayoutComponent {
   }
 
   onListaGuardada() {
-    this.sidebar.cargarCategorias();
+    if (this.sidebarComponent) {
+      this.sidebarComponent.cargarCategorias();
+    }
   }
 }

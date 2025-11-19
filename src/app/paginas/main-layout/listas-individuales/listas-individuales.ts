@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { ModalCompartirComponent } from '../../../componentes/modal-compartir/modal-compartir';
+import { ModalCompartirComponent } from '../../../componentes/modales/modal-compartir/modal-compartir';
 import { CompartirService } from '../../../core/services/compartir/compartir';
 import { NotificacionesService } from '../../../core/services/notification/notification';
 
@@ -27,7 +27,7 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
 
 
   // Colores predefinidos comunes
-  coloresPredefinidos = [
+  /*coloresPredefinidos = [
     { hex: '#0052CC', nombre: 'Azul' },
     { hex: '#00875A', nombre: 'Verde' },
     { hex: '#FF5630', nombre: 'Rojo' },
@@ -38,8 +38,19 @@ export class ListasIndividualesComponent implements OnInit, OnDestroy {
     { hex: '#403294', nombre: 'Morado' },
     { hex: '#FF8B00', nombre: 'Naranja oscuro' },
     { hex: '#172B4D', nombre: 'Azul oscuro' }
+  ];*/
+    coloresPredefinidos = [
+    { hex: '#2B3252', nombre: 'Azul profundo' },
+    { hex: '#19264D', nombre: 'Azul oscuro' },
+    { hex: '#25458E', nombre: 'Azul grisáceo' },
+    { hex: '#3D7ADE', nombre: 'Azul sistema' },
+    { hex: '#6D7AA9', nombre: 'Gris azulado' },
+    { hex: '#BAC0CE', nombre: 'Azul interfaz' },
+    { hex: '#3B3B42', nombre: 'Gris roca' },
+    { hex: '#2D2D38', nombre: 'Pizarra' },
+    { hex: '#2F2A26', nombre: 'Grafeno' },
+    { hex: '#1A1919FF', nombre: 'Óxido suave' }
   ];
-
   // Iconos Font Awesome disponibles
   iconosDisponibles = [
     { icono: 'fa-list', categoria: 'Listas' },
@@ -132,29 +143,40 @@ async cargarListas() {
     
     // Obtener TODAS las listas
     const todasLasListas = await this.listasService.obtenerListas();
+    console.log('📊 Total de listas obtenidas:', todasLasListas.length);
     
-    // Obtener las listas compartidas CONMIGO para excluirlas
-    let idsListasCompartidas: number[] = [];
-    try {
-      const response: any = await this.compartirService.obtenerListasCompartidas().toPromise();
-      const compartidas = response?.listas || response || [];
-      idsListasCompartidas = compartidas.map((l: any) => l.idLista);
-      console.log('📋 IDs de listas compartidas CONMIGO a excluir:', idsListasCompartidas);
-    } catch (error) {
-      console.warn('⚠️ No se pudieron obtener listas compartidas:', error);
-    }
-    
-    // Filtrar: SOLO mis listas (excluir las compartidas conmigo)
-    this.listas = todasLasListas.filter((lista: Lista) => {
-      const esCompartidaConmigo = idsListasCompartidas.includes(lista.idLista!);
-      return !esCompartidaConmigo;
-    });
+    // ✅ Filtrar: SOLO mis listas propias (que YO creé)
+    // ✅ CONVERTIR compartible a booleano para evitar problemas con 0/1
+    this.listas = todasLasListas
+      .filter((lista: any) => {
+        // Mostrar SOLO si soy el propietario original
+        const esPropietario = lista.esPropietario === true || lista.esPropietario === 1;
+        
+        console.log(`Lista "${lista.nombre}" (ID: ${lista.idLista}):`, {
+          compartible: lista.compartible,
+          esPropietario: lista.esPropietario,
+          idUsuario: lista.idUsuario,
+          seIncluye: esPropietario
+        });
+        
+        return esPropietario;
+      })
+      .map((lista: any) => ({
+        ...lista,
+        // ✅ CRÍTICO: Convertir compartible de number (0/1) a boolean
+        compartible: !!lista.compartible || lista.compartible === 1 || lista.compartible === true,
+        // ✅ También normalizar esPropietario
+        esPropietario: !!lista.esPropietario || lista.esPropietario === 1,
+        // ✅ Normalizar importante
+        importante: !!lista.importante || lista.importante === 1
+      }));
 
-    console.log('✅ MIS listas cargadas:', this.listas.length);
-    console.log('Listas:', this.listas.map(l => ({
+    console.log('✅ MIS listas filtradas:', this.listas.length);
+    console.log('Listas finales:', this.listas.map(l => ({
       id: l.idLista,
       nombre: l.nombre,
-      compartible: l.compartible
+      compartible: l.compartible,
+      claveCompartir: l.claveCompartir
     })));
 
     if (!Array.isArray(this.listas)) {
@@ -317,7 +339,7 @@ async cargarListas() {
 
     // Debug
     this.debugLista(lista.idLista!);
-    console.log('Abriendo modal para lista:', lista);
+    //console.log('Abriendo modal para lista:', lista);
 
     if (!lista.idLista) {
       console.error('Lista sin ID válido:', lista);
@@ -342,7 +364,7 @@ async cargarListas() {
 
 
   alCompartir(clave: string) {
-    console.log('✅ Clave recibida del modal (de la BD):', clave);
+    //console.log('✅ Clave recibida del modal (de la BD):', clave);
 
     if (!this.listaParaCompartir?.idLista) {
       console.error('❌ No hay lista seleccionada para compartir');
@@ -368,9 +390,9 @@ async cargarListas() {
   async debugLista(idLista: number) {
     try {
       const lista = await this.listasService.obtenerLista(idLista);
-      console.log('Debug - Lista:', lista);
+      //console.log('Debug - Lista:', lista);
     } catch (error) {
-      console.error('Debug - Error al obtener lista:', error);
+      //console.error('Debug - Error al obtener lista:', error);
     }
   }
 }

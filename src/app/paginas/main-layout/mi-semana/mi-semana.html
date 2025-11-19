@@ -1,4 +1,10 @@
 <div class="semana-container">
+    <!-- Título de la vista -->
+    <div class="vista-titulo">
+        <i class="far fa-calendar"></i>
+        <h1>Mi semana</h1>
+    </div>
+
     <!-- Header -->
     <div class="semana-header">
         <div class="navegacion-wrapper">
@@ -25,7 +31,7 @@
                         </div>
 
                         <div class="calendario-dias-semana">
-                            <div class="dia-semana-header" *ngFor="let dia of ['D', 'L', 'M', 'M', 'J', 'V', 'S']">
+                            <div class="dia-semana-header" *ngFor="let dia of ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']">
                                 {{ dia }}
                             </div>
                         </div>
@@ -51,41 +57,47 @@
         </button>
     </div>
 
-    <!-- Grilla de la semana -->
-    <div class="grilla-semana">
-        <div class="columna-dia" *ngFor="let dia of diasSemana; let i = index" [class.hoy]="esHoy(dia.fecha)"
-            [class.seleccionado]="diaSeleccionado?.fecha === dia.fecha">
-            <!-- Encabezado del día -->
-            <div class="dia-header" (click)="seleccionarDia(dia)">
-                <div class="dia-nombre">{{ dia.nombre }}</div>
-                <div class="dia-numero">{{ dia.numero }}</div>
-            </div>
-
-            <!-- Tareas del día con Drag & Drop -->
-            <div class="tareas-columna" cdkDropList [id]="'dia-' + i" [cdkDropListData]="dia.tareas"
-                [cdkDropListConnectedTo]="getDropListIds()" (cdkDropListDropped)="onDrop($event, dia)">
-                <div class="tarea-card" *ngFor="let tarea of dia.tareas" cdkDrag [cdkDragData]="tarea"
-                    [class]="getPrioridadClass(tarea.prioridad)" [class.completada]="tarea.estado === 'C'"
-                    (click)="seleccionarDia(dia)">
-                    <div class="tarea-check">
-                        <input type="checkbox" [checked]="tarea.estado === 'C'" (change)="cambiarEstadoTarea(tarea)"
-                            (click)="$event.stopPropagation()" />
-                    </div>
-
-                    <div class="tarea-contenido">
-                        <div class="tarea-nombre">{{ tarea.nombre }}</div>
-
-                        <div class="tarea-meta" *ngIf="tarea.nombreLista">
-                            <span *ngIf="esEmoji(tarea.iconoLista)" class="lista-emoji">
-                                {{ tarea.iconoLista }}
-                            </span>
-                            <i *ngIf="!esEmoji(tarea.iconoLista)" [class]="obtenerClaseIcono(tarea.iconoLista)"></i>
-                            <span class="lista-nombre">{{ tarea.nombreLista }}</span>
-                        </div>
-                    </div>
+    <!-- Grilla de la semana con scroll horizontal -->
+    <div class="grilla-wrapper">
+        <div class="grilla-semana">
+            <div class="columna-dia" *ngFor="let dia of diasSemana; let i = index" [class.hoy]="esHoy(dia.fecha)"
+                [class.seleccionado]="diaSeleccionado?.fecha === dia.fecha">
+                <!-- Encabezado del día -->
+                <div class="dia-header" (click)="seleccionarDia(dia)">
+                    <div class="dia-nombre">{{ dia.nombre }}</div>
+                    <div class="dia-numero">{{ dia.numero }}</div>
                 </div>
 
-                <div class="sin-tareas" *ngIf="dia.tareas.length === 0">Sin tareas</div>
+                <!-- Tareas del día con Drag & Drop -->
+                <div class="tareas-columna" cdkDropList [id]="'dia-' + i" [cdkDropListData]="dia.tareas"
+                    [cdkDropListConnectedTo]="getDropListIds()" (cdkDropListDropped)="onDrop($event, dia)">
+                    <div class="tarea-card" *ngFor="let tarea of dia.tareas" cdkDrag [cdkDragData]="tarea"
+                        [class]="getPrioridadClass(tarea.prioridad)" [class.completada]="tarea.estado === 'C'">
+        
+                        <!-- Checkbox con eventos aislados -->
+                        <div class="tarea-check" (click)="$event.stopPropagation()">
+                            <input type="checkbox" 
+                                [id]="'check-' + tarea.idTarea"
+                                [checked]="tarea.estado === 'C'" 
+                                (click)="cambiarEstadoTarea(tarea, $event)" />
+                        </div>
+
+                        <!-- Contenido de la tarea -->
+                        <div class="tarea-contenido" (click)="seleccionarDia(dia)">
+                            <div class="tarea-nombre">{{ tarea.nombre }}</div>
+
+                            <div class="tarea-meta" *ngIf="tarea.nombreLista">
+                                <span *ngIf="esEmoji(tarea.iconoLista)" class="lista-emoji">
+                                    {{ tarea.iconoLista }}
+                                </span>
+                                <i *ngIf="!esEmoji(tarea.iconoLista)" [class]="obtenerClaseIcono(tarea.iconoLista)"></i>
+                                <span class="lista-nombre">{{ tarea.nombreLista }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sin-tareas" *ngIf="dia.tareas.length === 0">Sin tareas</div>
+                </div>
             </div>
         </div>
     </div>
@@ -108,11 +120,16 @@
             <div class="lista-tareas-dia">
                 <div class="tarea-completa" *ngFor="let tarea of diaSeleccionado.tareas"
                     [class.completada]="tarea.estado === 'C'">
-                    <div class="tarea-check">
-                        <input type="checkbox" [checked]="tarea.estado === 'C'" (change)="cambiarEstadoTarea(tarea)" />
+
+                    <!-- Checkbox con eventos aislados -->
+                    <div class="tarea-check" (click)="$event.stopPropagation()">
+                        <input type="checkbox" 
+                            [id]="'check-panel-' + tarea.idTarea"
+                            [checked]="tarea.estado === 'C'" 
+                            (click)="cambiarEstadoTarea(tarea, $event)" />
                     </div>
 
-                    <div class="tarea-info">
+                    <div class="tarea-info" (click)="abrirDetallesTarea(tarea)">
                         <div class="tarea-titulo">
                             {{ tarea.nombre }}
                         </div>
