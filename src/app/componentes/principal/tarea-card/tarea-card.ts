@@ -17,6 +17,7 @@ export class TareaCardComponent {
   @Input() puedeEditar: boolean = true;
   @Input() puedeEliminar: boolean = true;
   @Input() puedeAsignar: boolean = false;
+  @Input() modoVista: 'card' | 'lista' = 'card'; // Nueva propiedad
 
   @Output() tareaClick = new EventEmitter<void>();
   @Output() estadoCambiado = new EventEmitter<void>();
@@ -25,7 +26,7 @@ export class TareaCardComponent {
 
   mostrarModalEliminar = false;
   tareaAEliminar: any = null;
-  isClosingModal = false; // ✅ Para animación
+  isClosingModal = false;
 
   constructor(
     private tareasService: TareasService,
@@ -47,10 +48,10 @@ export class TareaCardComponent {
     this.tareasService.cambiarEstado(this.tarea.idTarea!, nuevoEstado).subscribe({
       next: () => {
         this.estadoCambiado.emit();
-        console.log('✅ Estado cambiado exitosamente:', nuevoEstado);
+        console.log('Estado cambiado exitosamente:', nuevoEstado);
       },
       error: (error) => {
-        console.error('❌ Error al cambiar estado:', error);
+        console.error('Error al cambiar estado:', error);
         this.tarea.estado = estadoAnterior;
         checkbox.checked = estadoAnterior === 'C';
         this.notificacionesService.error('Error al actualizar el estado de la tarea');
@@ -67,42 +68,36 @@ export class TareaCardComponent {
         this.estadoCambiado.emit();
       },
       error: (error) => {
-        console.error('❌ Error al cambiar estado:', error);
+        console.error('Error al cambiar estado:', error);
         this.notificacionesService.error('Error al actualizar el estado de la tarea');
       }
     });
   }
 
-  // ✅ MÉTODO ACTUALIZADO - Abre el modal en lugar de usar confirm()
   async eliminarTarea(event: Event) {
     event.stopPropagation();
     
-    // Abrir el modal
     this.tareaAEliminar = this.tarea;
     this.mostrarModalEliminar = true;
   }
 
-  // ✅ CONFIRMACIÓN CON LÓGICA REAL DE ELIMINACIÓN
   async confirmarEliminacion() {
     try {
       await this.tareasService.eliminarTarea(this.tareaAEliminar.idTarea!);
       this.notificacionesService.exito('Tarea eliminada exitosamente');
       this.tareaEliminada.emit();
       
-      // Cerrar modal
       this.mostrarModalEliminar = false;
       this.tareaAEliminar = null;
     } catch (error) {
       console.error('Error al eliminar tarea:', error);
       this.notificacionesService.error('Error al eliminar la tarea. Por favor, intenta nuevamente.');
       
-      // Cerrar modal incluso si hay error
       this.mostrarModalEliminar = false;
       this.tareaAEliminar = null;
     }
   }
 
-  // ✅ CANCELACIÓN - Solo cierra el modal con animación
   cancelarEliminacion() {
     this.isClosingModal = true;
     setTimeout(() => {
@@ -114,7 +109,7 @@ export class TareaCardComponent {
 
   abrirModalAsignar(event: Event) {
     event.stopPropagation();
-    console.log('🎯 tarea-card: Emitiendo evento asignarClick para tarea:', this.tarea.idTarea, this.tarea.nombre);
+    console.log('tarea-card: Emitiendo evento asignarClick para tarea:', this.tarea.idTarea, this.tarea.nombre);
     this.asignarClick.emit();
   }
 

@@ -1,7 +1,19 @@
 <div id="contentArea" class="tablero-layout">
   <div class="columna columna-principal">
+    <!-- Header con título y botón de vista -->
+    <div class="columna-header">
+      <span>{{ tituloColumna }}</span>
+      <button 
+        class="btn-vista-toggle" 
+        (click)="alternarModoVista()"
+        [title]="modoVista === 'card' ? 'Cambiar a vista de lista' : 'Cambiar a vista de tarjetas'">
+        <i *ngIf="modoVista === 'card'" class="fas fa-list"></i>
+        <i *ngIf="modoVista === 'lista'" class="fas fa-th-large"></i>
+      </button>
+    </div>
+
     <div 
-      class="columna-content-full" 
+      [class]="modoVista === 'card' ? 'columna-content-full' : 'columna-content-lista'"
       id="tareasColumna"
       cdkDropList
       [cdkDropListData]="tareasColumna"
@@ -10,6 +22,7 @@
       <app-tarea-card 
         *ngFor="let tarea of tareasColumna" 
         [tarea]="tarea"
+        [modoVista]="modoVista"
         cdkDrag
         (tareaClick)="abrirPanelDetalles(tarea.idTarea!)"
         (estadoCambiado)="onEstadoCambiado()"

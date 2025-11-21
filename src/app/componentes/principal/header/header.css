@@ -178,9 +178,9 @@
 
 /* Menú desplegable del usuario */
 .user-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  top: 60px;
+  right: 16px;
   width: 280px;
   background: white;
   border-radius: 8px;
@@ -190,6 +190,49 @@
   transform: translateY(-10px);
   transition: all 0.2s ease;
   z-index: 1000;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  max-width: calc(100vw - 32px);
+}
+
+@media (max-width: 768px) {
+  .user-menu {
+    display: none;
+    width: 260px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-menu {
+    width: calc(100vw - 32px);
+    max-width: 320px;
+    right: 16px;
+    left: 16px;
+    margin: 0 auto;
+  }
+}
+
+/* ✅ Para zooms grandes - ajustar ancho */
+@media (min-resolution: 1.5dppx) {
+  .user-menu {
+    width: 260px;
+    right: 12px;
+  }
+}
+
+@media (min-resolution: 2dppx) {
+  .user-menu {
+    width: 240px;
+    right: 12px;
+  }
+}
+
+/* CRÍTICO: Asegurar que los textos se vean */
+.user-menu-item span {
+  display: inline-block !important;
+  flex: 1;
+  word-break: break-word;
 }
 
 .user-menu.show {
@@ -268,6 +311,8 @@
   align-items: center;
   gap: 12px;
   border-radius: 6px;
+  white-space: normal;
+  line-height: 1.4;
 }
 
 .user-menu-item i {
@@ -345,10 +390,38 @@
 }
 
 
+
+/* Badge con el número de notificaciones - CORREGIDO */
+.badge-notificaciones {
+  position: absolute;
+  top: 2px;  /* ✅ Cambiado de 6px a 2px */
+  right: 2px; /* ✅ Cambiado de 8px a 2px */
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex !important; /* ✅ Forzar display */
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  animation: pulse-badge 2s infinite;
+  z-index: 10; /* ✅ Asegurar que esté encima */
+  pointer-events: none; /* ✅ No interferir con clics */
+}
+
+/* Asegurar que el wrapper tenga position relative */
 .notificaciones-wrapper {
   position: relative;
+  display: inline-flex; /* ✅ Cambiar a inline-flex */
+  align-items: center;
 }
-/* Botón de notificaciones */
+
+/* Botón de notificaciones - AJUSTADO */
 .btn-notificaciones {
   position: relative;
   background: none;
@@ -363,6 +436,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  flex-shrink: 0; /* ✅ Evitar que se comprima */
 }
 
 .btn-notificaciones:hover {
@@ -374,26 +448,51 @@
   transform: scale(0.95);
 }
 
-/* Badge con el número de notificaciones */
-.badge-notificaciones {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  background: #ef4444;
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
-  animation: pulse-badge 2s infinite;
+/* Asegurar que el icono se vea bien */
+.btn-notificaciones i {
+  font-size: 1.1rem;
 }
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+  .btn-notificaciones {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .btn-notificaciones i {
+    font-size: 16px;
+  }
+  
+  .badge-notificaciones {
+    font-size: 9px;
+    min-width: 14px;
+    height: 14px;
+    top: 1px;
+    right: 1px;
+  }
+}
+
+/* ✅ NUEVO: Para zooms grandes */
+@media (min-resolution: 1.5dppx) {
+  .badge-notificaciones {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    min-width: 20px;
+    height: 20px;
+  }
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .btn-notificaciones {
@@ -412,33 +511,164 @@
   }
 }
 
-@keyframes pulse-badge {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
 /* Asegurar que el icono se vea bien */
 .btn-notificaciones i {
   font-size: 1.1rem;
 }
 
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(9, 30, 66, 0.54);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-integracion {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 20px 40px rgba(9, 30, 66, 0.25);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #dfe1e6;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0052cc 0%, #0065ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+}
+
+.modal-header h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.btn-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #5e6c84;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-close:hover {
+  background: #f4f5f7;
+  color: #172b4d;
+}
+
+.modal-body {
+  padding: 32px 24px;
+}
+
+.coming-soon-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.coming-soon-content i {
+  font-size: 64px;
+  color: #0052cc;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+.coming-soon-content p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #172b4d;
+  margin: 0 0 12px 0;
+}
+
+.coming-soon-content .sub-text {
+  font-size: 14px;
+  color: #5e6c84;
+  line-height: 1.6;
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-  .btn-notificaciones {
-    padding: 8px 12px;
-    min-width: 40px;
-    min-height: 40px;
+  .modal-integracion {
+    width: 95%;
+    max-width: none;
+    margin: 16px;
   }
   
-  .badge-notificaciones {
-    font-size: 0.6rem;
-    min-width: 16px;
-    height: 16px;
-    top: 4px;
-    right: 6px;
+  .modal-header {
+    padding: 20px;
+  }
+  
+  .modal-body {
+    padding: 24px 20px;
+  }
+  
+  .coming-soon-content i {
+    font-size: 48px;
   }
 }

@@ -1,4 +1,3 @@
-// app/componentes/modal-notificaciones/modal-notificaciones.component.ts
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -20,16 +19,54 @@ export class ModalNotificacionesComponent implements OnInit {
   procesando = false;
   tieneNotificacionesNoLeidas = false;
 
+  private notificacionesOcultas = new Set<number>();
+
   constructor(
     private notificationService: NotificationService,
     private router: Router
   ) { }
 
   ngOnInit() {
+    this.cargarNotificacionesOcultas();
     this.notificationService.notificaciones$.subscribe(notificaciones => {
       this.notificaciones = notificaciones;
       this.actualizarEstadoNoLeidas();
     });
+  }
+
+  // NUEVO: Cargar notificaciones ocultas desde localStorage
+  private cargarNotificacionesOcultas() {
+    try {
+      const ocultas = localStorage.getItem('notificaciones_ocultas');
+      if (ocultas) {
+        const ids = JSON.parse(ocultas);
+        this.notificacionesOcultas = new Set(ids);
+      }
+    } catch (error) {
+      console.error('Error al cargar notificaciones ocultas:', error);
+    }
+  }
+
+  // NUEVO: Guardar notificaciones ocultas en localStorage
+  private guardarNotificacionesOcultas() {
+    try {
+      const ids = Array.from(this.notificacionesOcultas);
+      localStorage.setItem('notificaciones_ocultas', JSON.stringify(ids));
+    } catch (error) {
+      console.error('Error al guardar notificaciones ocultas:', error);
+    }
+  }
+
+  // NUEVO: Ocultar notificación visualmente
+  ocultarNotificacion(idNotificacion: number) {
+    this.notificacionesOcultas.add(idNotificacion);
+    this.guardarNotificacionesOcultas();
+
+    // Actualizar la lista visualmente
+    this.notificaciones = this.notificaciones.filter(
+      n => n.idNotificacion !== idNotificacion
+    );
+    this.actualizarEstadoNoLeidas();
   }
 
   private actualizarEstadoNoLeidas() {
@@ -81,19 +118,51 @@ export class ModalNotificacionesComponent implements OnInit {
     });
   }
 
+  // En el lugar donde llamas a marcarComoLeida
   marcarComoLeida(notificacion: Notificacion) {
-    if (!notificacion.leida) {
-      this.notificationService.marcarComoLeida(notificacion.idNotificacion).subscribe();
+    // ✅ Validación exhaustiva
+    if (!notificacion) {
+      console.error('❌ Notificación es undefined o null');
+      return;
     }
 
-    //  AGREGAR: Si es una notificación de tarea, emitir evento
-    if ((notificacion.tipo === 'tarea_repetir' ||
-      notificacion.tipo === 'recordatorio' ||
-      notificacion.tipo === 'tarea_asignada')
-      && notificacion.datos?.tareaId) {
-      this.abrirTarea.emit(notificacion.datos.tareaId);
-      this.cerrar();
+    console.log('🔍 Intentando marcar notificación como leída');
+    console.log('📦 Objeto completo:', notificacion);
+    console.log('🆔 idNotificacion:', notificacion.idNotificacion);
+    console.log('🆔 id (alternativo):', (notificacion as any).id);
+
+    // ✅ Intentar obtener el ID de diferentes formas
+    const id = notificacion.idNotificacion || (notificacion as any).id;
+
+    if (!id || id === undefined || id === null) {
+      console.error('❌ ID de notificación no encontrado en:', notificacion);
+      console.error('❌ Campos disponibles:', Object.keys(notificacion));
+
+      // ✅ Intentar usar el servicio para ocultar visualmente
+      alert('Esta notificación no puede ser marcada como leída. Será ocultada.');
+      this.ocultarNotificacion((notificacion as any).id || 0);
+      return;
     }
+
+    console.log(`✅ ID válido encontrado: ${id}, procediendo a marcar como leída`);
+
+    // ✅ Si la notificación ya está leída, no hacer nada
+    if (notificacion.leida) {
+      console.log('ℹ️ Notificación ya está marcada como leída');
+      return;
+    }
+
+    // ✅ Marcar como leída en el servidor
+    this.notificationService.marcarComoLeida(id)
+      .subscribe({
+        next: () => {
+          console.log('✅ Notificación marcada como leída exitosamente');
+        },
+        error: (error) => {
+          console.error('❌ Error al marcar como leída:', error);
+          console.error('❌ Detalles del error:', error.error || error.message);
+        }
+      });
   }
 
   marcarTodasLeidas() {

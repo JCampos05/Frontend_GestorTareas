@@ -347,3 +347,49 @@
     }
 }
 
+
+/* NUEVO: Botón para ocultar notificación */
+.btn-ocultar-notif {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #8993a4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s;
+  font-size: 14px;
+  z-index: 5;
+}
+
+.notificacion-item:hover .btn-ocultar-notif {
+  opacity: 1;
+}
+
+.btn-ocultar-notif:hover {
+  background: #f4f5f7;
+  color: #5e6c84;
+}
+
+.btn-ocultar-notif:active {
+  transform: scale(0.9);
+}
+
+/* Ajustar posición del badge "Nuevo" cuando hay botón de cerrar */
+.notificacion-item.no-leida .notif-estado {
+  top: 40px; /* Mover hacia abajo para no chocar con el botón X */
+}
+
+/* En móviles, mostrar siempre el botón */
+@media (max-width: 768px) {
+  .btn-ocultar-notif {
+    opacity: 1;
+  }
+}

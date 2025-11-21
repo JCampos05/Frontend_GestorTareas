@@ -3,10 +3,24 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+export interface RedesSociales {
+  linkedin?: string;
+  github?: string;
+  twitter?: string;
+  [key: string]: string | undefined;
+}
+
 export interface Usuario {
   idUsuario: number;
   nombre: string;
   email: string;
+  bio?: string | null;
+  telefono?: string | null;
+  ubicacion?: string | null;
+  cargo?: string | null;
+  redes_sociales?: RedesSociales | null;
+  fechaRegistro?: string;
+  fecha_actualizacion?: string;
 }
 
 export interface AuthResponse {
@@ -27,6 +41,20 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface ActualizarPerfilRequest {
+  nombre?: string;
+  bio?: string;
+  telefono?: string;
+  ubicacion?: string;
+  cargo?: string;
+  redes_sociales?: RedesSociales;
+}
+
+export interface CambiarPasswordRequest {
+  passwordActual: string;
+  passwordNuevo: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,18 +62,16 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api/usuarios';
   private tokenKey = 'auth_token';
   private usuarioKey = 'auth_usuario';
-  
+
   private usuarioActualSubject = new BehaviorSubject<Usuario | null>(this.obtenerUsuarioAlmacenado());
   public usuarioActual$ = this.usuarioActualSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Registro de usuario
   registrar(datos: RegisterRequest): Observable<AuthResponse> {
-    // Tu backend espera solo: nombre, email, password
-    // Combinamos nombre y apellido si existe
-    const nombreCompleto = datos.apellido 
-      ? `${datos.nombre} ${datos.apellido}` 
+    const nombreCompleto = datos.apellido
+      ? `${datos.nombre} ${datos.apellido}`
       : datos.nombre;
 
     const body = {
@@ -76,7 +102,52 @@ export class AuthService {
   obtenerPerfil(): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.apiUrl}/perfil`, {
       headers: this.obtenerHeaders()
-    });
+    }).pipe(
+      tap(usuario => {
+        // Actualizar usuario en localStorage y BehaviorSubject
+        localStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+        this.usuarioActualSubject.next(usuario);
+      })
+    );
+  }
+
+  // Actualizar perfil del usuario
+  actualizarPerfil(datos: ActualizarPerfilRequest): Observable<{ mensaje: string; usuario: Usuario }> {
+    return this.http.put<{ mensaje: string; usuario: Usuario }>(
+      `${this.apiUrl}/perfil`,
+      datos,
+      { headers: this.obtenerHeaders() }
+    ).pipe(
+      tap(response => {
+        // Actualizar usuario en localStorage y BehaviorSubject
+        localStorage.setItem(this.usuarioKey, JSON.stringify(response.usuario));
+        this.usuarioActualSubject.next(response.usuario);
+      })
+    );
+  }
+
+  // Actualizar nombre del usuario
+  actualizarNombre(nombre: string): Observable<{ mensaje: string; usuario: Usuario }> {
+    return this.http.put<{ mensaje: string; usuario: Usuario }>(
+      `${this.apiUrl}/perfil`,  // Cambiar de /nombre a /perfil
+      { nombre },  // Enviar solo el nombre en el body
+      { headers: this.obtenerHeaders() }
+    ).pipe(
+      tap(response => {
+        // Actualizar usuario en localStorage y BehaviorSubject
+        localStorage.setItem(this.usuarioKey, JSON.stringify(response.usuario));
+        this.usuarioActualSubject.next(response.usuario);
+      })
+    );
+  }
+
+  // Cambiar password del usuario
+  cambiarPassword(datos: CambiarPasswordRequest): Observable<{ mensaje: string }> {
+    return this.http.put<{ mensaje: string }>(
+      `${this.apiUrl}/password`,
+      datos,
+      { headers: this.obtenerHeaders() }
+    );
   }
 
   // Verificar si existen usuarios en la BD

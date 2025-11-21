@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Output, HostListener, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription, take } from 'rxjs'; // ✅ AGREGADO 'take'
 import { AuthService, Usuario } from '../../../core/services/authentication/authentication';
 import { NotificationService } from '../../../core/services/notification-user/notification-user';
 import { ModalNotificacionesComponent } from '../../modales/modal-noti-user/modal-noti-user';
@@ -13,42 +14,80 @@ import { ModalNotificacionesComponent } from '../../modales/modal-noti-user/moda
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   @Output() toggleSidebarEvent = new EventEmitter<void>();
   searchQuery: string = '';
   showUserMenu: boolean = false;
   showNotificaciones: boolean = false;
+  showModalIntegracion: boolean = false;
   cantidadNoLeidas: number = 0;
-  
+
+  // ✅ NUEVO: Subscripciones
+  private subscriptions: Subscription[] = [];
+
   usuario: {
     nombre: string;
     email: string;
     iniciales: string;
   } = {
-    nombre: 'Usuario',
-    email: 'usuario@ejemplo.com',
-    iniciales: 'U'
-  };
+      nombre: 'Usuario',
+      email: 'usuario@ejemplo.com',
+      iniciales: 'U'
+    };
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService
-  ) {}
+  ) { }
 
-  ngOnInit() {
+ngOnInit() {
     this.cargarDatosUsuario();
-    
+
     this.authService.usuarioActual$.subscribe(usuario => {
       if (usuario) {
         this.actualizarDatosUsuario(usuario);
       }
     });
 
-    // Suscribirse a las notificaciones no leídas
-    this.notificationService.cantidadNoLeidas$.subscribe(cantidad => {
+    // ✅ CRÍTICO: Escuchar cambios en notificaciones no leídas
+    const notifSub = this.notificationService.cantidadNoLeidas$.subscribe(cantidad => {
+      console.log('🔔 Header: Cantidad no leídas actualizada:', cantidad);
       this.cantidadNoLeidas = cantidad;
     });
+
+    this.subscriptions.push(notifSub);
+
+    // ✅ MEJORADO: También escuchar todas las notificaciones para sincronización
+    const allNotifSub = this.notificationService.notificaciones$.subscribe(notificaciones => {
+      const noLeidas = notificaciones.filter(n => !n.leida).length;
+      console.log('📋 Header: Total notificaciones:', notificaciones.length);
+      console.log('📋 Header: No leídas calculadas:', noLeidas);
+      
+      // ✅ SINCRONIZAR si hay diferencia
+      if (noLeidas !== this.cantidadNoLeidas) {
+        console.log('⚠️ Sincronizando contador:', this.cantidadNoLeidas, '->', noLeidas);
+        this.cantidadNoLeidas = noLeidas;
+      }
+    });
+
+    this.subscriptions.push(allNotifSub);
+    
+    // ✅ NUEVO: Forzar actualización inicial después de 1 segundo
+    setTimeout(() => {
+      this.notificationService.notificaciones$.pipe(take(1)).subscribe(notificaciones => {
+        const noLeidas = notificaciones.filter(n => !n.leida).length;
+        if (this.cantidadNoLeidas !== noLeidas) {
+          console.log('🔄 Sincronización inicial forzada:', noLeidas);
+          this.cantidadNoLeidas = noLeidas;
+        }
+      });
+    }, 1000);
+  }
+
+  ngOnDestroy() {
+    // ✅ Limpiar subscripciones
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   private cargarDatosUsuario() {
@@ -68,7 +107,7 @@ export class HeaderComponent implements OnInit {
 
   private obtenerIniciales(nombre: string): string {
     if (!nombre) return 'U';
-    
+
     const palabras = nombre.trim().split(' ');
     if (palabras.length >= 2) {
       return (palabras[0][0] + palabras[1][0]).toUpperCase();
@@ -124,13 +163,23 @@ export class HeaderComponent implements OnInit {
   verPerfil() {
     console.log('Ver perfil');
     this.showUserMenu = false;
-    this.router.navigate(['/perfil']);
+    this.router.navigate(['/app/mi-perfil']);
   }
 
   verConfiguracion() {
     console.log('Ver configuración');
     this.showUserMenu = false;
-    this.router.navigate(['/configuracion']);
+    this.router.navigate(['/app/configuracion']);
+  }
+
+  verIntegracion() {
+    console.log('Ver integración');
+    this.showUserMenu = false;
+    this.showModalIntegracion = true; // NUEVO
+  }
+
+  cerrarModalIntegracion() {
+    this.showModalIntegracion = false;
   }
 
   cerrarSesion() {

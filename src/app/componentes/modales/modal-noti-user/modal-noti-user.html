@@ -52,7 +52,10 @@
 
             <small class="notif-fecha">{{ obtenerTiempoRelativo(notif.fechaCreacion) }}</small>
           </div>
-
+          <button class="btn-ocultar-notif" (click)="ocultarNotificacion(notif.idNotificacion); $event.stopPropagation()" 
+                  title="Ocultar notificación">
+            <i class="fas fa-times"></i>
+          </button>
           <div class="notif-estado" *ngIf="!notif.leida">
             <span class="badge-nuevo">Nuevo</span>
           </div>

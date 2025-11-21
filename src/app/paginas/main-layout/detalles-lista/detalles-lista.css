@@ -224,11 +224,13 @@
   transform: scale(1.1);
 }
 
-/* Badge de mensajes no leídos */
+/* ========== BADGE DEL CHAT - IGUAL QUE HEADER ========== */
+
+/* Badge de mensajes no leídos - MEJORADO */
 .chat-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -4px !important;  /*  Ajustado para mejor visibilidad */
+  right: -4px !important;
   background: #ef4444;
   color: white;
   border-radius: 12px;
@@ -236,18 +238,46 @@
   font-size: 11px;
   font-weight: 700;
   min-width: 20px;
+  height: 20px;
   text-align: center;
+  display: flex !important; /*  Forzar display */
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
   border: 2px solid white;
   animation: bounce-badge 0.5s ease-in-out;
+  z-index: 10; /*  Asegurar que esté encima */
+  pointer-events: none; /*  No interferir con clics */
 }
 
+/* Animación mejorada */
 @keyframes bounce-badge {
   0%, 100% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.15);
+    transform: scale(1.2);
+  }
+}
+
+/* NUEVO: Para zooms grandes */
+@media (min-resolution: 1.5dppx) {
+  .chat-badge {
+    font-size: 12px;
+    padding: 4px 8px;
+    min-width: 22px;
+    height: 22px;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chat-badge {
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+    top: -2px !important;
+    right: -2px !important;
   }
 }
 

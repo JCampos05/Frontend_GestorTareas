@@ -17,9 +17,9 @@ import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray, transferArrayItem }
 export class ColumnasComponent implements OnInit {
   @Input() puedeEditar: boolean = true;
   @Input() puedeEliminar: boolean = true;
-  @Input() puedeAsignar: boolean = false; // ✅ NUEVO
+  @Input() puedeAsignar: boolean = false;
 
-  @Output() abrirModalAsignar = new EventEmitter<Tarea>(); // ✅ NUEVO
+  @Output() abrirModalAsignar = new EventEmitter<Tarea>();
 
   tareasToday: Tarea[] = [];
   tareasPendientes: Tarea[] = [];
@@ -29,6 +29,9 @@ export class ColumnasComponent implements OnInit {
   esMiDia: boolean = false;
   panelAbierto = false;
   tareaSeleccionada: number | null = null;
+  
+  // Nueva propiedad para controlar el modo de vista
+  modoVista: 'card' | 'lista' = 'card';
 
   constructor(
     private tareasService: TareasService,
@@ -59,6 +62,11 @@ export class ColumnasComponent implements OnInit {
     this.route.url.subscribe(segments => {
       this.esMiDia = segments.some(segment => segment.path === 'mi-dia');
     });
+  }
+
+  // Método para alternar entre vistas
+  alternarModoVista() {
+    this.modoVista = this.modoVista === 'card' ? 'lista' : 'card';
   }
 
   async cargarTareas() {
@@ -149,9 +157,8 @@ export class ColumnasComponent implements OnInit {
     });
   }
 
-  // ✅ NUEVO: Método para manejar el evento de asignación
   onAsignarClick(tarea: Tarea) {
-    console.log('🎯 Click en asignar tarea:', tarea);
+    console.log('Click en asignar tarea:', tarea);
     this.abrirModalAsignar.emit(tarea);
   }
   
@@ -191,7 +198,7 @@ export class ColumnasComponent implements OnInit {
 
   async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
     if (!this.puedeEditar) {
-      console.warn('⚠️ No tienes permisos para mover tareas');
+      console.warn('No tienes permisos para mover tareas');
       alert('No tienes permisos para modificar tareas en esta lista');
       return;
     }
@@ -209,7 +216,7 @@ export class ColumnasComponent implements OnInit {
       const tarea = event.container.data[event.currentIndex];
 
       if (!tarea.idTarea) {
-        console.error('❌ Tarea sin ID, no se puede actualizar');
+        console.error('Tarea sin ID, no se puede actualizar');
         transferArrayItem(
           event.container.data,
           event.previousContainer.data,
@@ -226,7 +233,7 @@ export class ColumnasComponent implements OnInit {
             tarea.estado = nuevoEstado as any;
           },
           error: (error) => {
-            console.error('❌ Error al actualizar estado:', error);
+            console.error('Error al actualizar estado:', error);
 
             transferArrayItem(
               event.container.data,
@@ -238,7 +245,7 @@ export class ColumnasComponent implements OnInit {
             if (error.status === 403) {
               alert('No tienes permisos para modificar tareas en esta lista');
             } else if (error.status === 404) {
-              console.warn('⚠️ Tarea no encontrada en el servidor, removiéndola del listado');
+              console.warn('Tarea no encontrada en el servidor, removiéndola del listado');
               alert('Esta tarea ya no existe. Se actualizará la lista.');
               this.onTareaEliminada();
             } else {

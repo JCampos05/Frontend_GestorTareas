@@ -21,6 +21,9 @@ export class TableroComponent implements OnInit {
   
   panelAbierto = false;
   tareaSeleccionada: number | null = null;
+  
+  // Nueva propiedad para controlar el modo de vista
+  modoVista: 'card' | 'lista' = 'card';
 
   constructor(
     private tareasService: TareasService,
@@ -37,7 +40,6 @@ export class TableroComponent implements OnInit {
       let tareas: Tarea[] = [];
       
       if (this.tipoVista === 'mi-dia') {
-        // Usar el endpoint específico para Mi Día
         tareas = await this.tareasService.obtenerTareasMiDia();
       } else if (this.tipoVista === 'vencidas') {
         tareas = await this.tareasService.obtenerTareasVencidas();
@@ -67,8 +69,10 @@ export class TableroComponent implements OnInit {
     return titulos[this.tipoVista];
   }
 
-  // Este método ya no es necesario para Mi Día
-  // Las tareas de Mi Día mantienen su estado original
+  // Método para alternar entre vistas
+  alternarModoVista() {
+    this.modoVista = this.modoVista === 'card' ? 'lista' : 'card';
+  }
 
   abrirPanelDetalles(idTarea: number | null = null) {
     this.tareaSeleccionada = idTarea;
@@ -90,11 +94,9 @@ export class TableroComponent implements OnInit {
   }
 
   async onDrop(event: CdkDragDrop<Tarea[]>) {
-    // Solo reordenar en la misma lista (no cambiar estados en Mi Día)
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     }
-    // No permitir drag & drop entre contenedores en Mi Día
   }
 
   async onTareaEliminada() {

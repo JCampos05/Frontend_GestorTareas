@@ -1,0 +1,368 @@
+<div class="configuracion-overlay" (click)="cerrar()">
+    <div class="configuracion-container" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="configuracion-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <i class="fas fa-cog"></i>
+                    <h1>Configuración</h1>
+                </div>
+                <button class="btn-cerrar" (click)="cerrar()" title="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="configuracion-content">
+            <!-- Navegación de pestañas -->
+            <div class="tabs-navegacion">
+                <button class="tab-item" [class.activo]="seccionActiva === 'general'"
+                    (click)="cambiarSeccion('general')">
+                    <i class="fas fa-user"></i>
+                    <span>Información General</span>
+                </button>
+                <button class="tab-item" [class.activo]="seccionActiva === 'redes'" (click)="cambiarSeccion('redes')">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Redes Sociales</span>
+                </button>
+                <button class="tab-item" [class.activo]="seccionActiva === 'seguridad'"
+                    (click)="cambiarSeccion('seguridad')">
+                    <i class="fas fa-lock"></i>
+                    <span>Seguridad</span>
+                </button>
+            </div>
+
+            <!-- Contenido de las secciones -->
+            <div class="tabs-contenido">
+                <!-- Sección: Información General -->
+                <div class="seccion-contenido" *ngIf="seccionActiva === 'general'">
+                    <div class="seccion-card">
+                        <div class="seccion-header">
+                            <h2>
+                                <i class="fas fa-user-edit"></i>
+                                Datos Personales
+                            </h2>
+                            <p class="seccion-descripcion">
+                                Actualiza tu información personal y de contacto
+                            </p>
+                        </div>
+
+                        <form [formGroup]="formGeneral" (ngSubmit)="guardarDatosGenerales()">
+                            <div class="form-grid">
+                                <!-- Nombre -->
+                                <div class="form-group form-group-full">
+                                    <label for="nombre">
+                                        <i class="fas fa-user"></i>
+                                        Nombre completo
+                                    </label>
+                                    <input type="text" id="nombre" formControlName="nombre"
+                                        placeholder="Ingresa tu nombre completo" />
+                                    <span class="form-error"
+                                        *ngIf="formGeneral.get('nombre')?.invalid && formGeneral.get('nombre')?.touched">
+                                        El nombre es requerido
+                                    </span>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="form-group form-group-full">
+                                    <label for="email">
+                                        <i class="fas fa-envelope"></i>
+                                        Correo electrónico
+                                    </label>
+                                    <input type="email" id="email" formControlName="email" placeholder="tu@email.com"
+                                        readonly />
+                                    <span class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        El correo no puede ser modificado
+                                    </span>
+                                </div>
+
+                                <!-- Teléfono -->
+                                <div class="form-group">
+                                    <label for="telefono">
+                                        <i class="fas fa-phone"></i>
+                                        Teléfono
+                                    </label>
+                                    <input type="tel" id="telefono" formControlName="telefono"
+                                        placeholder="+52 123 456 7890" />
+                                </div>
+
+                                <!-- Ubicación -->
+                                <div class="form-group">
+                                    <label for="ubicacion">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        Ubicación
+                                    </label>
+                                    <input type="text" id="ubicacion" formControlName="ubicacion"
+                                        placeholder="Ciudad, País" />
+                                </div>
+
+                                <!-- Cargo -->
+                                <div class="form-group form-group-full">
+                                    <label for="cargo">
+                                        <i class="fas fa-briefcase"></i>
+                                        Cargo / Profesión
+                                    </label>
+                                    <input type="text" id="cargo" formControlName="cargo"
+                                        placeholder="Ej: Desarrollador Full Stack" />
+                                </div>
+
+                                <!-- Biografía -->
+                                <div class="form-group form-group-full">
+                                    <label for="bio">
+                                        <i class="fas fa-align-left"></i>
+                                        Biografía
+                                    </label>
+                                    <textarea id="bio" formControlName="bio" rows="4"
+                                        placeholder="Cuéntanos un poco sobre ti..."></textarea>
+                                    <span class="form-hint">Máximo 500 caracteres</span>
+                                </div>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="form-actions">
+                                <button type="button" class="btn-secundario" (click)="cancelarCambiosGenerales()">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn-primario"
+                                    [disabled]="guardandoGeneral || formGeneral.invalid">
+                                    <i class="fas fa-save"></i>
+                                    {{ guardandoGeneral ? 'Guardando...' : 'Guardar cambios' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sección: Redes Sociales -->
+                <div class="seccion-contenido" *ngIf="seccionActiva === 'redes'">
+                    <div class="seccion-card">
+                        <div class="seccion-header">
+                            <h2>
+                                <i class="fas fa-share-alt"></i>
+                                Redes Sociales
+                            </h2>
+                            <p class="seccion-descripcion">
+                                Conecta tus perfiles en redes sociales
+                            </p>
+                        </div>
+
+                        <form [formGroup]="formRedes" (ngSubmit)="guardarRedesSociales()">
+                            <div class="redes-grid">
+                                <!-- LinkedIn -->
+                                <div class="red-item linkedin">
+                                    <div class="red-icon">
+                                        <i class="fab fa-linkedin"></i>
+                                    </div>
+                                    <div class="red-info">
+                                        <label>LinkedIn</label>
+                                        <input type="url" formControlName="linkedin"
+                                            placeholder="https://linkedin.com/in/tu-perfil" />
+                                    </div>
+                                </div>
+
+                                <!-- GitHub -->
+                                <div class="red-item github">
+                                    <div class="red-icon">
+                                        <i class="fab fa-github"></i>
+                                    </div>
+                                    <div class="red-info">
+                                        <label>GitHub</label>
+                                        <input type="url" formControlName="github"
+                                            placeholder="https://github.com/tu-usuario" />
+                                    </div>
+                                </div>
+
+                                <!-- Twitter / X -->
+                                <div class="red-item twitter">
+                                    <div class="red-icon">
+                                        <i class="fab fa-twitter"></i>
+                                    </div>
+                                    <div class="red-info">
+                                        <label>Twitter / X</label>
+                                        <input type="url" formControlName="twitter"
+                                            placeholder="https://twitter.com/tu-usuario" />
+                                    </div>
+                                </div>
+
+                                <!-- YouTube -->
+                                <div class="red-item youtube">
+                                    <div class="red-icon">
+                                        <i class="fab fa-youtube"></i>
+                                    </div>
+                                    <div class="red-info">
+                                        <label>YouTube</label>
+                                        <input type="url" formControlName="youtube"
+                                            placeholder="https://youtube.com/@tu-canal" />
+                                    </div>
+                                </div>
+
+                                <!-- Reddit -->
+                                <div class="red-item reddit">
+                                    <div class="red-icon">
+                                        <i class="fab fa-reddit"></i>
+                                    </div>
+                                    <div class="red-info">
+                                        <label>Reddit</label>
+                                        <input type="url" formControlName="reddit"
+                                            placeholder="https://reddit.com/user/tu-usuario" />
+                                    </div>
+                                </div>
+
+                                <!-- Instagram -->
+                                <div class="red-item instagram">
+                                    <div class="red-icon">
+                                        <i class="fab fa-instagram"></i>
+                                    </div>
+                                    <div class="red-info">
+                                        <label>Instagram</label>
+                                        <input type="url" formControlName="instagram"
+                                            placeholder="https://instagram.com/tu-usuario" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="form-actions">
+                                <button type="button" class="btn-secundario" (click)="cancelarCambiosRedes()">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn-primario" [disabled]="guardandoRedes">
+                                    <i class="fas fa-save"></i>
+                                    {{ guardandoRedes ? 'Guardando...' : 'Guardar cambios' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sección: Seguridad -->
+                <div class="seccion-contenido" *ngIf="seccionActiva === 'seguridad'">
+                    <div class="seccion-card">
+                        <div class="seccion-header">
+                            <h2>
+                                <i class="fas fa-key"></i>
+                                Cambiar Contraseña
+                            </h2>
+                            <p class="seccion-descripcion">
+                                Actualiza tu contraseña para mantener tu cuenta segura
+                            </p>
+                        </div>
+
+                        <form [formGroup]="formPassword" (ngSubmit)="cambiarPassword()">
+                            <div class="password-form">
+                                <!-- Contraseña actual -->
+                                <div class="form-group">
+                                    <label for="passwordActual">
+                                        <i class="fas fa-lock"></i>
+                                        Contraseña actual
+                                    </label>
+                                    <div class="input-password">
+                                        <input [type]="mostrarPasswordActual ? 'text' : 'password'" id="passwordActual"
+                                            formControlName="passwordActual"
+                                            placeholder="Ingresa tu contraseña actual" />
+                                        <button type="button" class="toggle-password"
+                                            (click)="mostrarPasswordActual = !mostrarPasswordActual">
+                                            <i [class]="mostrarPasswordActual ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                        </button>
+                                    </div>
+                                    <span class="form-error"
+                                        *ngIf="formPassword.get('passwordActual')?.invalid && formPassword.get('passwordActual')?.touched">
+                                        La contraseña actual es requerida
+                                    </span>
+                                </div>
+
+                                <!-- Nueva contraseña -->
+                                <div class="form-group">
+                                    <label for="passwordNuevo">
+                                        <i class="fas fa-lock"></i>
+                                        Nueva contraseña
+                                    </label>
+                                    <div class="input-password">
+                                        <input [type]="mostrarPasswordNuevo ? 'text' : 'password'" id="passwordNuevo"
+                                            formControlName="passwordNuevo" placeholder="Ingresa tu nueva contraseña" />
+                                        <button type="button" class="toggle-password"
+                                            (click)="mostrarPasswordNuevo = !mostrarPasswordNuevo">
+                                            <i [class]="mostrarPasswordNuevo ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                        </button>
+                                    </div>
+                                    <span class="form-error"
+                                        *ngIf="formPassword.get('passwordNuevo')?.invalid && formPassword.get('passwordNuevo')?.touched">
+                                        La contraseña debe tener al menos 6 caracteres
+                                    </span>
+                                </div>
+
+                                <!-- Confirmar nueva contraseña -->
+                                <div class="form-group">
+                                    <label for="passwordConfirmar">
+                                        <i class="fas fa-lock"></i>
+                                        Confirmar nueva contraseña
+                                    </label>
+                                    <div class="input-password">
+                                        <input [type]="mostrarPasswordConfirmar ? 'text' : 'password'"
+                                            id="passwordConfirmar" formControlName="passwordConfirmar"
+                                            placeholder="Confirma tu nueva contraseña" />
+                                        <button type="button" class="toggle-password"
+                                            (click)="mostrarPasswordConfirmar = !mostrarPasswordConfirmar">
+                                            <i
+                                                [class]="mostrarPasswordConfirmar ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                        </button>
+                                    </div>
+                                    <span class="form-error"
+                                        *ngIf="formPassword.hasError('noCoinciden') && formPassword.get('passwordConfirmar')?.touched">
+                                        Las contraseñas no coinciden
+                                    </span>
+                                </div>
+
+                                <!-- Requisitos de contraseña -->
+                                <div class="password-requisitos">
+                                    <p class="requisitos-titulo">
+                                        <i class="fas fa-info-circle"></i>
+                                        Requisitos de la contraseña:
+                                    </p>
+                                    <ul class="requisitos-lista">
+                                        <li [class.cumplido]="validarLongitud()">
+                                            <i
+                                                [class]="validarLongitud() ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+                                            Mínimo 6 caracteres
+                                        </li>
+                                        <li [class.cumplido]="validarMayuscula()">
+                                            <i
+                                                [class]="validarMayuscula() ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+                                            Al menos una letra mayúscula
+                                        </li>
+                                        <li [class.cumplido]="validarMinuscula()">
+                                            <i
+                                                [class]="validarMinuscula() ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+                                            Al menos una letra minúscula
+                                        </li>
+                                        <li [class.cumplido]="validarNumero()">
+                                            <i [class]="validarNumero() ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+                                            Al menos un número
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="form-actions">
+                                <button type="button" class="btn-secundario" (click)="cancelarCambiosPassword()">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn-primario"
+                                    [disabled]="guardandoPassword || formPassword.invalid">
+                                    <i class="fas fa-key"></i>
+                                    {{ guardandoPassword ? 'Cambiando...' : 'Cambiar contraseña' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -379,25 +379,40 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       tipoRepeticion: this.repetir ? this.tipoRepeticion : undefined,
       configRepeticion: configRepeticion || undefined,
       idLista: this.idLista || undefined,
-      miDia: this.miDia
+      miDia: this.miDia // ✅ Enviar directamente el valor booleano
     };
+
+    console.log('📝 Guardando tarea con miDia:', this.miDia, 'tipo:', typeof this.miDia);
 
     try {
       if (this.modoEdicion && this.idTarea) {
         await this.tareasService.actualizarTarea(this.idTarea, tarea);
         this.notificacionesService.exito('Tarea actualizada exitosamente');
       } else {
-        await this.tareasService.crearTarea(tarea);
+        const result = await this.tareasService.crearTarea(tarea);
+        console.log('✅ Tarea creada:', result);
+
+        // ✅ WORKAROUND: Si miDia está true, hacer una segunda llamada para asegurarnos
+        if (this.miDia && result.data?.idTarea) {
+          console.log('🔄 Activando Mi Día para la tarea recién creada...');
+          try {
+            await this.tareasService.alternarMiDia(result.data.idTarea, true);
+            console.log('✅ Mi Día activado correctamente');
+          } catch (miDiaError) {
+            console.error('❌ Error al activar Mi Día:', miDiaError);
+          }
+        }
+
         this.notificacionesService.exito('Tarea creada exitosamente');
       }
 
-      //Programar notificación de repetición si aplica
+      // Programar notificación de repetición si aplica
       if (tarea.repetir && fechaVencimientoFinal) {
         this.programarNotificacionRepeticion(tarea);
       }
 
       this.tareaGuardada.emit();
-      this.limpiarFormulario();
+      this.onCerrar(); // ✅ Usar onCerrar() en lugar de limpiarFormulario()
     } catch (error) {
       console.error('Error al guardar tarea:', error);
       this.notificacionesService.error('Error al guardar la tarea');

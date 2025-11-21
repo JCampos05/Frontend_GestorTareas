@@ -298,9 +298,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   onInputChange(): void {
     if (this.nuevoMensaje.trim() && this.idLista && this.isConnected) {
+      console.log('⌨️ Usuario empezó a escribir');
       this.socketService.startTyping(this.idLista);
       this.typingSubject.next(this.nuevoMensaje);
-    } else if (this.idLista && this.isConnected) {
+    } else if (this.idLista && this.isConnected && this.nuevoMensaje.length === 0) {
+      console.log('⌨️ Usuario dejó de escribir');
       this.socketService.stopTyping(this.idLista);
     }
   }
@@ -328,12 +330,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     console.log('📤 Enviando mensaje:', contenido.substring(0, 50) + '...');
     this.isSending = true;
 
+    // ✅ Detener indicador ANTES de enviar
+    this.socketService.stopTyping(this.idLista);
+
     this.socketService.sendMessage(this.idLista, contenido);
     this.nuevoMensaje = '';
     this.isSending = false;
     this.shouldScrollToBottom = true;
-
-    this.socketService.stopTyping(this.idLista);
   }
 
   private isScrolledNearBottom(): boolean {

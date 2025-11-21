@@ -21,7 +21,9 @@ export const routes: Routes = [
             {path: 'lista/:id', loadComponent: () => import('./paginas/main-layout/detalles-lista/detalles-lista').then(m => m.DetalleListaComponent)},
             {path: 'calendar', loadComponent: () => import('./paginas/main-layout/calendario/calendario').then(m =>m.CalendarioComponent)},
             {path: 'notas', loadComponent: () => import('./paginas/vista-notas/v-notas').then(m => m.NotasComponent)},
-            {path: 'tablero/:id', loadComponent: () => import('./paginas/main-layout/vista-tablero/vista-tablero').then(m => m.VistaTableroComponent)}
+            {path: 'tablero/:id', loadComponent: () => import('./paginas/main-layout/vista-tablero/vista-tablero').then(m => m.VistaTableroComponent)},
+            {path: 'mi-perfil' , loadComponent: () => import('./paginas/mi-perfil/mi-perfil').then(m => m.MiPerfilComponent)},
+            {path: 'configuracion' , loadComponent: () => import('./paginas/configuracion/configuracion').then(m => m.ConfiguracionComponent)}
             //{path: 'operator', loadComponent: () => import('./componentes/operator-section/operator-section').then(m => m.AdminSectionsComponent)}
         ]
     },
