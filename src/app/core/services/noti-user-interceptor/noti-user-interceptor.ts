@@ -76,24 +76,50 @@ private procesarNotificacion(notif: Notificacion): void {
   }
 
 
-  private manejarCambioRol(notif: Notificacion): void {
-    const listaId = notif.datos?.listaId || notif.datos?.listaId;
-    const nuevoRol = notif.datos?.nuevoRol;
-    const listaNombre = notif.datos?.listaNombre;
+private manejarCambioRol(notif: Notificacion): void {
+  const listaId = notif.datos?.listaId || notif.datos?.listaId;
+  const nuevoRol = notif.datos?.nuevoRol;
+  const rolAnterior = notif.datos?.rolAnterior;
+  const listaNombre = notif.datos?.listaNombre;
+  const modificadoPor = notif.datos?.modificadoPor;
 
-    console.log('Cambio de rol detectado:', { listaId, nuevoRol, listaNombre });
+  console.log('🔄 Cambio de rol detectado:', { 
+    listaId, 
+    nuevoRol, 
+    rolAnterior, 
+    listaNombre,
+    modificadoPor 
+  });
 
-    // Mostrar notificación visual del navegador
-    this.mostrarNotificacionVisual(
-      'Cambio de rol',
-      `Tu rol en "${listaNombre}" cambió a: ${nuevoRol}`,
-      () => {
-        if (listaId) {
-          this.router.navigate(['/app/lista', listaId]);
-        }
+  // ✅ Determinar emoji según el nuevo rol
+  //const emojiRol = this.obtenerEmojiRol(nuevoRol);
+
+  // ✅ Mostrar notificación visual del navegador
+  this.mostrarNotificacionVisual(
+    //`${emojiRol} Cambio de permisos`,
+    `Cambio de permisos`,
+    `${modificadoPor} cambió tu rol en "${listaNombre}" de ${rolAnterior} a ${nuevoRol}`,
+    () => {
+      if (listaId) {
+        this.router.navigate(['/app/lista', listaId]);
       }
-    );
+    }
+  );
+
+  // ✅ Reproducir sonido diferente para cambio de rol
+  //this.reproducirSonidoNotificacion(900); // Tono más alto
+
+  // ✅ Si el usuario está viendo esa lista, recargar permisos
+  const currentUrl = this.router.url;
+  if (currentUrl.includes(`/app/lista/${listaId}`)) {
+    console.log('🔄 Usuario está en la lista, recargando página para actualizar permisos...');
+    
+    // Esperar 2 segundos para que el usuario vea la notificación
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   }
+}
 
   private manejarInvitacion(notif: Notificacion): void {
     const listaNombre = notif.datos?.listaNombre;
@@ -123,7 +149,38 @@ private procesarNotificacion(notif: Notificacion): void {
         }
       }
     );
+
+    //this.reproducirSonidoNotificacion();
   }
+
+/*
+private reproducirSonidoNotificacion(): void {
+  try {
+    // Crear audio con un tono de notificación
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Configurar tono agradable
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+
+    // Volumen suave
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+    // Reproducir
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  } catch (error) {
+    console.log('⚠️ No se pudo reproducir sonido:', error);
+  }
+}*/
+
+
 
   private manejarRevocacion(notif: Notificacion): void {
     const listaNombre = notif.datos?.listaNombre;

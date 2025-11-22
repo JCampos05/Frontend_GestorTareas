@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CompartirService, UsuarioCompartido, InfoCompartidos } from '../../../core/services/compartir/compartir';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 @Component({
   selector: 'app-modal-usuarios-lista',
@@ -27,7 +28,10 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
   // ✅ Mantener una copia temporal de los roles antes de confirmar cambios
   private rolesTemporales = new Map<number, string>();
 
-  constructor(private compartirService: CompartirService) {}
+  constructor(
+    private compartirService: CompartirService,
+    private notificacionesService: NotificacionesService,
+  ) {}
 
   ngOnInit() {
     if (this.isOpen && this.listaId) {
@@ -45,12 +49,13 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
     this.compartirService.obtenerInfoCompartidosLista(this.listaId).subscribe({
       next: (info) => {
         this.infoCompartidos = info;
-        // ✅ Limpiar roles temporales al cargar
+        // Limpiar roles temporales al cargar
         this.rolesTemporales.clear();
         console.log('✅ Info compartidos cargada:', info);
       },
       error: (error) => {
-        console.error('❌ Error al cargar usuarios:', error);
+        console.error(' Error al cargar usuarios:', error);
+        this.notificacionesService.mostrar('error','Error al cargar usuarios');
         alert('Error al cargar usuarios');
       }
     });
@@ -58,18 +63,20 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
 
   invitarUsuario() {
     if (!this.emailInvitar || !this.emailInvitar.includes('@')) {
-      alert('Por favor ingresa un email válido');
+      this.notificacionesService.mostrar('advertencia', 'Por favor ingresa un email válido');
+      //alert('Por favor ingresa un email válido');
       return;
     }
 
     this.loadingInvitar = true;
 
-    console.log('📧 Enviando invitación con rol:', this.rolInvitar);
+    console.log(' Enviando invitación con rol:', this.rolInvitar);
 
     this.compartirService.invitarUsuarioLista(this.listaId, this.emailInvitar, this.rolInvitar).subscribe({
       next: (response) => {
         console.log('✅ Usuario invitado:', response);
-        alert(`Invitación enviada a ${this.emailInvitar}`);
+        this.notificacionesService.mostrar('exito',`Invitación enviada a ${this.emailInvitar}`)
+        //alert(`Invitación enviada a ${this.emailInvitar}`);
         this.emailInvitar = '';
         this.cargarUsuarios();
         this.actualizado.emit();
@@ -77,13 +84,14 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
       },
       error: (error) => {
         console.error('❌ Error al invitar:', error);
-        alert(error.error?.error || 'Error al enviar invitación');
+        this.notificacionesService.mostrar('exito',error.error?.error || 'Error al enviar invitación')
+        //alert(error.error?.error || 'Error al enviar invitación');
         this.loadingInvitar = false;
       }
     });
   }
 
-  // ✅ Método que se ejecuta cuando cambia el dropdown
+  // Método que se ejecuta cuando cambia el dropdown
   onRolChange(usuario: UsuarioCompartido, nuevoRol: string) {
     console.log('🔄 Rol cambiado para', usuario.nombre, ':', nuevoRol);
     
@@ -115,8 +123,8 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
         
         // Mostrar error específico
         const mensajeError = error.error?.error || error.error?.detalles || 'Error al cambiar el rol';
-        alert(`Error: ${mensajeError}`);
-        
+        this.notificacionesService.mostrar('exito',`Error: ${mensajeError}`)
+        //alert(`Error: ${mensajeError}`);
         // Recargar desde el servidor
         this.cargarUsuarios();
       }
@@ -131,13 +139,15 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
     this.compartirService.revocarAccesoLista(this.listaId, usuario.idUsuario).subscribe({
       next: () => {
         console.log('✅ Acceso revocado');
-        alert(`Acceso revocado para ${usuario.nombre}`);
+        this.notificacionesService.mostrar('info',`Acceso revocado para ${usuario.nombre}` );
+        //alert(`Acceso revocado para ${usuario.nombre}`);
         this.cargarUsuarios();
         this.actualizado.emit();
       },
       error: (error) => {
         console.error('❌ Error al revocar:', error);
-        alert('Error al revocar acceso');
+        this.notificacionesService.mostrar('error','Error al revocar acceso' );
+        //alert('Error al revocar acceso');
       }
     });
   }
