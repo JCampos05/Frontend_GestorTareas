@@ -6,6 +6,8 @@ import { debounceTime, distinctUntilChanged, filter, take } from 'rxjs/operators
 import { SocketService, Mensaje, UsuarioOnline } from '../../../core/services/sockets/sockets';
 import { ChatService } from '../../../core/services/chat/chat';
 import { AuthService } from '../../../core/services/authentication/authentication';
+import { NotificacionesService } from '../../../core/services/notification/notification';
+
 
 @Component({
   selector: 'app-chat',
@@ -42,7 +44,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor(
     private socketService: SocketService,
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificacionesService: NotificacionesService,
   ) { }
 
   ngOnInit(): void {
@@ -94,8 +97,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       console.log('   - localStorage.token:', localStorage.getItem('token') ? 'Existe' : 'NO existe');
       console.log('   - localStorage.auth_usuario:', localStorage.getItem('auth_usuario') ? 'Existe' : 'NO existe');
       console.log('   - Contenido auth_usuario:', localStorage.getItem('auth_usuario'));
-
-      alert('No estás autenticado. Por favor, cierra sesión e inicia sesión nuevamente.');
+      this.notificacionesService.mostrar('advertencia','Datos actualizados correctamente');
+      //alert('No estás autenticado. Por favor, cierra sesión e inicia sesión nuevamente.');
       return;
     }
 
@@ -215,7 +218,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     // Errores
     const errorSub = this.socketService.onError().subscribe(error => {
       console.error('❌ Error del socket:', error);
-      alert(`Error en el chat: ${error.message}`);
+      this.notificacionesService.mostrar('error',`Error en el chat: ${error.message}`);
+      //alert(`Error en el chat: ${error.message}`);
     });
     this.subscriptions.push(errorSub);
 
@@ -263,7 +267,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         error: (error) => {
           console.error('❌ Error al cargar historial:', error);
           this.isLoading = false;
-          alert('Error al cargar mensajes. Intenta recargar la página.');
+          this.notificacionesService.mostrar('error','Error al cargar mensajes. Intenta recargar la página.');
+          //alert('Error al cargar mensajes. Intenta recargar la página.');
         }
       });
   }
@@ -322,7 +327,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (!contenido || this.isSending || !this.isConnected) {
       if (!this.isConnected) {
         console.error('❌ No se puede enviar mensaje: socket no conectado');
-        alert('No estás conectado al chat. Intenta recargar la página.');
+        this.notificacionesService.mostrar('advertencia','No estás conectado al chat. Intenta recargar la página.');
+        //alert('No estás conectado al chat. Intenta recargar la página.');
       }
       return;
     }

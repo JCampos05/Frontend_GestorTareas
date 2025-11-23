@@ -515,3 +515,146 @@ fieldset:disabled .checkbox-group {
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+
+
+/* ========== MEJORAS PARA INPUT GROUP ========== */
+.fecha-hora-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.fecha-hora-group .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fecha-hora-group .input-group label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #44546f;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
+}
+
+.fecha-hora-group input[type="date"],
+.fecha-hora-group input[type="time"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #dfe1e6;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+  color: #172b4d;
+  background: white;
+  margin-bottom: 0;
+}
+
+.fecha-hora-group input[type="date"]:hover,
+.fecha-hora-group input[type="time"]:hover {
+  border-color: #b3bac5;
+}
+
+.fecha-hora-group input[type="date"]:focus,
+.fecha-hora-group input[type="time"]:focus {
+  outline: none;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 1px #0052cc;
+}
+
+/* Responsive para inputs de fecha/hora */
+@media (max-width: 768px) {
+  .fecha-hora-group {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+
+/* ========== LISTA DE RECORDATORIOS PROGRAMADOS ========== */
+.recordatorios-lista {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #f4f5f7;
+  border-radius: 8px;
+  border: 1px solid #dfe1e6;
+}
+
+.recordatorios-lista > label {
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #44546f;
+  text-transform: uppercase;
+}
+
+.recordatorio-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border: 1px solid #dfe1e6;
+  transition: all 0.2s;
+}
+
+.recordatorio-item:last-child {
+  margin-bottom: 0;
+}
+
+.recordatorio-item:hover {
+  border-color: #0052cc;
+  box-shadow: 0 2px 4px rgba(0, 82, 204, 0.1);
+}
+
+.recordatorio-item i {
+  color: #ff991f;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.recordatorio-item span {
+  flex: 1;
+  font-size: 13px;
+  color: #172b4d;
+  font-weight: 500;
+}
+
+.recordatorio-tipo {
+  color: #5e6c84 !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+.btn-eliminar-recordatorio {
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid #de350b;
+  color: #de350b;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.btn-eliminar-recordatorio:hover {
+  background: #de350b;
+  color: white;
+}
+
+.btn-eliminar-recordatorio i {
+  color: inherit;
+}

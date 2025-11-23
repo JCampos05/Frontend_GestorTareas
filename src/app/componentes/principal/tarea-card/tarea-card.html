@@ -3,7 +3,9 @@
   [class.tarea-lista]="modoVista === 'lista'"
   [attr.data-tarea-id]="tarea.idTarea" 
   [attr.data-estado]="tarea.estado"
-  cdkDragHandle>
+  cdkDragHandle
+  (click)="onCardClick($event)">
+  
   <div class="tarea-content">
     <!-- Badge de lista en esquina superior derecha (solo en modo card) -->
     <span *ngIf="tarea.nombreLista && modoVista === 'card'" class="tarea-lista-badge">

@@ -29,7 +29,7 @@ export class NotificationInterceptorService {
     });
   }
 
-private procesarNotificacion(notif: Notificacion): void {
+  private procesarNotificacion(notif: Notificacion): void {
     console.log(' Procesando notificación global:', notif);
 
     switch (notif.tipo) {
@@ -49,6 +49,10 @@ private procesarNotificacion(notif: Notificacion): void {
         this.manejarMensajeChat(notif);
         break;
 
+      case 'recordatorio':
+        this.manejarRecordatorio(notif);
+        break;
+
       case 'otro':
         if (notif.datos?.revocadoPor) {
           this.manejarRevocacion(notif);
@@ -56,6 +60,36 @@ private procesarNotificacion(notif: Notificacion): void {
         break;
     }
   }
+
+  private manejarRecordatorio(notif: Notificacion): void {
+    const tareaNombre = notif.datos?.tareaNombre;
+    const fechaVencimiento = notif.datos?.fechaVencimiento;
+    const tareaId = notif.datos?.tareaId;
+    const listaId = notif.datos?.listaId;
+
+    console.log('⏰ Recordatorio recibido:', { tareaNombre, fechaVencimiento, tareaId });
+
+    let mensaje = `Recordatorio: "${tareaNombre}"`;
+
+    if (fechaVencimiento) {
+      const fecha = new Date(fechaVencimiento);
+      mensaje += ` - Vence: ${fecha.toLocaleDateString('es-MX')}`;
+    }
+
+    this.mostrarNotificacionVisual(
+      '⏰ Recordatorio de tarea',
+      mensaje,
+      () => {
+        if (listaId) {
+          this.router.navigate(['/app/lista', listaId]);
+        } else {
+          this.router.navigate(['/app/mi-dia']);
+        }
+      },
+      true // Es importante
+    );
+  }
+
 
   private manejarMensajeChat(notif: Notificacion): void {
     const listaNombre = notif.datos?.listaNombre;
@@ -76,50 +110,50 @@ private procesarNotificacion(notif: Notificacion): void {
   }
 
 
-private manejarCambioRol(notif: Notificacion): void {
-  const listaId = notif.datos?.listaId || notif.datos?.listaId;
-  const nuevoRol = notif.datos?.nuevoRol;
-  const rolAnterior = notif.datos?.rolAnterior;
-  const listaNombre = notif.datos?.listaNombre;
-  const modificadoPor = notif.datos?.modificadoPor;
+  private manejarCambioRol(notif: Notificacion): void {
+    const listaId = notif.datos?.listaId || notif.datos?.listaId;
+    const nuevoRol = notif.datos?.nuevoRol;
+    const rolAnterior = notif.datos?.rolAnterior;
+    const listaNombre = notif.datos?.listaNombre;
+    const modificadoPor = notif.datos?.modificadoPor;
 
-  console.log('🔄 Cambio de rol detectado:', { 
-    listaId, 
-    nuevoRol, 
-    rolAnterior, 
-    listaNombre,
-    modificadoPor 
-  });
+    console.log('🔄 Cambio de rol detectado:', {
+      listaId,
+      nuevoRol,
+      rolAnterior,
+      listaNombre,
+      modificadoPor
+    });
 
-  // ✅ Determinar emoji según el nuevo rol
-  //const emojiRol = this.obtenerEmojiRol(nuevoRol);
+    // ✅ Determinar emoji según el nuevo rol
+    //const emojiRol = this.obtenerEmojiRol(nuevoRol);
 
-  // ✅ Mostrar notificación visual del navegador
-  this.mostrarNotificacionVisual(
-    //`${emojiRol} Cambio de permisos`,
-    `Cambio de permisos`,
-    `${modificadoPor} cambió tu rol en "${listaNombre}" de ${rolAnterior} a ${nuevoRol}`,
-    () => {
-      if (listaId) {
-        this.router.navigate(['/app/lista', listaId]);
+    // ✅ Mostrar notificación visual del navegador
+    this.mostrarNotificacionVisual(
+      //`${emojiRol} Cambio de permisos`,
+      `Cambio de permisos`,
+      `${modificadoPor} cambió tu rol en "${listaNombre}" de ${rolAnterior} a ${nuevoRol}`,
+      () => {
+        if (listaId) {
+          this.router.navigate(['/app/lista', listaId]);
+        }
       }
+    );
+
+    // ✅ Reproducir sonido diferente para cambio de rol
+    //this.reproducirSonidoNotificacion(900); // Tono más alto
+
+    // ✅ Si el usuario está viendo esa lista, recargar permisos
+    const currentUrl = this.router.url;
+    if (currentUrl.includes(`/app/lista/${listaId}`)) {
+      console.log('🔄 Usuario está en la lista, recargando página para actualizar permisos...');
+
+      // Esperar 2 segundos para que el usuario vea la notificación
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
-  );
-
-  // ✅ Reproducir sonido diferente para cambio de rol
-  //this.reproducirSonidoNotificacion(900); // Tono más alto
-
-  // ✅ Si el usuario está viendo esa lista, recargar permisos
-  const currentUrl = this.router.url;
-  if (currentUrl.includes(`/app/lista/${listaId}`)) {
-    console.log('🔄 Usuario está en la lista, recargando página para actualizar permisos...');
-    
-    // Esperar 2 segundos para que el usuario vea la notificación
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
   }
-}
 
   private manejarInvitacion(notif: Notificacion): void {
     const listaNombre = notif.datos?.listaNombre;
@@ -153,32 +187,32 @@ private manejarCambioRol(notif: Notificacion): void {
     //this.reproducirSonidoNotificacion();
   }
 
-/*
-private reproducirSonidoNotificacion(): void {
-  try {
-    // Crear audio con un tono de notificación
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    // Configurar tono agradable
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-
-    // Volumen suave
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-
-    // Reproducir
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
-  } catch (error) {
-    console.log('⚠️ No se pudo reproducir sonido:', error);
-  }
-}*/
+  /*
+  private reproducirSonidoNotificacion(): void {
+    try {
+      // Crear audio con un tono de notificación
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+  
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+  
+      // Configurar tono agradable
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+  
+      // Volumen suave
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+  
+      // Reproducir
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (error) {
+      console.log('⚠️ No se pudo reproducir sonido:', error);
+    }
+  }*/
 
 
 

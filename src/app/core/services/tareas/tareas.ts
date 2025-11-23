@@ -211,4 +211,39 @@ export class TareasService {
       return [];
     }
   }
+
+  // ========== RECORDATORIOS ==========
+  async agregarRecordatorio(idTarea: number, fecha: string, tipo: string): Promise<any> {
+    try {
+      return firstValueFrom(
+        this.http.post(`${this.API_URL}/${idTarea}/recordatorios`, { fecha, tipo })
+      );
+    } catch (error) {
+      console.error('Error al agregar recordatorio:', error);
+      throw error;
+    }
+  }
+
+  async eliminarRecordatorio(idTarea: number, indice: number): Promise<any> {
+    try {
+      return firstValueFrom(
+        this.http.delete(`${this.API_URL}/${idTarea}/recordatorios/${indice}`)
+      );
+    } catch (error) {
+      console.error('Error al eliminar recordatorio:', error);
+      throw error;
+    }
+  }
+
+  async obtenerRecordatorios(idTarea: number): Promise<any> {
+    try {
+      return firstValueFrom(
+        this.http.get(`${this.API_URL}/${idTarea}/recordatorios`)
+      );
+    } catch (error) {
+      console.error('Error al obtener recordatorios:', error);
+      throw error;
+    }
+  }
+
 }

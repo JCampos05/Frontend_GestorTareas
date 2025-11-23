@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/authentication/authentication';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-registrate',
@@ -29,7 +30,8 @@ export class Registrate {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificacionesService: NotificacionesService,
   ) {}
 
   togglePasswordVisibility() {
@@ -76,7 +78,8 @@ export class Registrate {
         this.isLoading = false;
         
         // Mostrar mensaje de éxito
-        alert(`¡Bienvenido ${response.usuario.nombre}! Tu cuenta ha sido creada exitosamente.`);
+        this.notificacionesService.mostrar('exito',`¡Bienvenido ${response.usuario.nombre}! Tu cuenta ha sido creada exitosamente.`);
+        //alert(`¡Bienvenido ${response.usuario.nombre}! Tu cuenta ha sido creada exitosamente.`);
         
         // Redirigir a la aplicación principal o dashboard
         this.router.navigate(['/app']);

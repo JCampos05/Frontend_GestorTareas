@@ -5,14 +5,14 @@
     </button>
     <h2>Detalles de Tarea</h2>
 
-    <!--  Mensaje si no puede editar -->
+    <!-- Mensaje si no puede editar -->
     <div *ngIf="!puedeEditar" class="alert-solo-lectura-panel">
       <i class="fas fa-eye"></i>
       <span>Solo puedes ver esta tarea. No tienes permisos para editarla.</span>
     </div>
 
     <form (ngSubmit)="onSubmit()">
-      <!--  Fieldset deshabilita todos los inputs cuando !puedeEditar -->
+      <!-- Fieldset deshabilita todos los inputs cuando !puedeEditar -->
       <fieldset [disabled]="!puedeEditar" style="border: none; margin: 0; padding: 0">
         <label for="nombre"> <i class="fas fa-tag"></i> Nombre: </label>
         <input
@@ -82,24 +82,52 @@
           (change)="onRecordatorioChange()"
         >
           <option value="0">No recordar</option>
-          <option value="1">Más tarde</option>
-          <option value="2">Mañana</option>
-          <option value="3">Semana Próxima</option>
-          <option value="4">Elegir fecha</option>
+          <option value="1">Más tarde (2 horas)</option>
+          <option value="2">Mañana (9:00 AM)</option>
+          <option value="3">Semana Próxima (Lunes 9:00 AM)</option>
+          <option value="4">Elegir fecha y hora</option>
         </select>
+
+        <!-- ✅ Campos de fecha y hora para recordatorio personalizado -->
         <div class="fecha-hora-group" *ngIf="recordatorio === '4'">
-          <input
-            type="date"
-            id="fechaRecordatorio"
-            [(ngModel)]="fechaRecordatorio"
-            name="fechaRecordatorio"
-          />
-          <input
-            type="time"
-            id="horaRecordatorio"
-            [(ngModel)]="horaRecordatorio"
-            name="horaRecordatorio"
-          />
+          <div class="input-group">
+            <label for="fechaRecordatorio">📅 Fecha</label>
+            <input
+              type="date"
+              id="fechaRecordatorio"
+              [(ngModel)]="fechaRecordatorio"
+              name="fechaRecordatorio"
+              [required]="recordatorio === '4'"
+            />
+          </div>
+          <div class="input-group">
+            <label for="horaRecordatorio">🕐 Hora</label>
+            <input
+              type="time"
+              id="horaRecordatorio"
+              [(ngModel)]="horaRecordatorio"
+              name="horaRecordatorio"
+              [required]="recordatorio === '4'"
+            />
+          </div>
+        </div>
+
+        <!-- ✅ Lista de recordatorios programados -->
+        <div class="recordatorios-lista" *ngIf="recordatoriosAgregados.length > 0">
+          <label><i class="fas fa-list"></i> Recordatorios programados:</label>
+          <div class="recordatorio-item" *ngFor="let rec of recordatoriosAgregados; let i = index">
+            <i class="fas fa-bell"></i>
+            <span>{{ formatearFechaHora(rec.fecha) }}</span>
+            <span class="recordatorio-tipo">({{ obtenerTextoTipo(rec.tipo) }})</span>
+            <button
+              type="button"
+              (click)="eliminarRecordatorioLocal(i)"
+              class="btn-eliminar-recordatorio"
+              title="Eliminar recordatorio"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </div>
 
         <label for="selectFechaVencimiento">
@@ -164,7 +192,7 @@
         <textarea id="notas" [(ngModel)]="notas" name="notas" rows="4"></textarea>
       </fieldset>
 
-      <!--  Botones fuera del fieldset -->
+      <!-- Botones fuera del fieldset -->
       <div class="form-buttons">
         <button type="submit" class="btn-guardar" [disabled]="!puedeEditar">
           <i class="fas fa-save"></i>

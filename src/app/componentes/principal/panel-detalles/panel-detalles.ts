@@ -43,6 +43,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
   recordatorio = '0';
   fechaRecordatorio = '';
   horaRecordatorio = '';
+  recordatoriosAgregados: any[] = [];
 
   // Fecha vencimiento
   selectFechaVencimiento = '0';
@@ -111,54 +112,63 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
     return icono;
   }
 
-  async cargarTarea(id: number) {
-    try {
-      const tarea = await this.tareasService.obtenerTarea(id);
-      if (tarea) {
-        this.modoEdicion = true;
-        this.estadoOriginal = tarea.estado;
-        this.nombre = tarea.nombre;
-        this.descripcion = tarea.descripcion || '';
-        this.prioridad = tarea.prioridad;
-        this.notas = tarea.notas || '';
-        this.idLista = tarea.idLista || null;
-        this.miDia = tarea.miDia || false;
+async cargarTarea(id: number) {
+  try {
+    const tarea = await this.tareasService.obtenerTarea(id);
+    if (tarea) {
+      this.modoEdicion = true;
+      this.estadoOriginal = tarea.estado;
+      this.nombre = tarea.nombre;
+      this.descripcion = tarea.descripcion || '';
+      this.prioridad = tarea.prioridad;
+      this.notas = tarea.notas || '';
+      this.idLista = tarea.idLista || null;
+      this.miDia = tarea.miDia || false;
 
-        // Cargar pasos
-        if (tarea.pasos) {
-          this.pasos = Array.isArray(tarea.pasos) ? tarea.pasos : JSON.parse(tarea.pasos as any);
-        }
+      // Cargar pasos
+      if (tarea.pasos) {
+        this.pasos = Array.isArray(tarea.pasos) ? tarea.pasos : JSON.parse(tarea.pasos as any);
+      }
 
-        // Cargar recordatorio
-        if (tarea.recordatorio) {
-          const fechaHora = tarea.recordatorio.split('T');
-          this.recordatorio = '4';
-          this.fechaRecordatorio = fechaHora[0];
-          this.horaRecordatorio = fechaHora[1]?.slice(0, 5) || '';
-        }
-
-        // Cargar fecha vencimiento
-        if (tarea.fechaVencimiento) {
-          this.selectFechaVencimiento = '4';
-          this.fechaVencimiento = tarea.fechaVencimiento.split('T')[0];
-        }
-
-        // Cargar repetición
-        this.repetir = tarea.repetir || false;
-        this.tipoRepeticion = tarea.tipoRepeticion || 'diario';
-
-        if (tarea.tipoRepeticion === 'personalizado' && tarea.configRepeticion) {
-          const config = typeof tarea.configRepeticion === 'string'
-            ? JSON.parse(tarea.configRepeticion)
-            : tarea.configRepeticion;
-          this.repetirCada = config.cada || 1;
-          this.repetirUnidad = config.unidad || 'dias';
+      // ✅ MEJORADO: Cargar recordatorios existentes
+      if (this.modoEdicion) {
+        try {
+          const recordatoriosResp = await this.tareasService.obtenerRecordatorios(id);
+          this.recordatoriosAgregados = recordatoriosResp.recordatorios || [];
+          console.log('📋 Recordatorios cargados:', this.recordatoriosAgregados);
+          
+          // ✅ IMPORTANTE: Resetear los campos del formulario de recordatorio
+          this.recordatorio = '0';
+          this.fechaRecordatorio = '';
+          this.horaRecordatorio = '';
+        } catch (error) {
+          console.error('Error al cargar recordatorios:', error);
+          this.recordatoriosAgregados = [];
         }
       }
-    } catch (error) {
-      console.error('Error al cargar tarea:', error);
+
+      // Cargar fecha vencimiento
+      if (tarea.fechaVencimiento) {
+        this.selectFechaVencimiento = '4';
+        this.fechaVencimiento = tarea.fechaVencimiento.split('T')[0];
+      }
+
+      // Cargar repetición
+      this.repetir = tarea.repetir || false;
+      this.tipoRepeticion = tarea.tipoRepeticion || 'diario';
+
+      if (tarea.tipoRepeticion === 'personalizado' && tarea.configRepeticion) {
+        const config = typeof tarea.configRepeticion === 'string'
+          ? JSON.parse(tarea.configRepeticion)
+          : tarea.configRepeticion;
+        this.repetirCada = config.cada || 1;
+        this.repetirUnidad = config.unidad || 'dias';
+      }
     }
+  } catch (error) {
+    console.error('Error al cargar tarea:', error);
   }
+}
 
   limpiarFormulario() {
     this.modoEdicion = false;
@@ -173,6 +183,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
     this.recordatorio = '0';
     this.fechaRecordatorio = '';
     this.horaRecordatorio = '';
+    this.recordatoriosAgregados = [];
     this.selectFechaVencimiento = '0';
     this.fechaVencimiento = '';
     this.repetir = false;
@@ -351,10 +362,20 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       fechaVencimientoFinal = this.fechaVencimiento;
     }
 
-    // Preparar recordatorio
+    // ✅ MEJORADO: Preparar recordatorios (incluir los existentes + nuevo si hay)
     let recordatorioFinal = null;
-    if (this.recordatorio === '4' && this.fechaRecordatorio && this.horaRecordatorio) {
-      recordatorioFinal = `${this.fechaRecordatorio}T${this.horaRecordatorio}:00`;
+
+    if (this.recordatoriosAgregados.length > 0) {
+      // Si hay recordatorios existentes, enviarlos todos
+      recordatorioFinal = JSON.stringify(this.recordatoriosAgregados);
+    } else if (this.recordatorio === '4' && this.fechaRecordatorio && this.horaRecordatorio) {
+      // Si no hay existentes pero se está agregando uno nuevo
+      recordatorioFinal = JSON.stringify([{
+        fecha: `${this.fechaRecordatorio}T${this.horaRecordatorio}:00`,
+        tipo: 'personalizado',
+        notificado: false,
+        fechaCreacion: new Date().toISOString()
+      }]);
     }
 
     // Preparar configuración de repetición
@@ -379,31 +400,64 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       tipoRepeticion: this.repetir ? this.tipoRepeticion : undefined,
       configRepeticion: configRepeticion || undefined,
       idLista: this.idLista || undefined,
-      miDia: this.miDia // ✅ Enviar directamente el valor booleano
+      miDia: this.miDia
     };
 
-    console.log('📝 Guardando tarea con miDia:', this.miDia, 'tipo:', typeof this.miDia);
+    console.log('📝 Guardando tarea:', {
+      nombre: this.nombre,
+      recordatoriosExistentes: this.recordatoriosAgregados.length,
+      recordatorioFinal: recordatorioFinal ? 'Presente' : 'Null'
+    });
 
     try {
+      let tareaId: number;
+
       if (this.modoEdicion && this.idTarea) {
         await this.tareasService.actualizarTarea(this.idTarea, tarea);
+        tareaId = this.idTarea;
         this.notificacionesService.exito('Tarea actualizada exitosamente');
-      } else {
-        const result = await this.tareasService.crearTarea(tarea);
-        console.log('✅ Tarea creada:', result);
 
-        // ✅ WORKAROUND: Si miDia está true, hacer una segunda llamada para asegurarnos
-        if (this.miDia && result.data?.idTarea) {
-          console.log('🔄 Activando Mi Día para la tarea recién creada...');
+        // ✅ NUEVO: Si se está agregando un recordatorio desde el select
+        if (this.recordatorio === '4' && this.fechaRecordatorio && this.horaRecordatorio) {
           try {
-            await this.tareasService.alternarMiDia(result.data.idTarea, true);
-            console.log('✅ Mi Día activado correctamente');
+            const fechaHoraCompleta = `${this.fechaRecordatorio}T${this.horaRecordatorio}:00`;
+            await this.tareasService.agregarRecordatorio(tareaId, fechaHoraCompleta, 'personalizado');
+            console.log('✅ Recordatorio adicional guardado');
+
+            // Recargar recordatorios
+            const recordatoriosResp = await this.tareasService.obtenerRecordatorios(tareaId);
+            this.recordatoriosAgregados = recordatoriosResp.recordatorios || [];
+          } catch (recordError) {
+            console.error('Error al guardar recordatorio adicional:', recordError);
+            this.notificacionesService.advertencia('Tarea actualizada pero hubo un error al agregar el recordatorio');
+          }
+        }
+      } else {
+        // Crear tarea nueva
+        const result = await this.tareasService.crearTarea(tarea);
+        tareaId = result.data?.idTarea;
+
+        if (this.miDia && tareaId) {
+          try {
+            await this.tareasService.alternarMiDia(tareaId, true);
           } catch (miDiaError) {
             console.error('❌ Error al activar Mi Día:', miDiaError);
           }
         }
 
         this.notificacionesService.exito('Tarea creada exitosamente');
+
+        // ✅ Si se agregó un recordatorio en la creación
+        if (this.recordatorio === '4' && this.fechaRecordatorio && this.horaRecordatorio && tareaId) {
+          try {
+            const fechaHoraCompleta = `${this.fechaRecordatorio}T${this.horaRecordatorio}:00`;
+            await this.tareasService.agregarRecordatorio(tareaId, fechaHoraCompleta, 'personalizado');
+            console.log('✅ Recordatorio guardado');
+          } catch (recordError) {
+            console.error('Error al guardar recordatorio:', recordError);
+            this.notificacionesService.advertencia('Tarea guardada pero hubo un error al programar el recordatorio');
+          }
+        }
       }
 
       // Programar notificación de repetición si aplica
@@ -412,7 +466,7 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
       }
 
       this.tareaGuardada.emit();
-      this.onCerrar(); // ✅ Usar onCerrar() en lugar de limpiarFormulario()
+      this.onCerrar();
     } catch (error) {
       console.error('Error al guardar tarea:', error);
       this.notificacionesService.error('Error al guardar la tarea');
@@ -442,5 +496,55 @@ export class PanelDetallesComponent implements OnInit, OnChanges {
   }
   trackByIndex(index: number, item: any): number {
     return index;
+  }
+
+
+formatearFechaHora(fechaISO: string): string {
+  try {
+    const fecha = new Date(fechaISO);
+    
+    // Verificar si la fecha es válida
+    if (isNaN(fecha.getTime())) {
+      return 'Fecha inválida';
+    }
+    
+    return fecha.toLocaleString('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error('Error al formatear fecha:', fechaISO, error);
+    return 'Fecha inválida';
+  }
+}
+
+  obtenerTextoTipo(tipo: string): string {
+    const tipos: any = {
+      '1_dia_antes': '1 día antes',
+      '1_hora_antes': '1 hora antes',
+      'en_el_momento': 'Al vencimiento',
+      'personalizado': 'Personalizado'
+    };
+    return tipos[tipo] || tipo;
+  }
+
+  async eliminarRecordatorioLocal(indice: number) {
+    if (!this.idTarea) {
+      // Si no hay tarea guardada aún, solo eliminar del array local
+      this.recordatoriosAgregados.splice(indice, 1);
+      return;
+    }
+
+    try {
+      await this.tareasService.eliminarRecordatorio(this.idTarea, indice);
+      this.recordatoriosAgregados.splice(indice, 1);
+      this.notificacionesService.exito('Recordatorio eliminado');
+    } catch (error) {
+      console.error('Error al eliminar recordatorio:', error);
+      this.notificacionesService.error('Error al eliminar el recordatorio');
+    }
   }
 }

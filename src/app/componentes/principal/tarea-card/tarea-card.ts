@@ -76,7 +76,7 @@ export class TareaCardComponent {
 
   async eliminarTarea(event: Event) {
     event.stopPropagation();
-    
+
     this.tareaAEliminar = this.tarea;
     this.mostrarModalEliminar = true;
   }
@@ -86,13 +86,13 @@ export class TareaCardComponent {
       await this.tareasService.eliminarTarea(this.tareaAEliminar.idTarea!);
       this.notificacionesService.exito('Tarea eliminada exitosamente');
       this.tareaEliminada.emit();
-      
+
       this.mostrarModalEliminar = false;
       this.tareaAEliminar = null;
     } catch (error) {
       console.error('Error al eliminar tarea:', error);
       this.notificacionesService.error('Error al eliminar la tarea. Por favor, intenta nuevamente.');
-      
+
       this.mostrarModalEliminar = false;
       this.tareaAEliminar = null;
     }
@@ -178,6 +178,22 @@ export class TareaCardComponent {
       console.error('Error al actualizar Mi Día:', error);
       this.notificacionesService.error('Error al actualizar Mi Día. Por favor, intenta nuevamente.');
     }
+  }
+
+  onCardClick(event: Event) {
+    // Verificar que el click no fue en un botón o checkbox
+    const target = event.target as HTMLElement;
+
+    if (
+      target.closest('button') ||
+      target.closest('input[type="checkbox"]') ||
+      target.classList.contains('tarea-checkbox')
+    ) {
+      return; // No abrir el panel si se clickeó un botón o checkbox
+    }
+
+    console.log('🖱️ Click en card:', this.tarea.idTarea, this.tarea.nombre);
+    this.tareaClick.emit();
   }
 
   get mostrarBotonIniciar(): boolean {
