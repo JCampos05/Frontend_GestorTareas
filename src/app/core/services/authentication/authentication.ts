@@ -21,6 +21,7 @@ export interface Usuario {
   redes_sociales?: RedesSociales | null;
   fechaRegistro?: string;
   fecha_actualizacion?: string;
+  zona_horaria?: string;
 }
 
 export interface AuthResponse {

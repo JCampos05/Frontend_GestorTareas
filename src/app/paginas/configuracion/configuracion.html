@@ -1,5 +1,5 @@
-<div class="configuracion-overlay" (click)="cerrar()">
-    <div class="configuracion-container" (click)="$event.stopPropagation()">
+<div class="configuracion-overlay" (click)="cerrarSiEsOverlay($event)">
+    <div class="configuracion-container">
         <!-- Header -->
         <div class="configuracion-header">
             <div class="header-content">
@@ -48,7 +48,7 @@
                             </p>
                         </div>
 
-                        <form [formGroup]="formGeneral" (ngSubmit)="guardarDatosGenerales()">
+                        <form [formGroup]="formGeneral" (ngSubmit)="guardarDatosGenerales(); $event.preventDefault()">
                             <div class="form-grid">
                                 <!-- Nombre -->
                                 <div class="form-group form-group-full">
@@ -98,6 +98,26 @@
                                         placeholder="Ciudad, País" />
                                 </div>
 
+                                <!-- Zona Horaria -->
+                                <div class="form-group form-group-full">
+                                    <label for="zonaHoraria">
+                                        <i class="fas fa-clock"></i>
+                                        Zona Horaria
+                                    </label>
+                                    <select id="zonaHoraria" formControlName="zonaHoraria" class="form-select">
+                                        <option value="">Selecciona tu zona horaria (opcional)</option>
+                                        <optgroup *ngFor="let grupo of zonasAgrupadasPorRegion" [label]="grupo.region">
+                                            <option *ngFor="let zona of grupo.zonas" [value]="zona.zona">
+                                                {{ zona.nombre }} ({{ zona.offset_actual }})
+                                            </option>
+                                        </optgroup>
+                                    </select>
+                                    <span class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        Usado para notificaciones en tiempo real
+                                    </span>
+                                </div>
+
                                 <!-- Cargo -->
                                 <div class="form-group form-group-full">
                                     <label for="cargo">
@@ -122,7 +142,8 @@
 
                             <!-- Botones de acción -->
                             <div class="form-actions">
-                                <button type="button" class="btn-secundario" (click)="cancelarCambiosGenerales()">
+                                <button type="button" class="btn-secundario" 
+                                    (click)="cancelarCambiosGenerales(); $event.stopPropagation()">
                                     <i class="fas fa-times"></i>
                                     Cancelar
                                 </button>
@@ -149,7 +170,7 @@
                             </p>
                         </div>
 
-                        <form [formGroup]="formRedes" (ngSubmit)="guardarRedesSociales()">
+                        <form [formGroup]="formRedes" (ngSubmit)="guardarRedesSociales(); $event.preventDefault()">
                             <div class="redes-grid">
                                 <!-- LinkedIn -->
                                 <div class="red-item linkedin">
@@ -226,7 +247,8 @@
 
                             <!-- Botones de acción -->
                             <div class="form-actions">
-                                <button type="button" class="btn-secundario" (click)="cancelarCambiosRedes()">
+                                <button type="button" class="btn-secundario" 
+                                    (click)="cancelarCambiosRedes(); $event.stopPropagation()">
                                     <i class="fas fa-times"></i>
                                     Cancelar
                                 </button>
@@ -252,7 +274,7 @@
                             </p>
                         </div>
 
-                        <form [formGroup]="formPassword" (ngSubmit)="cambiarPassword()">
+                        <form [formGroup]="formPassword" (ngSubmit)="cambiarPassword(); $event.preventDefault()">
                             <div class="password-form">
                                 <!-- Contraseña actual -->
                                 <div class="form-group">
@@ -349,7 +371,8 @@
 
                             <!-- Botones de acción -->
                             <div class="form-actions">
-                                <button type="button" class="btn-secundario" (click)="cancelarCambiosPassword()">
+                                <button type="button" class="btn-secundario" 
+                                    (click)="cancelarCambiosPassword(); $event.stopPropagation()">
                                     <i class="fas fa-times"></i>
                                     Cancelar
                                 </button>
