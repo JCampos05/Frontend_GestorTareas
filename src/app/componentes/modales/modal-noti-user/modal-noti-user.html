@@ -18,8 +18,12 @@
 
       <!-- Lista de notificaciones -->
       <div class="notificaciones-lista">
-        <div *ngFor="let notif of notificaciones" class="notificacion-item" [class.no-leida]="!notif.leida"
-          (click)="marcarComoLeida(notif)">
+        <div *ngFor="let notif of notificaciones" 
+     class="notificacion-item" 
+     [class.no-leida]="!notif.leida"
+     [class.clickeable]="notif.tipo !== 'invitacion_lista' || notif.leida"
+     (click)="marcarComoLeida(notif)">
+          
           <div class="notif-icon" [ngClass]="'notif-icon-' + notif.tipo">
             <i class="fas" [ngClass]="obtenerIcono(notif.tipo)"></i>
           </div>
@@ -52,8 +56,8 @@
 
             <small class="notif-fecha">{{ obtenerTiempoRelativo(notif.fechaCreacion) }}</small>
           </div>
-          <button class="btn-ocultar-notif" (click)="ocultarNotificacion(notif.idNotificacion); $event.stopPropagation()" 
-                  title="Ocultar notificación">
+          <button class="btn-ocultar-notif"
+            (click)="ocultarNotificacion(notif.idNotificacion); $event.stopPropagation()" title="Ocultar notificación">
             <i class="fas fa-times"></i>
           </button>
           <div class="notif-estado" *ngIf="!notif.leida">

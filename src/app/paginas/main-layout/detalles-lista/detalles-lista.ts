@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, take } from 'rxjs'; // ✅ AGREGADO 'take'
+import { Subscription, take } from 'rxjs'; // AGREGADO 'take'
 import { ListasService } from '../../../core/services/listas/listas';
 import { CompartirService, UsuarioCompartido, InfoCompartidos } from '../../../core/services/compartir/compartir';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
@@ -13,8 +13,26 @@ import { ModalUsuariosListaComponent } from '../../../componentes/modales/modal-
 import { ModalAsignarTareaComponent } from '../../../componentes/modales/modal-asignar-tarea/modal-asignar-tarea';
 import { ChatComponent } from '../../../componentes/chat/chat/chat';
 import { NotificationService } from '../../../core/services/notification-user/notification-user';
+import { AuthService } from '../../../core/services/authentication/authentication';
+import { ModalPerfilUsuarioComponent } from '../../../componentes/modales/modal-perfil-usuario/modal-perfil-usuario';
 
 
+export interface PerfilUsuario {
+  idUsuario: number;
+  nombre: string;
+  correo: string;
+  telefono?: string;
+  cargo?: string;
+  bio?: string;
+  redesSociales?: {
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+    instagram?: string;
+  };
+  rol?: string;
+  esCreador?: boolean;
+}
 @Component({
   selector: 'app-detalle-lista',
   standalone: true,
@@ -23,7 +41,8 @@ import { NotificationService } from '../../../core/services/notification-user/no
     ColumnasComponent,
     ModalUsuariosListaComponent,
     ModalAsignarTareaComponent,
-    ChatComponent
+    ChatComponent,
+    ModalPerfilUsuarioComponent
   ],
   templateUrl: './detalles-lista.html',
   styleUrl: './detalles-lista.css'
@@ -57,6 +76,8 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
   usuarioActual: any;
   mostrarBotonChat = false; // Nueva propiedad para controlar visibilidad
 
+  modalPerfilAbierto = false;
+  usuarioSeleccionado: PerfilUsuario | null = null;
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -68,7 +89,8 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     private tareasService: TareasService,
     private chatService: ChatService,
     private socketService: SocketService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private authService: AuthService
   ) {
     const authUsuario = localStorage.getItem('auth_usuario');
     if (authUsuario) {
@@ -199,134 +221,134 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.push(chatNotifSub);
   }
 
-private suscribirseANotificacionesTareas(): void {
+  private suscribirseANotificacionesTareas(): void {
     console.log('📡 Suscribiéndose a notificaciones de tareas...');
 
     const notifSub = this.notificationService.notificaciones$.subscribe(notificaciones => {
-        // ✅ Filtrar notificaciones relevantes para esta lista
-        const notifsRelevantes = notificaciones.filter(n => {
-            if (n.leida) return false;
+      // ✅ Filtrar notificaciones relevantes para esta lista
+      const notifsRelevantes = notificaciones.filter(n => {
+        if (n.leida) return false;
 
-            const listaIdNotif = n.datos?.listaId || n.datos?.listaId;
+        const listaIdNotif = n.datos?.listaId || n.datos?.listaId;
 
-            const tiposRelevantes = [
-                'tarea_asignada',
-                'cambio_rol_lista',
-                'invitacion_lista',
-                'mensaje_chat',
-                'otro'
-            ];
+        const tiposRelevantes = [
+          'tarea_asignada',
+          'cambio_rol_lista',
+          'invitacion_lista',
+          'mensaje_chat',
+          'otro'
+        ];
 
-            if (!tiposRelevantes.includes(n.tipo)) {
-                return false;
-            }
-
-            // ✅ MENSAJE DE CHAT - Solo actualizar badge
-            if (n.tipo === 'mensaje_chat') {
-                const esDeLista = listaIdNotif === this.idLista;
-
-                if (esDeLista && !this.chatAbierto) {
-                    this.mensajesNoLeidos++;
-                    console.log('💬 Badge chat actualizado:', this.mensajesNoLeidos);
-                }
-
-                return false; // No procesar más
-            }
-
-            // ✅ CAMBIO DE ROL - CRÍTICO: Solo si es para mí y de esta lista
-            if (n.tipo === 'cambio_rol_lista') {
-                const esParaMi = n.idUsuario === this.idUsuarioActual;
-                const esDeLista = listaIdNotif === this.idLista;
-                
-                if (esParaMi && esDeLista) {
-                    console.log('🔄 CAMBIO DE ROL DETECTADO:');
-                    console.log('   Lista:', n.datos?.listaNombre);
-                    console.log('   Nuevo rol:', n.datos?.nuevoRol);
-                    console.log('   Rol anterior:', n.datos?.rolAnterior);
-                    return true; // ✅ Procesar esta notificación
-                }
-                
-                return false;
-            }
-
-            // Invitaciones y revocaciones
-            if (n.tipo === 'invitacion_lista' || (n.tipo === 'otro' && n.datos?.revocadoPor)) {
-                return true;
-            }
-
-            if (!listaIdNotif || listaIdNotif !== this.idLista) {
-                return false;
-            }
-
-            return true;
-        });
-
-        // ✅ Si hay notificaciones relevantes, procesar
-        if (notifsRelevantes.length > 0) {
-            console.log(`📋 ${notifsRelevantes.length} notificaciones relevantes detectadas`);
-
-            // 1️⃣ TAREAS ASIGNADAS
-            const hayTareasAsignadas = notifsRelevantes.some(n => n.tipo === 'tarea_asignada');
-            if (hayTareasAsignadas && this.columnasComponent) {
-                console.log('🔄 Recargando tareas por asignación...');
-                this.columnasComponent.cargarTareasDeLista(this.idLista);
-            }
-
-            // 2️⃣ CAMBIO DE ROL - RECARGAR PERMISOS SIN RECARGAR PÁGINA
-            const notifCambioRol = notifsRelevantes.find(n => n.tipo === 'cambio_rol_lista');
-            if (notifCambioRol) {
-                console.log('🔄 ===== CAMBIO DE ROL DETECTADO =====');
-                console.log('   Lista:', notifCambioRol.datos?.listaNombre);
-                console.log('   Nuevo rol:', notifCambioRol.datos?.nuevoRol);
-                console.log('   Rol anterior:', notifCambioRol.datos?.rolAnterior);
-                console.log('   Modificado por:', notifCambioRol.datos?.modificadoPor);
-
-                // ✅ Mostrar toast/alert al usuario
-                this.mostrarAlertaCambioRol(notifCambioRol);
-
-                // ✅ Recargar permisos de la lista
-                console.log('🔄 Recargando información de permisos...');
-                this.cargarInfoCompartidos();
-
-                // ✅ Actualizar permisos de columnas después de 1 segundo
-                setTimeout(() => {
-                    this.actualizarPermisosColumnas();
-                    console.log('✅ Permisos actualizados sin recargar página');
-                    console.log('   esPropietario:', this.esPropietario);
-                    console.log('   esAdmin:', this.esAdmin);
-                    console.log('   Puede editar:', this.puedeEditarTareas());
-                    console.log('   Puede eliminar:', this.puedeEliminarTareas());
-                    console.log('   Puede asignar:', this.puedeAsignarTareas());
-                    console.log('=====================================');
-                }, 1000);
-            }
-
-            // 3️⃣ INVITACIONES
-            const hayInvitacion = notifsRelevantes.some(n => n.tipo === 'invitacion_lista');
-            if (hayInvitacion) {
-                console.log('📬 Invitación detectada, recargando info compartidos...');
-                this.cargarInfoCompartidos();
-            }
-
-            // 4️⃣ REVOCACIONES
-            const hayRevocacion = notifsRelevantes.some(n =>
-                n.tipo === 'otro' &&
-                n.datos?.revocadoPor &&
-                n.idUsuario === this.idUsuarioActual
-            );
-
-            if (hayRevocacion) {
-                console.log('🚫 Acceso revocado, redirigiendo...');
-                alert('Tu acceso a esta lista ha sido revocado');
-                setTimeout(() => {
-                    this.router.navigate(['/app/listas']);
-                }, 1500);
-            }
+        if (!tiposRelevantes.includes(n.tipo)) {
+          return false;
         }
+
+        // ✅ MENSAJE DE CHAT - Solo actualizar badge
+        if (n.tipo === 'mensaje_chat') {
+          const esDeLista = listaIdNotif === this.idLista;
+
+          if (esDeLista && !this.chatAbierto) {
+            this.mensajesNoLeidos++;
+            console.log('💬 Badge chat actualizado:', this.mensajesNoLeidos);
+          }
+
+          return false; // No procesar más
+        }
+
+        // ✅ CAMBIO DE ROL - CRÍTICO: Solo si es para mí y de esta lista
+        if (n.tipo === 'cambio_rol_lista') {
+          const esParaMi = n.idUsuario === this.idUsuarioActual;
+          const esDeLista = listaIdNotif === this.idLista;
+
+          if (esParaMi && esDeLista) {
+            console.log('🔄 CAMBIO DE ROL DETECTADO:');
+            console.log('   Lista:', n.datos?.listaNombre);
+            console.log('   Nuevo rol:', n.datos?.nuevoRol);
+            console.log('   Rol anterior:', n.datos?.rolAnterior);
+            return true; // ✅ Procesar esta notificación
+          }
+
+          return false;
+        }
+
+        // Invitaciones y revocaciones
+        if (n.tipo === 'invitacion_lista' || (n.tipo === 'otro' && n.datos?.revocadoPor)) {
+          return true;
+        }
+
+        if (!listaIdNotif || listaIdNotif !== this.idLista) {
+          return false;
+        }
+
+        return true;
+      });
+
+      // ✅ Si hay notificaciones relevantes, procesar
+      if (notifsRelevantes.length > 0) {
+        console.log(`📋 ${notifsRelevantes.length} notificaciones relevantes detectadas`);
+
+        // 1️⃣ TAREAS ASIGNADAS
+        const hayTareasAsignadas = notifsRelevantes.some(n => n.tipo === 'tarea_asignada');
+        if (hayTareasAsignadas && this.columnasComponent) {
+          console.log('🔄 Recargando tareas por asignación...');
+          this.columnasComponent.cargarTareasDeLista(this.idLista);
+        }
+
+        // 2️⃣ CAMBIO DE ROL - RECARGAR PERMISOS SIN RECARGAR PÁGINA
+        const notifCambioRol = notifsRelevantes.find(n => n.tipo === 'cambio_rol_lista');
+        if (notifCambioRol) {
+          console.log('🔄 ===== CAMBIO DE ROL DETECTADO =====');
+          console.log('   Lista:', notifCambioRol.datos?.listaNombre);
+          console.log('   Nuevo rol:', notifCambioRol.datos?.nuevoRol);
+          console.log('   Rol anterior:', notifCambioRol.datos?.rolAnterior);
+          console.log('   Modificado por:', notifCambioRol.datos?.modificadoPor);
+
+          // ✅ Mostrar toast/alert al usuario
+          this.mostrarAlertaCambioRol(notifCambioRol);
+
+          // ✅ Recargar permisos de la lista
+          console.log('🔄 Recargando información de permisos...');
+          this.cargarInfoCompartidos();
+
+          // ✅ Actualizar permisos de columnas después de 1 segundo
+          setTimeout(() => {
+            this.actualizarPermisosColumnas();
+            console.log('✅ Permisos actualizados sin recargar página');
+            console.log('   esPropietario:', this.esPropietario);
+            console.log('   esAdmin:', this.esAdmin);
+            console.log('   Puede editar:', this.puedeEditarTareas());
+            console.log('   Puede eliminar:', this.puedeEliminarTareas());
+            console.log('   Puede asignar:', this.puedeAsignarTareas());
+            console.log('=====================================');
+          }, 1000);
+        }
+
+        // 3️⃣ INVITACIONES
+        const hayInvitacion = notifsRelevantes.some(n => n.tipo === 'invitacion_lista');
+        if (hayInvitacion) {
+          console.log('📬 Invitación detectada, recargando info compartidos...');
+          this.cargarInfoCompartidos();
+        }
+
+        // 4️⃣ REVOCACIONES
+        const hayRevocacion = notifsRelevantes.some(n =>
+          n.tipo === 'otro' &&
+          n.datos?.revocadoPor &&
+          n.idUsuario === this.idUsuarioActual
+        );
+
+        if (hayRevocacion) {
+          console.log('🚫 Acceso revocado, redirigiendo...');
+          alert('Tu acceso a esta lista ha sido revocado');
+          setTimeout(() => {
+            this.router.navigate(['/app/listas']);
+          }, 1500);
+        }
+      }
     });
 
     this.subscriptions.push(notifSub);
-}
+  }
 
 
   async cargarInfoLista() {
@@ -469,26 +491,26 @@ private suscribirseANotificacionesTareas(): void {
     const modificadoPor = notif.datos?.modificadoPor;
 
     // ✅ Traducir rol a español
-    const rolesES: {[key: string]: string} = {
-        'admin': 'Administrador',
-        'editor': 'Editor',
-        'colaborador': 'Colaborador',
-        'lector': 'Lector'
+    const rolesES: { [key: string]: string } = {
+      'admin': 'Administrador',
+      'editor': 'Editor',
+      'colaborador': 'Colaborador',
+      'lector': 'Lector'
     };
 
     const rolTraducido = rolesES[nuevoRol] || nuevoRol;
 
     //  Mostrar alert (puedes reemplazar con un toast más elegante)
     const mensaje = `${modificadoPor} cambió tu rol en "${listaNombre}" a ${rolTraducido}`;
-    
+
     console.log('📢 Mostrando alerta:', mensaje);
-    
+
     // Opción 1: Alert simple
     alert(mensaje);
-    
+
     // Opción 2: Crear un toast personalizado (implementar después)
     // this.toastService.show(mensaje, 'info', 5000);
-}
+  }
 
   // ACTUALIZADO: Toggle del chat con marcado de leídas
   toggleChat(): void {
@@ -743,4 +765,61 @@ private suscribirseANotificacionesTareas(): void {
     return 'fas fa-clipboard-list';
   }
 
+  async abrirPerfilUsuario(usuario: UsuarioCompartido) {
+    console.log('👤 Abriendo perfil de usuario:', usuario);
+
+    // Mostrar datos básicos inmediatamente
+    this.usuarioSeleccionado = {
+      idUsuario: usuario.idUsuario,
+      nombre: usuario.nombre,
+      correo: '', // ⚠️ Se cargará del backend
+      telefono: undefined,
+      cargo: undefined,
+      bio: undefined,
+      redesSociales: undefined,
+      rol: usuario.rol,
+      esCreador: usuario.esCreador
+    };
+
+    this.modalPerfilAbierto = true;
+
+    // 🔄 Cargar perfil completo del backend
+    this.authService.obtenerPerfilPorId(usuario.idUsuario).subscribe({
+      next: (perfilCompleto) => {
+        console.log('✅ Perfil completo obtenido:', perfilCompleto);
+
+        // Actualizar con datos completos
+        if (this.usuarioSeleccionado && this.usuarioSeleccionado.idUsuario === perfilCompleto.idUsuario) {
+          this.usuarioSeleccionado = {
+            idUsuario: perfilCompleto.idUsuario,
+            nombre: perfilCompleto.nombre,
+            correo: perfilCompleto.email,
+            telefono: perfilCompleto.telefono || undefined,
+            cargo: perfilCompleto.cargo || undefined,
+            bio: perfilCompleto.bio || undefined,
+            redesSociales: perfilCompleto.redes_sociales || undefined,
+            rol: usuario.rol,
+            esCreador: usuario.esCreador
+          };
+        }
+      },
+      error: (error) => {
+        console.warn('⚠️ No se pudo cargar perfil completo:', error);
+      }
+    });
+  }
+
+  // ✅ Método para mostrar todos los usuarios (modal con la lista completa)
+  mostrarTodosUsuarios() {
+    // Opción 1: Abrir el modal de gestión de usuarios
+    this.abrirModalUsuarios();
+
+    // Opción 2: Crear un modal específico para ver todos los usuarios (implementar después)
+    // this.modalTodosUsuariosAbierto = true;
+  }
+  // ✅ NUEVO: Cerrar modal de perfil
+  cerrarPerfilUsuario() {
+    this.modalPerfilAbierto = false;
+    this.usuarioSeleccionado = null;
+  }
 }

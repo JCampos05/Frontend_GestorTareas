@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificationService, Notificacion } from '../notification-user/notification-user';
+import { NotificacionesService } from '../notification/notification';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ export class NotificationInterceptorService {
 
   constructor(
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private notificacionesService: NotificacionesService
   ) {
     this.iniciarEscucha();
   }
@@ -67,9 +69,7 @@ export class NotificationInterceptorService {
     const tareaId = notif.datos?.tareaId;
     const listaId = notif.datos?.listaId;
 
-    console.log('⏰ Recordatorio recibido:', { tareaNombre, fechaVencimiento, tareaId });
-
-    let mensaje = `Recordatorio: "${tareaNombre}"`;
+    let mensaje = `"${tareaNombre}"`;  // ← Quité "Recordatorio:"
 
     if (fechaVencimiento) {
       const fecha = new Date(fechaVencimiento);
@@ -77,7 +77,7 @@ export class NotificationInterceptorService {
     }
 
     this.mostrarNotificacionVisual(
-      '⏰ Recordatorio de tarea',
+      'Recordatorio de tarea',
       mensaje,
       () => {
         if (listaId) {
@@ -86,7 +86,7 @@ export class NotificationInterceptorService {
           this.router.navigate(['/app/mi-dia']);
         }
       },
-      true // Es importante
+      true
     );
   }
 
@@ -246,31 +246,21 @@ export class NotificationInterceptorService {
     onClick?: () => void,
     critico: boolean = false
   ): void {
-    // Usar notificaciones del navegador si están permitidas
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification(titulo, {
-        body: mensaje,
-        icon: '/assets/logo.png', // Ajusta la ruta
-        badge: '/assets/badge.png',
-        tag: `taskeer-${Date.now()}`,
-        requireInteraction: critico
-      });
+    // Determinar el tipo de notificación según si es crítico
+    const tipo = critico ? 'advertencia' : 'info';
 
-      if (onClick) {
-        notification.onclick = () => {
-          window.focus();
-          onClick();
-          notification.close();
-        };
-      }
-    } else {
-      // Fallback: Usar alert si no hay permisos
-      if (critico) {
-        alert(`${titulo}\n\n${mensaje}`);
-        if (onClick) onClick();
-      } else {
-        console.log(`${titulo}: ${mensaje}`);
-      }
+    // Mostrar usando tu componente de notificación
+    this.notificacionesService.mostrar(
+      tipo,
+      `${titulo}: ${mensaje}`,
+      critico ? 5000 : 3000
+    );
+
+    // Si hay una acción al hacer clic y es crítico, ejecutarla automáticamente
+    if (onClick && critico) {
+      setTimeout(() => {
+        onClick();
+      }, 2000);
     }
   }
 

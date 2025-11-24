@@ -134,6 +134,23 @@
     background: #deebff;
 }
 
+.notificacion-item.clickeable {
+    cursor: pointer;
+}
+
+.notificacion-item.clickeable:hover {
+    background: #f4f5f7;
+}
+
+.notificacion-item.no-leida.clickeable:hover {
+    background: #deebff;
+}
+
+/* Para invitaciones pendientes, cursor normal */
+.notificacion-item:not(.clickeable) {
+    cursor: default;
+}
+
 .notif-icon {
     flex-shrink: 0;
     width: 36px;

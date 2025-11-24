@@ -14,6 +14,7 @@ export interface Usuario {
   idUsuario: number;
   nombre: string;
   email: string;
+  emailVerificado: boolean;
   bio?: string | null;
   telefono?: string | null;
   ubicacion?: string | null;
@@ -55,6 +56,17 @@ export interface CambiarPasswordRequest {
   passwordActual: string;
   passwordNuevo: string;
 }
+
+export interface RegisterResponse {
+  mensaje: string;
+  idUsuario: number;
+  email: string;
+  emailEnviado?: boolean;
+  requiereVerificacion: boolean;
+  token?: string;
+  usuario?: Usuario;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -197,6 +209,49 @@ export class AuthService {
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
+    });
+  }
+
+  verificarEmail(idUsuario: number, codigo: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verificar-email`, {
+      idUsuario,
+      codigo
+    }).pipe(
+      tap(response => {
+        // Guardar sesión automáticamente después de verificar
+        this.guardarSesion(response.token, response.usuario);
+      })
+    );
+  }
+
+  // Reenviar código de verificación
+  reenviarCodigo(idUsuario: number): Observable<{ mensaje: string; emailEnviado: boolean; intentosRestantes?: number }> {
+    return this.http.post<{ mensaje: string; emailEnviado: boolean; intentosRestantes?: number }>(
+      `${this.apiUrl}/reenviar-codigo`,
+      { idUsuario }
+    );
+  }
+
+  // Validar contraseña actual
+  validarPasswordActual(password: string): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/validar-password`,
+      { password },
+      { headers: this.obtenerHeaders() }
+    );
+  }
+
+  solicitarCodigoCambioPassword(): Observable<{ mensaje: string; emailEnviado: boolean }> {
+    return this.http.post<{ mensaje: string; emailEnviado: boolean }>(
+      `${this.apiUrl}/solicitar-codigo-cambio-password`,
+      {},
+      { headers: this.obtenerHeaders() }
+    );
+  }
+
+  obtenerPerfilPorId(idUsuario: number): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/${idUsuario}/perfil`, {
+      headers: this.obtenerHeaders()
     });
   }
 }

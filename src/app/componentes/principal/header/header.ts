@@ -2,15 +2,16 @@ import { Component, EventEmitter, Output, HostListener, OnInit, OnDestroy } from
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription, take } from 'rxjs'; // ✅ AGREGADO 'take'
+import { Subscription, take } from 'rxjs'; // AGREGADO 'take'
 import { AuthService, Usuario } from '../../../core/services/authentication/authentication';
 import { NotificationService } from '../../../core/services/notification-user/notification-user';
 import { ModalNotificacionesComponent } from '../../modales/modal-noti-user/modal-noti-user';
+import { ConfiguracionComponent } from '../../../paginas/configuracion/configuracion';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [FormsModule, CommonModule, ModalNotificacionesComponent],
+  imports: [FormsModule, CommonModule, ModalNotificacionesComponent, ConfiguracionComponent],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -21,6 +22,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showNotificaciones: boolean = false;
   showModalIntegracion: boolean = false;
   cantidadNoLeidas: number = 0;
+  mostrarConfiguracion = false;
+
 
   // ✅ NUEVO: Subscripciones
   private subscriptions: Subscription[] = [];
@@ -41,7 +44,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService
   ) { }
 
-ngOnInit() {
+  ngOnInit() {
     this.cargarDatosUsuario();
 
     this.authService.usuarioActual$.subscribe(usuario => {
@@ -63,7 +66,7 @@ ngOnInit() {
       const noLeidas = notificaciones.filter(n => !n.leida).length;
       console.log('📋 Header: Total notificaciones:', notificaciones.length);
       console.log('📋 Header: No leídas calculadas:', noLeidas);
-      
+
       // ✅ SINCRONIZAR si hay diferencia
       if (noLeidas !== this.cantidadNoLeidas) {
         console.log('⚠️ Sincronizando contador:', this.cantidadNoLeidas, '->', noLeidas);
@@ -72,7 +75,7 @@ ngOnInit() {
     });
 
     this.subscriptions.push(allNotifSub);
-    
+
     // ✅ NUEVO: Forzar actualización inicial después de 1 segundo
     setTimeout(() => {
       this.notificationService.notificaciones$.pipe(take(1)).subscribe(notificaciones => {
@@ -169,7 +172,15 @@ ngOnInit() {
   verConfiguracion() {
     console.log('Ver configuración');
     this.showUserMenu = false;
-    this.router.navigate(['/app/configuracion']);
+    this.mostrarConfiguracion = true; // En lugar de navegar
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+  }
+
+  cerrarConfiguracion() {
+    this.mostrarConfiguracion = false;
+    // Restaurar scroll
+    document.body.style.overflow = 'auto';
   }
 
   verIntegracion() {

@@ -4,6 +4,7 @@ export const routes: Routes = [
     {path: 'landing', loadComponent: () => import('./paginas/landing-page/landing-page').then(m => m.LandingPageComponent)},
     {path: 'login', loadComponent: () => import('./authentication/login/login').then(m => m.LoginComponent)},
     {path: 'registrate', loadComponent: () => import('./authentication/crear-cuenta/crear-cuenta').then(m => m.Registrate)},
+    {path: 'verificar-email', loadComponent: () => import('./authentication/verificar-email/verificar-email').then(m => m.VerificarEmailComponent)},
     {path: 'app', loadComponent: () => import('./paginas/main-layout/main-layout').then(m => m.MainLayoutComponent),
         children: [
             {path: '', redirectTo: 'mi-dia', pathMatch: 'full'},
@@ -24,7 +25,6 @@ export const routes: Routes = [
             {path: 'tablero/:id', loadComponent: () => import('./paginas/main-layout/vista-tablero/vista-tablero').then(m => m.VistaTableroComponent)},
             {path: 'mi-perfil' , loadComponent: () => import('./paginas/mi-perfil/mi-perfil').then(m => m.MiPerfilComponent)},
             {path: 'configuracion' , loadComponent: () => import('./paginas/configuracion/configuracion').then(m => m.ConfiguracionComponent)}
-            //{path: 'operator', loadComponent: () => import('./componentes/operator-section/operator-section').then(m => m.AdminSectionsComponent)}
         ]
     },
     {path: '', redirectTo: 'landing', pathMatch: 'full'},

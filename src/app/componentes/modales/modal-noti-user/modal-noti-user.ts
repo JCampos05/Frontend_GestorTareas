@@ -120,49 +120,91 @@ export class ModalNotificacionesComponent implements OnInit {
 
   // En el lugar donde llamas a marcarComoLeida
   marcarComoLeida(notificacion: Notificacion) {
-    // ✅ Validación exhaustiva
     if (!notificacion) {
       console.error('❌ Notificación es undefined o null');
       return;
     }
 
-    console.log('🔍 Intentando marcar notificación como leída');
-    console.log('📦 Objeto completo:', notificacion);
-    console.log('🆔 idNotificacion:', notificacion.idNotificacion);
-    console.log('🆔 id (alternativo):', (notificacion as any).id);
-
-    // ✅ Intentar obtener el ID de diferentes formas
     const id = notificacion.idNotificacion || (notificacion as any).id;
 
     if (!id || id === undefined || id === null) {
-      console.error('❌ ID de notificación no encontrado en:', notificacion);
-      console.error('❌ Campos disponibles:', Object.keys(notificacion));
-
-      // ✅ Intentar usar el servicio para ocultar visualmente
+      console.error('❌ ID de notificación no encontrado');
       alert('Esta notificación no puede ser marcada como leída. Será ocultada.');
       this.ocultarNotificacion((notificacion as any).id || 0);
       return;
     }
 
-    console.log(`✅ ID válido encontrado: ${id}, procediendo a marcar como leída`);
-
-    // ✅ Si la notificación ya está leída, no hacer nada
+    // ✅ Si ya está leída, solo navegar
     if (notificacion.leida) {
-      console.log('ℹ️ Notificación ya está marcada como leída');
+      this.navegarSegunTipo(notificacion);
       return;
     }
 
-    // ✅ Marcar como leída en el servidor
+    // ✅ Marcar como leída y luego navegar
     this.notificationService.marcarComoLeida(id)
       .subscribe({
         next: () => {
           console.log('✅ Notificación marcada como leída exitosamente');
+          this.navegarSegunTipo(notificacion);
         },
         error: (error) => {
           console.error('❌ Error al marcar como leída:', error);
-          console.error('❌ Detalles del error:', error.error || error.message);
         }
       });
+  }
+
+  private navegarSegunTipo(notificacion: Notificacion) {
+    const datos = notificacion.datos;
+
+    switch (notificacion.tipo) {
+      case 'recordatorio':
+      case 'tarea_asignada':
+      case 'tarea_repetir':
+        // Navegar a la lista donde está la tarea
+        if (datos?.listaId) {
+          this.cerrar();
+          this.router.navigate(['/app/lista', datos.listaId]);
+        } else {
+          // Si no hay listaId, ir a "Mi día"
+          this.cerrar();
+          this.router.navigate(['/app/todas-tareas']);
+        }
+        break;
+
+      case 'invitacion_lista':
+        // No navegar, dejar que acepten/rechacen primero
+        // Solo cerrar si ya fue aceptada
+        if (notificacion.leida) {
+          this.cerrar();
+          if (datos?.listaId) {
+            this.router.navigate(['/app/lista', datos.listaId]);
+          }
+        }
+        break;
+
+      case 'mensaje_chat':
+      case 'cambio_rol_lista':
+        // Navegar a la lista
+        if (datos?.listaId) {
+          this.cerrar();
+          this.router.navigate(['/app/lista', datos.listaId]);
+        }
+        break;
+
+      case 'comentario':
+        // Navegar a la tarea específica si tienes esa funcionalidad
+        if (datos?.tareaId && datos?.listaId) {
+          this.cerrar();
+          this.router.navigate(['/app/lista', datos.listaId], {
+            queryParams: { tarea: datos.tareaId }
+          });
+        }
+        break;
+
+      default:
+        console.log('Tipo de notificación sin navegación definida:', notificacion.tipo);
+        break;
+    }
   }
 
   marcarTodasLeidas() {

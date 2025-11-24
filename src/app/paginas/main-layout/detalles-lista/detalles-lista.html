@@ -13,10 +13,10 @@
         <!-- Usuarios compartidos (solo si hay) -->
         <div class="usuarios-avatares" *ngIf="usuariosCompartidos.length > 0">
           <div *ngFor="let usuario of usuariosCompartidos.slice(0, 5)" class="avatar"
-            [title]="usuario.nombre + ' (' + usuario.rol + ')'">
+            [title]="usuario.nombre + ' (' + usuario.rol + ')'" (click)="abrirPerfilUsuario(usuario)">
             {{ obtenerIniciales(usuario.nombre) }}
           </div>
-          <div class="avatar-mas" *ngIf="usuariosCompartidos.length > 5">
+          <div class="avatar-mas" *ngIf="usuariosCompartidos.length > 5" (click)="mostrarTodosUsuarios()">
             +{{ usuariosCompartidos.length - 5 }}
           </div>
         </div>
@@ -68,8 +68,7 @@
         </button>
       </div>
       <div class="chat-panel-content">
-        <app-chat [idLista]="idLista" [usuarioActual]="usuarioActual">
-        </app-chat>
+        <app-chat [idLista]="idLista" [usuarioActual]="usuarioActual"> </app-chat>
       </div>
     </div>
   </div>
@@ -83,4 +82,8 @@
   <app-modal-asignar-tarea [isOpen]="modalAsignarAbierto" [tarea]="tareaSeleccionada" [idLista]="idLista"
     (close)="cerrarModalAsignar()" (asignado)="onTareaAsignada()">
   </app-modal-asignar-tarea>
+  <!-- Modal de perfil de usuario -->
+  <app-modal-perfil-usuario [isOpen]="modalPerfilAbierto" [usuario]="usuarioSeleccionado"
+    (close)="cerrarPerfilUsuario()">
+  </app-modal-perfil-usuario>
 </div>
