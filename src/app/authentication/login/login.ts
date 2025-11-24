@@ -77,7 +77,8 @@ export class LoginComponent {
 
   onForgotPassword() {
     console.log('Recuperar contraseña');
-    alert('Funcionalidad de recuperación de contraseña pendiente.');
+    //alert('Funcionalidad de recuperación de contraseña pendiente.');
+    this.router.navigate(['/recuperar-password']);
   }
 
   onSignup() {

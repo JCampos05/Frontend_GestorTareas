@@ -254,4 +254,29 @@ export class AuthService {
       headers: this.obtenerHeaders()
     });
   }
+
+  solicitarRecuperacionPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recuperar-password`, { email });
+  }
+
+  verificarCodigoRecuperacion(email: string, codigo: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verificar-recuperacion`, {
+      email,
+      codigo
+    });
+  }
+
+  establecerNuevaPassword(tokenTemporal: string, nuevaPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/establecer-nueva-password`, {
+      tokenTemporal,
+      nuevaPassword
+    }).pipe(
+      tap((response: any) => {
+        // Si la respuesta incluye un nuevo token de sesión, guardarlo
+        if (response.token) {
+          this.guardarSesion(response.token, response.usuario);
+        }
+      })
+    );
+  }
 }

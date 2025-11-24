@@ -20,7 +20,7 @@ export class LandingPageComponent {
   onSolicitarDemo() {
     console.log('Solicitar demo');
     // TODO: Implementar modal o formulario de demo
-    alert('Funcionalidad de demo pendiente. Por ahora te redirigiremos al login.');
+    //alert('Funcionalidad de demo pendiente. Por ahora te redirigiremos al login.');
     this.router.navigate(['/login']);
   }
 }

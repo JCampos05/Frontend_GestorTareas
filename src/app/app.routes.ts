@@ -5,6 +5,9 @@ export const routes: Routes = [
     {path: 'login', loadComponent: () => import('./authentication/login/login').then(m => m.LoginComponent)},
     {path: 'registrate', loadComponent: () => import('./authentication/crear-cuenta/crear-cuenta').then(m => m.Registrate)},
     {path: 'verificar-email', loadComponent: () => import('./authentication/verificar-email/verificar-email').then(m => m.VerificarEmailComponent)},
+    {path: 'recuperar-password', loadComponent: () => import('./authentication/recuperar-password/recuperar-password').then(m => m.RecuperarPasswordComponent)},
+    {path: 'verificar-recuperacion' , loadComponent: () => import('./authentication/verificar-recuperacion/verificar-recuperacion').then(m => m.VerificarRecuperacionComponent)},
+    {path: 'nueva-password' , loadComponent: () => import('./authentication/nueva-password/nueva-password').then(m => m.NuevaPasswordComponent)},
     {path: 'app', loadComponent: () => import('./paginas/main-layout/main-layout').then(m => m.MainLayoutComponent),
         children: [
             {path: '', redirectTo: 'mi-dia', pathMatch: 'full'},
