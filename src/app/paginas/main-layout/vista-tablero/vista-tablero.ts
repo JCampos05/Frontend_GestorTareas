@@ -12,6 +12,25 @@ import { ModalUsuariosCategoriaComponent } from '../../../componentes/modales/mo
 import { PanelDetallesComponent } from '../../../componentes/principal/panel-detalles/panel-detalles';
 import { NotificacionesService } from '../../../core/services/notification/notification';
 import { NotificacionComponent } from '../../../componentes/principal/notification/notification';
+import { ModalPerfilUsuarioComponent } from '../../../componentes/modales/modal-perfil-usuario/modal-perfil-usuario';
+import { AuthService } from '../../../core/services/authentication/authentication';
+
+export interface PerfilUsuario {
+  idUsuario: number;
+  nombre: string;
+  correo: string;
+  telefono?: string;
+  cargo?: string;
+  bio?: string;
+  redesSociales?: {
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+    instagram?: string;
+  };
+  rol?: string;
+  esCreador?: boolean;
+}
 
 interface ListaConTareas extends Lista {
   tareas?: Tarea[];
@@ -37,7 +56,8 @@ interface UsuarioCompartido {
     ModalListaComponent,
     ModalUsuariosCategoriaComponent,
     PanelDetallesComponent,
-    NotificacionComponent
+    NotificacionComponent,
+    ModalPerfilUsuarioComponent
   ],
   templateUrl: './vista-tablero.html',
   styleUrl: './vista-tablero.css'
@@ -75,13 +95,17 @@ export class VistaTableroComponent implements OnInit {
   // Modal de eliminación inline
   listaAEliminar: ListaConTareas | null = null;
 
+  modalPerfilAbierto = false;
+  usuarioSeleccionado: PerfilUsuario | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private categoriasService: CategoriasService,
     private listasService: ListasService,
     private tareasService: TareasService,
-    private notificacionesService: NotificacionesService
+    private notificacionesService: NotificacionesService,
+    private authService: AuthService
   ) { }
 
   async ngOnInit() {
@@ -393,5 +417,54 @@ export class VistaTableroComponent implements OnInit {
     }
   }
 
+  async abrirPerfilUsuario(usuario: UsuarioCompartido) {
+    console.log('👤 Abriendo perfil de usuario:', usuario);
 
+    // Mostrar datos básicos inmediatamente
+    this.usuarioSeleccionado = {
+      idUsuario: usuario.idUsuario,
+      nombre: usuario.nombre,
+      correo: usuario.email,
+      telefono: undefined,
+      cargo: undefined,
+      bio: undefined,
+      redesSociales: undefined,
+      rol: usuario.rol,
+      esCreador: false
+    };
+
+    this.modalPerfilAbierto = true;
+
+    // 🔄 Cargar perfil completo del backend
+    this.authService.obtenerPerfilPorId(usuario.idUsuario).subscribe({
+      next: (perfilCompleto) => {
+        console.log('✅ Perfil completo obtenido:', perfilCompleto);
+
+        // Actualizar con datos completos
+        if (this.usuarioSeleccionado && this.usuarioSeleccionado.idUsuario === perfilCompleto.idUsuario) {
+          this.usuarioSeleccionado = {
+            idUsuario: perfilCompleto.idUsuario,
+            nombre: perfilCompleto.nombre,
+            correo: perfilCompleto.email,
+            telefono: perfilCompleto.telefono || undefined,
+            cargo: perfilCompleto.cargo || undefined,
+            bio: perfilCompleto.bio || undefined,
+            redesSociales: perfilCompleto.redes_sociales || undefined,
+            rol: usuario.rol,
+            esCreador: false
+          };
+        }
+      },
+      error: (error) => {
+        console.warn('⚠️ No se pudo cargar perfil completo:', error);
+        // Mantener datos básicos si falla la carga
+      }
+    });
+  }
+
+  // Agregar método para cerrar modal de perfil (después de abrirPerfilUsuario)
+  cerrarPerfilUsuario() {
+    this.modalPerfilAbierto = false;
+    this.usuarioSeleccionado = null;
+  }
 }

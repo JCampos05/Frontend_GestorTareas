@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, take } from 'rxjs'; // AGREGADO 'take'
+import { Subscription, take } from 'rxjs';
 import { ListasService } from '../../../core/services/listas/listas';
 import { CompartirService, UsuarioCompartido, InfoCompartidos } from '../../../core/services/compartir/compartir';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';

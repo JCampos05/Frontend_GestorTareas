@@ -8,9 +8,8 @@
         {{ nombreLista }}
       </h2>
 
-      <!-- Siempre mostrar acciones si eres propietario o admin -->
-      <div class="header-actions" *ngIf="esPropietario || esAdmin">
-        <!-- Usuarios compartidos (solo si hay) -->
+      <div class="header-actions">
+        <!-- ✅ AVATARES - SIEMPRE VISIBLES si hay usuarios compartidos -->
         <div class="usuarios-avatares" *ngIf="usuariosCompartidos.length > 0">
           <div *ngFor="let usuario of usuariosCompartidos.slice(0, 5)" class="avatar"
             [title]="usuario.nombre + ' (' + usuario.rol + ')'" (click)="abrirPerfilUsuario(usuario)">
@@ -21,17 +20,19 @@
           </div>
         </div>
 
-        <button *ngIf="puedeAsignarTareas()" class="btn-asignar-tareas" (click)="abrirModalAsignar()"
-          title="Asignar tareas a usuarios">
-          <i class="fas fa-user-check"></i>
-          Asignar tareas
-        </button>
+        <!-- ✅ BOTONES - Solo para propietarios/admins -->
+        <ng-container *ngIf="esPropietario || esAdmin">
+          <button *ngIf="puedeAsignarTareas()" class="btn-asignar-tareas" (click)="abrirModalAsignar()"
+            title="Asignar tareas a usuarios">
+            <i class="fas fa-user-check"></i>
+            Asignar tareas
+          </button>
 
-        <!-- Botón SIEMPRE visible para propietarios/admins -->
-        <button class="btn-gestionar-usuarios" (click)="abrirModalUsuarios()">
-          <i class="fas fa-cog"></i>
-          Gestionar usuarios
-        </button>
+          <button class="btn-gestionar-usuarios" (click)="abrirModalUsuarios()">
+            <i class="fas fa-cog"></i>
+            Gestionar usuarios
+          </button>
+        </ng-container>
       </div>
     </div>
 

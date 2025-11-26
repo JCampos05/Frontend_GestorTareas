@@ -28,11 +28,12 @@
 
             <!-- Avatares de usuarios -->
             <div class="usuarios-avatares" *ngIf="usuariosCompartidos.length > 0">
-                <div class="avatar" *ngFor="let usuario of usuariosCompartidos.slice(0, 3)" [title]="usuario.nombre">
+                <div class="avatar" *ngFor="let usuario of usuariosCompartidos.slice(0, 3)" [title]="usuario.nombre"
+                    (click)="abrirPerfilUsuario(usuario)">
                     {{ obtenerIniciales(usuario.nombre) }}
                 </div>
                 <div class="avatar-mas" *ngIf="usuariosCompartidos.length > 3"
-                    [title]="'+ ' + (usuariosCompartidos.length - 3) + ' más'">
+                    [title]="'+ ' + (usuariosCompartidos.length - 3) + ' más'" (click)="abrirModalUsuarios()">
                     +{{ usuariosCompartidos.length - 3 }}
                 </div>
             </div>
@@ -56,22 +57,14 @@
         <!-- Listas importantes -->
         <div class="seccion-listas" *ngIf="listasImportantes.length > 0">
 
-            <div class="listas-importantes-grid" 
-                 cdkDropList 
-                 cdkDropListOrientation="horizontal"
-                 #listasImportantesDropList="cdkDropList"
-                 [cdkDropListData]="listasImportantes"
-                 (cdkDropListDropped)="onDropListaImportante($event)">
+            <div class="listas-importantes-grid" cdkDropList cdkDropListOrientation="horizontal"
+                #listasImportantesDropList="cdkDropList" [cdkDropListData]="listasImportantes"
+                (cdkDropListDropped)="onDropListaImportante($event)">
                 <div *ngFor="let lista of listasImportantes" class="lista-wrapper" cdkDrag>
-                    <app-columna-tablero 
-                        [lista]="lista" 
-                        [tareas]="lista.tareas || []"
-                        [cargando]="lista.cargando || false" 
-                        (tareasActualizadas)="recargarLista(lista.idLista!)"
-                        (compartir)="abrirModalCompartir(lista)" 
-                        (editar)="editarLista(lista)"
-                        (eliminar)="confirmarEliminarLista(lista)" 
-                        (tareaClick)="abrirPanelDetalles($event)">
+                    <app-columna-tablero [lista]="lista" [tareas]="lista.tareas || []"
+                        [cargando]="lista.cargando || false" (tareasActualizadas)="recargarLista(lista.idLista!)"
+                        (compartir)="abrirModalCompartir(lista)" (editar)="editarLista(lista)"
+                        (eliminar)="confirmarEliminarLista(lista)" (tareaClick)="abrirPanelDetalles($event)">
                     </app-columna-tablero>
                 </div>
             </div>
@@ -83,22 +76,14 @@
         <!-- Listas normales -->
         <div class="seccion-listas" *ngIf="listasNormales.length > 0">
 
-            <div class="listas-normales-grid"
-                 cdkDropList
-                 cdkDropListOrientation="horizontal"
-                 #listasNormalesDropList="cdkDropList"
-                 [cdkDropListData]="listasNormales"
-                 (cdkDropListDropped)="onDropListaNormal($event)">
+            <div class="listas-normales-grid" cdkDropList cdkDropListOrientation="horizontal"
+                #listasNormalesDropList="cdkDropList" [cdkDropListData]="listasNormales"
+                (cdkDropListDropped)="onDropListaNormal($event)">
                 <div *ngFor="let lista of listasNormales" class="lista-wrapper" cdkDrag>
-                    <app-columna-tablero 
-                        [lista]="lista" 
-                        [tareas]="lista.tareas || []"
-                        [cargando]="lista.cargando || false" 
-                        (tareasActualizadas)="recargarLista(lista.idLista!)"
-                        (compartir)="abrirModalCompartir(lista)" 
-                        (editar)="editarLista(lista)"
-                        (eliminar)="confirmarEliminarLista(lista)" 
-                        (tareaClick)="abrirPanelDetalles($event)">
+                    <app-columna-tablero [lista]="lista" [tareas]="lista.tareas || []"
+                        [cargando]="lista.cargando || false" (tareasActualizadas)="recargarLista(lista.idLista!)"
+                        (compartir)="abrirModalCompartir(lista)" (editar)="editarLista(lista)"
+                        (eliminar)="confirmarEliminarLista(lista)" (tareaClick)="abrirPanelDetalles($event)">
                     </app-columna-tablero>
                 </div>
             </div>
@@ -115,10 +100,8 @@
     </div>
 
     <!-- Botón flotante para agregar lista -->
-    <button class="btn-agregar-lista-flotante" 
-            (click)="abrirModalNuevaLista()" 
-            *ngIf="!cargando && categoria"
-            title="Agregar nueva lista">
+    <button class="btn-agregar-lista-flotante" (click)="abrirModalNuevaLista()" *ngIf="!cargando && categoria"
+        title="Agregar nueva lista">
         <i class="fas fa-plus"></i>
     </button>
 
@@ -162,8 +145,8 @@
 
     <!-- Modal de editar lista -->
     <app-modal-lista [visible]="modalEditarListaAbierto" [listaEditando]="listaParaEditar"
-        [idCategoriaPredefinida]="categoria?.idCategoria || null"
-        (cerrarModal)="cerrarModalEditarLista()" (listaGuardada)="onListaEditada()">
+        [idCategoriaPredefinida]="categoria?.idCategoria || null" (cerrarModal)="cerrarModalEditarLista()"
+        (listaGuardada)="onListaEditada()">
     </app-modal-lista>
 
     <!-- Modal de usuarios para CATEGORÍA -->
@@ -179,4 +162,8 @@
     <app-panel-detalles [abierto]="panelDetallesAbierto" [idTarea]="tareaSeleccionadaId"
         [puedeEditar]="puedeEditarTarea" (cerrar)="cerrarPanelDetalles()" (tareaGuardada)="onTareaGuardada()">
     </app-panel-detalles>
+
+    <app-modal-perfil-usuario [isOpen]="modalPerfilAbierto" [usuario]="usuarioSeleccionado"
+        (close)="cerrarPerfilUsuario()">
+    </app-modal-perfil-usuario>
 </div>

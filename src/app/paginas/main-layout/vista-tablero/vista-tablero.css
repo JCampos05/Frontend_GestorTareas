@@ -124,6 +124,14 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 2px solid white;
     cursor: default;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.avatar:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 82, 204, 0.3);
+    z-index: 10;
 }
 
 .avatar-mas {
@@ -139,6 +147,14 @@
     font-size: 12px;
     border: 2px solid white;
     cursor: default;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.avatar-mas:hover {
+    background: #dfe1e6;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-gestionar-usuarios {

@@ -58,12 +58,7 @@ export class TareasService {
     try {
       const response: any = await firstValueFrom(this.http.get(this.API_URL));
       const tareas = response.success ? response.data : [];
-      return tareas.map((tarea: any) => ({
-        ...tarea,
-        miDia: Boolean(tarea.miDia === 1 || tarea.miDia === true),
-        repetir: Boolean(tarea.repetir === 1 || tarea.repetir === true),
-        importante: Boolean(tarea.importante === 1 || tarea.importante === true)
-      }));
+      return tareas.map((tarea: any) => this.normalizarTarea(tarea));
     } catch (error) {
       console.error('Error al obtener tareas:', error);
       return [];
@@ -74,12 +69,8 @@ export class TareasService {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
       if (response.success && response.data) {
-        return {
-          ...response.data,
-          miDia: Boolean(response.data.miDia === 1 || response.data.miDia === true),
-          repetir: Boolean(response.data.repetir === 1 || response.data.repetir === true),
-          importante: Boolean(response.data.importante === 1 || response.data.importante === true)
-        };
+        const tarea = this.normalizarTarea(response.data);
+        return tarea;
       }
       return null;
     } catch (error) {
@@ -139,11 +130,26 @@ export class TareasService {
     }
   }
 
-  async alternarMiDia(id: number, miDia: boolean): Promise<any> {
+  async alternarMiDia(idTarea: number, miDia: boolean): Promise<any> {
+    const url = `${this.API_URL}/${idTarea}/mi-dia`;
+
+    console.log('📡 alternarMiDia service:', {
+      url,
+      idTarea,
+      miDia
+    });
+
     try {
-      return firstValueFrom(this.http.patch(`${this.API_URL}/${id}/mi-dia`, { miDia }));
+      const response = await firstValueFrom(
+        this.http.patch<any>(url, { miDia })
+      );
+
+      console.log('Respuesta del backend:', response);
+
+      return response;
+
     } catch (error) {
-      console.error('Error al alternar Mi Día:', error);
+      console.error('Error en alternarMiDia service:', error);
       throw error;
     }
   }
@@ -152,13 +158,14 @@ export class TareasService {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/mi-dia`));
       const tareas = response.success ? response.data : [];
-      //  AGREGAR: Transformar booleanos
-      return tareas.map((tarea: any) => ({
-        ...tarea,
-        miDia: Boolean(tarea.miDia === 1 || tarea.miDia === true),
-        repetir: Boolean(tarea.repetir === 1 || tarea.repetir === true),
-        importante: Boolean(tarea.importante === 1 || tarea.importante === true)
-      }));
+
+      console.log('🌞 Tareas Mi Día obtenidas:', tareas.map((t: any) => ({
+        id: t.idTarea,
+        nombre: t.nombre,
+        miDia: t.miDia
+      })));
+
+      return tareas.map((tarea: any) => this.normalizarTarea(tarea));
     } catch (error) {
       console.error('Error al obtener tareas Mi Día:', error);
       return [];
@@ -246,4 +253,12 @@ export class TareasService {
     }
   }
 
+  private normalizarTarea(tarea: any): Tarea {
+    return {
+      ...tarea,
+      miDia: Boolean(tarea.miDia === 1 || tarea.miDia === true),
+      repetir: Boolean(tarea.repetir === 1 || tarea.repetir === true),
+      importante: Boolean(tarea.importante === 1 || tarea.importante === true)
+    };
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, SimpleChange, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
 import { NotificacionesService } from '../../../core/services/notification/notification';
@@ -12,12 +12,12 @@ import { ModalEliminarTareaComponent } from '../../modales/modal-eliminar-tarea/
   templateUrl: './tarea-card.html',
   styleUrl: './tarea-card.css'
 })
-export class TareaCardComponent {
+export class TareaCardComponent implements OnChanges {
   @Input() tarea!: Tarea;
   @Input() puedeEditar: boolean = true;
   @Input() puedeEliminar: boolean = true;
   @Input() puedeAsignar: boolean = false;
-  @Input() modoVista: 'card' | 'lista' = 'card'; // Nueva propiedad
+  @Input() modoVista: 'card' | 'lista' = 'card';
 
   @Output() tareaClick = new EventEmitter<void>();
   @Output() estadoCambiado = new EventEmitter<void>();
@@ -32,6 +32,18 @@ export class TareaCardComponent {
     private tareasService: TareasService,
     private notificacionesService: NotificacionesService
   ) { }
+
+  ngOnChanges(changes: any) {
+    if (changes['tarea'] && changes['tarea'].currentValue) {
+      console.log('🔄 Tarea actualizada en tarea-card:', {
+        id: this.tarea.idTarea,
+        nombre: this.tarea.nombre,
+        miDia: this.tarea.miDia,
+        anterior: changes['tarea'].previousValue?.miDia,
+        nuevo: changes['tarea'].currentValue?.miDia
+      });
+    }
+  }
 
   onTareaClick() {
     this.tareaClick.emit();
@@ -162,11 +174,47 @@ export class TareaCardComponent {
   async alternarMiDia(event: Event) {
     event.stopPropagation();
 
-    try {
-      const nuevoValor = !this.tarea.miDia;
-      const response = await this.tareasService.alternarMiDia(this.tarea.idTarea!, nuevoValor);
+    const estadoAnterior = this.tarea.miDia;
 
-      this.tarea.miDia = nuevoValor;
+    console.log('🌞 alternarMiDia - Estado ANTES:', {
+      idTarea: this.tarea.idTarea,
+      nombre: this.tarea.nombre,
+      miDiaAnterior: estadoAnterior,
+      tipo: typeof estadoAnterior
+    });
+
+    try {
+      const nuevoValor = !estadoAnterior;
+
+      // ✅ CREAR NUEVA REFERENCIA del objeto tarea
+      this.tarea = { ...this.tarea, miDia: nuevoValor };
+
+      const response = await this.tareasService.alternarMiDia(
+        this.tarea.idTarea!,
+        nuevoValor
+      );
+
+      console.log('✅ Respuesta del servidor:', response);
+
+      if (response.success && response.data) {
+        // ✅ Actualizar con nueva referencia y conversión explícita
+        const miDiaActualizado = Boolean(response.data.miDia === 1 || response.data.miDia === true);
+
+        this.tarea = {
+          ...this.tarea,
+          miDia: miDiaActualizado
+        };
+
+        console.log('✅ Tarea actualizada con miDia:', {
+          idTarea: this.tarea.idTarea,
+          nombre: this.tarea.nombre,
+          miDia: this.tarea.miDia,
+          tipo: typeof this.tarea.miDia,
+          valorOriginal: response.data.miDia
+        });
+      }
+
+      // ✅ Emitir evento para recargar
       this.estadoCambiado.emit();
 
       if (nuevoValor) {
@@ -174,9 +222,16 @@ export class TareaCardComponent {
       } else {
         this.notificacionesService.exito('Tarea eliminada de Mi Día');
       }
+
     } catch (error) {
-      console.error('Error al actualizar Mi Día:', error);
-      this.notificacionesService.error('Error al actualizar Mi Día. Por favor, intenta nuevamente.');
+      console.error('❌ Error al actualizar Mi Día:', error);
+
+      // ✅ Revertir con nueva referencia
+      this.tarea = { ...this.tarea, miDia: estadoAnterior };
+
+      this.notificacionesService.error(
+        'Error al actualizar Mi Día. Por favor, intenta nuevamente.'
+      );
     }
   }
 
@@ -194,6 +249,20 @@ export class TareaCardComponent {
 
     console.log('🖱️ Click en card:', this.tarea.idTarea, this.tarea.nombre);
     this.tareaClick.emit();
+  }
+
+  estaVencida(): boolean {
+    if (!this.tarea.fechaVencimiento || this.tarea.estado === 'C') {
+      return false;
+    }
+
+    const fechaVencimiento = new Date(this.tarea.fechaVencimiento);
+    const hoy = new Date();
+
+    fechaVencimiento.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
+
+    return fechaVencimiento < hoy;
   }
 
   get mostrarBotonIniciar(): boolean {

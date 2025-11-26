@@ -113,7 +113,21 @@ export class ListasService {
   async obtenerListaConTareas(id: number): Promise<any> {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}/tareas`));
+
       if (response.success && response.data) {
+        if (response.data.tareas && Array.isArray(response.data.tareas)) {
+
+          //CRÍTICO: Normalización explícita para forzar detección de cambios
+          response.data.tareas = response.data.tareas.map((tarea: any) => {
+            const normalizada = {
+              ...tarea,
+              miDia: Boolean(tarea.miDia === 1 || tarea.miDia === true),
+              repetir: Boolean(tarea.repetir === 1 || tarea.repetir === true),
+              importante: Boolean(tarea.importante === 1 || tarea.importante === true)
+            };
+            return normalizada;
+          });
+        }
         return response.data;
       }
       return null;
@@ -187,7 +201,7 @@ export class ListasService {
     }
   }
 
-  //  ACTUALIZADO: Generar clave para compartir
+  // Generar clave para compartir
   async hacerCompartible(id: number): Promise<any> {
     try {
       console.log('🔵 Generando clave para lista, ID:', id);

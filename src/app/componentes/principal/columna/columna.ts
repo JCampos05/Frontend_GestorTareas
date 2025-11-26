@@ -29,7 +29,7 @@ export class ColumnasComponent implements OnInit {
   esMiDia: boolean = false;
   panelAbierto = false;
   tareaSeleccionada: number | null = null;
-  
+
   // Nueva propiedad para controlar el modo de vista
   modoVista: 'card' | 'lista' = 'card';
 
@@ -82,7 +82,27 @@ export class ColumnasComponent implements OnInit {
     try {
       const data = await this.listasService.obtenerListaConTareas(idLista);
       if (data && data.tareas) {
-        this.distribuirTareas(data.tareas);
+        console.log('📥 Tareas recibidas en columna:', data.tareas.map((t: any) => ({
+          id: t.idTarea,
+          nombre: t.nombre,
+          miDia: t.miDia,
+          tipo: typeof t.miDia
+        })));
+
+        // ✅ CRÍTICO: Crear nuevas referencias para forzar detección de cambios
+        const tareasNormalizadas = data.tareas.map((t: any) => ({
+          ...t,
+          miDia: Boolean(t.miDia === 1 || t.miDia === true)
+        }));
+
+        console.log('✅ Tareas normalizadas en columna:', tareasNormalizadas.map((t: any) => ({
+          id: t.idTarea,
+          nombre: t.nombre,
+          miDia: t.miDia,
+          tipo: typeof t.miDia
+        })));
+
+        this.distribuirTareas(tareasNormalizadas);
       }
     } catch (error) {
       console.error('Error al cargar tareas de lista:', error);
@@ -161,7 +181,7 @@ export class ColumnasComponent implements OnInit {
     console.log('Click en asignar tarea:', tarea);
     this.abrirModalAsignar.emit(tarea);
   }
-  
+
   async onTareaGuardada() {
     const idLista = this.route.snapshot.params['id'];
     const estado = this.route.snapshot.queryParams['estado'];
@@ -185,6 +205,8 @@ export class ColumnasComponent implements OnInit {
     const filtro = this.route.snapshot.queryParams['filtro'];
     const idLista = this.route.snapshot.params['id'];
 
+    console.log('🔄 onEstadoCambiado ejecutado:', { idLista, estado, filtro });
+
     if (idLista) {
       await this.cargarTareasDeLista(idLista);
     } else if (estado) {
@@ -194,6 +216,8 @@ export class ColumnasComponent implements OnInit {
     } else {
       await this.cargarTareas();
     }
+
+    console.log('🔄 Tareas recargadas después de cambio de estado');
   }
 
   async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {

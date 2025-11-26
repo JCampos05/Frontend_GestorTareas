@@ -1,435 +1,501 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
+import { FormsModule } from '@angular/forms';
 import { TareasService, Tarea } from '../../../core/services/tareas/tareas';
-import { ListasService, Lista } from '../../../core/services/listas/listas';
-import { Router } from '@angular/router';
+import { ListasService } from '../../../core/services/listas/listas';
 import { PanelDetallesComponent } from '../../../componentes/principal/panel-detalles/panel-detalles';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
-interface DiaSemana {
+interface TareaConLista extends Tarea {
+  nombreLista?: string;
+  iconoLista?: string;
+  colorLista?: string;
+}
+
+interface DiaInfo {
   fecha: Date;
-  nombre: string;
+  diaNombre: string;
+  diaNumero: number;
+  mes: string;
+  esHoy: boolean;
+  tareas: TareaConLista[];
+}
+
+interface DiaCalendario {
   numero: number;
-  tareas: Tarea[];
+  fecha: Date;
+  delMesActual: boolean;
+  esHoy: boolean;
+  seleccionado: boolean;
 }
 
 @Component({
   selector: 'app-mi-semana',
   standalone: true,
-  imports: [CommonModule, PanelDetallesComponent, CdkDrag, CdkDropList],
+  imports: [CommonModule, FormsModule, PanelDetallesComponent],
   templateUrl: './mi-semana.html',
   styleUrl: './mi-semana.css'
 })
 export class MiSemanaComponent implements OnInit {
-  fechaActual: Date = new Date();
-  diasSemana: DiaSemana[] = [];
-  tareas: Tarea[] = [];
-  listas: Lista[] = [];
-  diaSeleccionado: DiaSemana | null = null;
-  panelCrearAbierto = false;
-  calendarioAbierto = false;
-  mesCalendario: Date = new Date();
-  diasCalendario: { fecha: Date; numero: number; mesActual: boolean }[] = [];
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+  @ViewChild('panelDetalles') panelDetalles!: PanelDetallesComponent;
 
-  nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-  meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  dias: DiaInfo[] = [];
+  semanaActual: Date = new Date();
+  mostrarCalendario = false;
+  panelDetallesAbierto = false;
+  idTareaSeleccionada: number | null = null;
+  puedeEditarTarea = true;
+
+  // Panel día seleccionado
+  diaSeleccionadoPanel: DiaInfo | null = null;
+  panelDiaAbierto = false;
+
+  // Drag and drop
+  tareaDrag: TareaConLista | null = null;
+  diaOrigenDrag: DiaInfo | null = null;
+
+  // Calendario desplegable
+  mesCalendario: string = '';
+  anioCalendario: number = 0;
+  diasCalendario: DiaCalendario[] = [];
+  fechaCalendarioActual: Date = new Date();
 
   constructor(
     private tareasService: TareasService,
     private listasService: ListasService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private notificacionesService: NotificacionesService
+  ) {}
 
-  async ngOnInit() {
-    await this.cargarListas();
-    await this.cargarTareas();
-    this.generarSemana();
+  ngOnInit() {
+    this.generarSemana(this.semanaActual);
+    this.cargarTareas();
   }
 
-  async cargarListas() {
-    try {
-      this.listas = await this.listasService.obtenerListas();
-    } catch (error) {
-      console.error('Error al cargar listas:', error);
-    }
-  }
-
-  async cargarTareas() {
-    try {
-      this.tareas = await this.tareasService.obtenerTareas();
-
-      this.tareas = this.tareas.map(tarea => {
-        if (tarea.idLista) {
-          const lista = this.listas.find(l => l.idLista === tarea.idLista);
-          if (lista) {
-            tarea.iconoLista = lista.icono;
-            tarea.colorLista = lista.color;
-            tarea.nombreLista = lista.nombre;
-          }
-        }
-        return tarea;
-      });
-
-      this.generarSemana();
-    } catch (error) {
-      console.error('Error al cargar tareas:', error);
-    }
-  }
-
-  generarSemana() {
-    this.diasSemana = [];
-    const inicioSemana = this.obtenerInicioSemana(this.fechaActual);
+  generarSemana(fecha: Date) {
+    this.dias = [];
+    const inicioSemana = this.obtenerInicioSemana(fecha);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
     for (let i = 0; i < 7; i++) {
-      const fecha = new Date(inicioSemana);
-      fecha.setDate(inicioSemana.getDate() + i);
+      const diaFecha = new Date(inicioSemana);
+      diaFecha.setDate(inicioSemana.getDate() + i);
+      
+      const esHoy = diaFecha.getTime() === hoy.getTime();
 
-      this.diasSemana.push({
-        fecha: fecha,
-        nombre: this.nombresDias[fecha.getDay()],
-        numero: fecha.getDate(),
-        tareas: this.obtenerTareasPorFecha(fecha)
+      this.dias.push({
+        fecha: diaFecha,
+        diaNombre: this.obtenerNombreDia(diaFecha.getDay()),
+        diaNumero: diaFecha.getDate(),
+        mes: this.obtenerNombreMes(diaFecha.getMonth()),
+        esHoy,
+        tareas: []
       });
     }
   }
 
   obtenerInicioSemana(fecha: Date): Date {
-    const dia = fecha.getDay();
-    const diferencia = fecha.getDate() - dia;
-    return new Date(fecha.getFullYear(), fecha.getMonth(), diferencia);
+    const dia = new Date(fecha);
+    const diaSemana = dia.getDay();
+    const diff = diaSemana === 0 ? -6 : 1 - diaSemana;
+    dia.setDate(dia.getDate() + diff);
+    dia.setHours(0, 0, 0, 0);
+    return dia;
   }
 
-  obtenerTareasPorFecha(fecha: Date): Tarea[] {
-    return this.tareas.filter(tarea => {
-      const fechaTarea = tarea.fechaVencimiento
-        ? new Date(tarea.fechaVencimiento)
-        : tarea.fechaCreacion
-          ? new Date(tarea.fechaCreacion)
-          : null;
+  obtenerNombreDia(dia: number): string {
+    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    return dias[dia];
+  }
 
-      if (!fechaTarea) return false;
+  obtenerNombreMes(mes: number): string {
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return meses[mes];
+  }
 
-      return fechaTarea.getDate() === fecha.getDate() &&
-        fechaTarea.getMonth() === fecha.getMonth() &&
-        fechaTarea.getFullYear() === fecha.getFullYear();
-    });
+  obtenerNombreMesCompleto(mes: number): string {
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return meses[mes];
+  }
+
+  async cargarTareas() {
+    try {
+      const todasTareas = await this.tareasService.obtenerTareas();
+      const listas = await this.listasService.obtenerListas();
+
+      // Limpiar tareas de todos los días
+      this.dias.forEach(dia => dia.tareas = []);
+
+      todasTareas.forEach(tarea => {
+        const lista = listas.find(l => l.idLista === tarea.idLista);
+        const tareaConLista: TareaConLista = {
+          ...tarea,
+          nombreLista: lista?.nombre,
+          iconoLista: lista?.icono,
+          colorLista: lista?.color
+        };
+
+        // Asignar tarea a día según fecha de vencimiento o creación
+        let fechaAsignacion: Date;
+        
+        if (tarea.fechaVencimiento) {
+          fechaAsignacion = new Date(tarea.fechaVencimiento);
+        } else if (tarea.fechaCreacion) {
+          fechaAsignacion = new Date(tarea.fechaCreacion);
+        } else {
+          return; // No asignar si no hay fecha
+        }
+
+        fechaAsignacion.setHours(0, 0, 0, 0);
+
+        // Buscar el día correspondiente
+        const dia = this.dias.find(d => {
+          const diaFecha = new Date(d.fecha);
+          diaFecha.setHours(0, 0, 0, 0);
+          return diaFecha.getTime() === fechaAsignacion.getTime();
+        });
+
+        if (dia) {
+          dia.tareas.push(tareaConLista);
+        }
+      });
+    } catch (error) {
+      console.error('Error al cargar tareas:', error);
+    }
   }
 
   semanaAnterior() {
-    this.fechaActual = new Date(
-      this.fechaActual.getFullYear(),
-      this.fechaActual.getMonth(),
-      this.fechaActual.getDate() - 7
-    );
-    this.generarSemana();
-    this.diaSeleccionado = null;
-    this.cerrarPanelCrear();
+    const nuevaFecha = new Date(this.semanaActual);
+    nuevaFecha.setDate(nuevaFecha.getDate() - 7);
+    this.semanaActual = nuevaFecha;
+    this.generarSemana(this.semanaActual);
+    this.cargarTareas();
   }
 
   semanaSiguiente() {
-    this.fechaActual = new Date(
-      this.fechaActual.getFullYear(),
-      this.fechaActual.getMonth(),
-      this.fechaActual.getDate() + 7
-    );
-    this.generarSemana();
-    this.diaSeleccionado = null;
-    this.cerrarPanelCrear();
+    const nuevaFecha = new Date(this.semanaActual);
+    nuevaFecha.setDate(nuevaFecha.getDate() + 7);
+    this.semanaActual = nuevaFecha;
+    this.generarSemana(this.semanaActual);
+    this.cargarTareas();
   }
 
-  seleccionarDia(dia: DiaSemana) {
-    this.diaSeleccionado = {
-      ...dia,
-      tareas: [...dia.tareas]
-    };
-    this.scrollToDia(dia);
-  }
-
-  // MÉTODO SCROLL CORREGIDO
-  scrollToDia(dia: DiaSemana) {
-    setTimeout(() => {
-      const index = this.diasSemana.findIndex(d => d.fecha.getTime() === dia.fecha.getTime());
-      const grilla = document.querySelector('.grilla-semana') as HTMLElement;
-      
-      if (grilla && index >= 0) {
-        const columnas = grilla.querySelectorAll('.columna-dia');
-        if (columnas[index]) {
-          const columna = columnas[index] as HTMLElement;
-          
-          // Obtener medidas reales del DOM
-          const columnaRect = columna.getBoundingClientRect();
-          const grillaRect = grilla.getBoundingClientRect();
-          
-          // Calcular el centro exacto de la grilla visible
-          const centroGrilla = grillaRect.width / 2;
-          
-          // Posición de la columna relativa al contenedor
-          const columnaLeft = columna.offsetLeft;
-          
-          // Centro de la columna
-          const columnaCentro = columnaRect.width / 2;
-          
-          // Fórmula para centrar: posición de columna + su centro - centro de grilla
-          const scrollPosition = columnaLeft + columnaCentro - centroGrilla;
-          
-          grilla.scrollTo({
-            left: Math.max(0, scrollPosition),
-            behavior: 'smooth'
-          });
-        }
-      }
-    }, 200);
-  }
-
-  cerrarPanel() {
-    this.diaSeleccionado = null;
-  }
-
-  crearTarea() {
-    this.panelCrearAbierto = true;
-  }
-
-  cerrarPanelCrear() {
-    this.panelCrearAbierto = false;
-  }
-
-  async onTareaCreada() {
-    this.panelCrearAbierto = false;
-    await this.cargarTareas();
-  }
-
-  //  MÉTODO CAMBIAR ESTADO CORREGIDO
-  async cambiarEstadoTarea(tarea: Tarea, event: Event) {
-    // Detener toda propagación inmediatamente
-    event.stopPropagation();
-    event.preventDefault();
+  irASemanaActual() {
+    this.semanaActual = new Date();
+    this.generarSemana(this.semanaActual);
+    this.cargarTareas();
     
-    if (!tarea.idTarea) return;
-
-    // Obtener el checkbox directamente
-    const checkbox = event.target as HTMLInputElement;
-    const nuevoEstado = checkbox.checked ? 'C' : 'P';
-
-    try {
-      // Actualizar en servidor
-      await this.tareasService.cambiarEstado(tarea.idTarea, nuevoEstado);
-      
-      // Actualizar estado local
-      tarea.estado = nuevoEstado;
-      
-      // Recargar todas las tareas
-      await this.cargarTareas();
-      
-      // Actualizar panel lateral si está abierto
-      if (this.diaSeleccionado) {
-        const diaActualizado = this.diasSemana.find(
-          d => d.fecha.getTime() === this.diaSeleccionado!.fecha.getTime()
-        );
-        if (diaActualizado) {
-          this.diaSeleccionado = {
-            ...diaActualizado,
-            tareas: [...diaActualizado.tareas]
-          };
-        }
-      }
-      
-      // Forzar detección de cambios
-      this.cdr.detectChanges();
-
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-      // Revertir el checkbox en caso de error
-      checkbox.checked = !checkbox.checked;
-      await this.cargarTareas();
-    }
-  }
-
-  get rangoSemana(): string {
-    if (this.diasSemana.length === 0) return '';
-
-    const primerDia = this.diasSemana[0].fecha;
-    const ultimoDia = this.diasSemana[6].fecha;
-
-    const diaInicio = primerDia.getDate();
-    const diaFin = ultimoDia.getDate();
-    const mesInicio = this.meses[primerDia.getMonth()];
-    const mesFin = this.meses[ultimoDia.getMonth()];
-    const anio = ultimoDia.getFullYear();
-
-    if (primerDia.getMonth() === ultimoDia.getMonth()) {
-      return `${diaInicio} - ${diaFin} ${mesInicio} ${anio}`;
-    } else {
-      return `${diaInicio} ${mesInicio} - ${diaFin} ${mesFin} ${anio}`;
-    }
-  }
-
-  esHoy(fecha: Date): boolean {
-    const hoy = new Date();
-    return fecha.getDate() === hoy.getDate() &&
-      fecha.getMonth() === hoy.getMonth() &&
-      fecha.getFullYear() === hoy.getFullYear();
-  }
-
-  getPrioridadClass(prioridad: string): string {
-    const clases: any = {
-      'A': 'prioridad-alta',
-      'N': 'prioridad-normal',
-      'B': 'prioridad-baja'
-    };
-    return clases[prioridad] || 'prioridad-normal';
-  }
-
-  esEmoji(icono: string | null | undefined): boolean {
-    if (!icono || icono === 'null' || icono === '') return false;
-    return !icono.trim().startsWith('fa');
-  }
-
-  obtenerClaseIcono(icono: string | null | undefined): string {
-    if (!icono || icono === 'null' || icono === '') {
-      return 'fas fa-list';
-    }
-
-    const iconoLimpio = icono.trim();
-
-    if (iconoLimpio.startsWith('fas ') || iconoLimpio.startsWith('far ')) {
-      return iconoLimpio;
-    }
-
-    if (iconoLimpio.startsWith('fa-')) {
-      return `fas ${iconoLimpio}`;
-    }
-
-    return 'fas fa-list';
-  }
-
-  async onDrop(event: CdkDragDrop<Tarea[]>, diaDestino: DiaSemana) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      const tarea = event.previousContainer.data[event.previousIndex];
-
-      if (tarea.idTarea) {
-        try {
-          const nuevaFecha = new Date(diaDestino.fecha);
-          if (tarea.fechaVencimiento) {
-            const fechaOriginal = new Date(tarea.fechaVencimiento);
-            nuevaFecha.setHours(fechaOriginal.getHours(), fechaOriginal.getMinutes(), fechaOriginal.getSeconds());
-          } else {
-            nuevaFecha.setHours(0, 0, 0, 0);
-          }
-
-          const fechaFormateada = nuevaFecha.toISOString().slice(0, 19).replace('T', ' ');
-
-          await this.tareasService.actualizarTarea(tarea.idTarea, {
-            nombre: tarea.nombre,
-            fechaVencimiento: fechaFormateada
-          } as Tarea);
-
-          transferArrayItem(
-            event.previousContainer.data,
-            event.container.data,
-            event.previousIndex,
-            event.currentIndex
-          );
-
-          await this.cargarTareas();
-
-        } catch (error) {
-          console.error('Error al mover tarea:', error);
-          await this.cargarTareas();
-        }
-      }
-    }
-  }
-
-  getDropListIds(): string[] {
-    return this.diasSemana.map((_, index) => `dia-${index}`);
+    // Centrar en el día de hoy después de cargar
+    setTimeout(() => this.centrarEnDia(this.dias.findIndex(d => d.esHoy)), 100);
   }
 
   toggleCalendario() {
-    this.calendarioAbierto = !this.calendarioAbierto;
-    if (this.calendarioAbierto) {
-      this.mesCalendario = new Date(this.fechaActual);
-      this.generarDiasCalendario();
+    this.mostrarCalendario = !this.mostrarCalendario;
+    if (this.mostrarCalendario) {
+      this.inicializarCalendario();
     }
   }
 
-  generarDiasCalendario() {
+  // === CALENDARIO DESPLEGABLE ===
+  inicializarCalendario() {
+    this.fechaCalendarioActual = new Date(this.semanaActual);
+    this.generarCalendario();
+  }
+
+  generarCalendario() {
+    const fecha = new Date(this.fechaCalendarioActual);
+    const anio = fecha.getFullYear();
+    const mes = fecha.getMonth();
+    
+    this.anioCalendario = anio;
+    this.mesCalendario = this.obtenerNombreMesCompleto(mes);
+    
+    // Primer dia del mes
+    const primerDia = new Date(anio, mes, 1);
+    const primerDiaSemana = primerDia.getDay();
+    
+    // Ultimo dia del mes
+    const ultimoDia = new Date(anio, mes + 1, 0);
+    const ultimoDiaDelMes = ultimoDia.getDate();
+    
+    // Dias del mes anterior
+    const mesAnterior = new Date(anio, mes, 0);
+    const diasMesAnterior = mesAnterior.getDate();
+    
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
     this.diasCalendario = [];
-    const primerDiaMes = new Date(this.mesCalendario.getFullYear(), this.mesCalendario.getMonth(), 1);
-    const ultimoDiaMes = new Date(this.mesCalendario.getFullYear(), this.mesCalendario.getMonth() + 1, 0);
-
-    const primerDiaSemana = primerDiaMes.getDay();
-    for (let i = 0; i < primerDiaSemana; i++) {
-      const fecha = new Date(primerDiaMes);
-      fecha.setDate(primerDiaMes.getDate() - (primerDiaSemana - i));
+    
+    // Dias del mes anterior
+    for (let i = primerDiaSemana - 1; i >= 0; i--) {
+      const dia = diasMesAnterior - i;
+      const fechaDia = new Date(anio, mes - 1, dia);
+      fechaDia.setHours(0, 0, 0, 0);
+      
       this.diasCalendario.push({
-        fecha: fecha,
-        numero: fecha.getDate(),
-        mesActual: false
-      });
-    }
-
-    for (let dia = 1; dia <= ultimoDiaMes.getDate(); dia++) {
-      const fecha = new Date(this.mesCalendario.getFullYear(), this.mesCalendario.getMonth(), dia);
-      this.diasCalendario.push({
-        fecha: fecha,
         numero: dia,
-        mesActual: true
+        fecha: fechaDia,
+        delMesActual: false,
+        esHoy: fechaDia.getTime() === hoy.getTime(),
+        seleccionado: false
       });
     }
-
-    const diasRestantes = 42 - this.diasCalendario.length;
-    for (let i = 1; i <= diasRestantes; i++) {
-      const fecha = new Date(ultimoDiaMes);
-      fecha.setDate(fecha.getDate() + i);
+    
+    // Dias del mes actual
+    for (let dia = 1; dia <= ultimoDiaDelMes; dia++) {
+      const fechaDia = new Date(anio, mes, dia);
+      fechaDia.setHours(0, 0, 0, 0);
+      
       this.diasCalendario.push({
-        fecha: fecha,
-        numero: fecha.getDate(),
-        mesActual: false
+        numero: dia,
+        fecha: fechaDia,
+        delMesActual: true,
+        esHoy: fechaDia.getTime() === hoy.getTime(),
+        seleccionado: false
+      });
+    }
+    
+    // Dias del mes siguiente para completar la grilla
+    const diasRestantes = 42 - this.diasCalendario.length;
+    for (let dia = 1; dia <= diasRestantes; dia++) {
+      const fechaDia = new Date(anio, mes + 1, dia);
+      fechaDia.setHours(0, 0, 0, 0);
+      
+      this.diasCalendario.push({
+        numero: dia,
+        fecha: fechaDia,
+        delMesActual: false,
+        esHoy: fechaDia.getTime() === hoy.getTime(),
+        seleccionado: false
       });
     }
   }
 
-  mesAnteriorCalendario() {
-    this.mesCalendario = new Date(
-      this.mesCalendario.getFullYear(),
-      this.mesCalendario.getMonth() - 1,
-      1
-    );
-    this.generarDiasCalendario();
+  mesAnterior() {
+    this.fechaCalendarioActual.setMonth(this.fechaCalendarioActual.getMonth() - 1);
+    this.generarCalendario();
   }
 
-  mesSiguienteCalendario() {
-    this.mesCalendario = new Date(
-      this.mesCalendario.getFullYear(),
-      this.mesCalendario.getMonth() + 1,
-      1
-    );
-    this.generarDiasCalendario();
+  mesSiguiente() {
+    this.fechaCalendarioActual.setMonth(this.fechaCalendarioActual.getMonth() + 1);
+    this.generarCalendario();
   }
 
-  seleccionarFechaCalendario(fecha: Date) {
-    this.fechaActual = new Date(fecha);
-    this.generarSemana();
-    this.calendarioAbierto = false;
-    this.diaSeleccionado = null;
-    this.cerrarPanelCrear();
+  seleccionarDiaCalendario(dia: DiaCalendario) {
+    this.semanaActual = new Date(dia.fecha);
+    this.generarSemana(this.semanaActual);
+    this.cargarTareas();
+    this.mostrarCalendario = false;
   }
 
-  get nombreMesCalendario(): string {
-    return `${this.meses[this.mesCalendario.getMonth()]} ${this.mesCalendario.getFullYear()}`;
+  irAHoyCalendario() {
+    this.fechaCalendarioActual = new Date();
+    this.semanaActual = new Date();
+    this.generarCalendario();
+    this.generarSemana(this.semanaActual);
+    this.cargarTareas();
+    this.mostrarCalendario = false;
+    setTimeout(() => this.centrarEnDia(this.dias.findIndex(d => d.esHoy)), 100);
   }
 
-  esFechaSeleccionada(fecha: Date): boolean {
-    return fecha.getDate() === this.fechaActual.getDate() &&
-      fecha.getMonth() === this.fechaActual.getMonth() &&
-      fecha.getFullYear() === this.fechaActual.getFullYear();
+  abrirPanelDetalles(idTarea?: number) {
+    if (idTarea) {
+      this.idTareaSeleccionada = idTarea;
+    } else {
+      this.idTareaSeleccionada = null;
+    }
+    this.panelDetallesAbierto = true;
   }
 
-  abrirDetallesTarea(tarea: Tarea) {
-    console.log('Abrir detalles de tarea:', tarea);
+  cerrarPanelDetalles() {
+    this.panelDetallesAbierto = false;
+    this.idTareaSeleccionada = null;
+  }
+
+  async onTareaGuardada() {
+    await this.cargarTareas();
+  }
+
+  // Panel día seleccionado
+  seleccionarDia(dia: DiaInfo, index: number) {
+    this.diaSeleccionadoPanel = dia;
+    this.panelDiaAbierto = true;
+    this.centrarEnDia(index);
+  }
+
+  cerrarPanelDia() {
+    this.panelDiaAbierto = false;
+    this.diaSeleccionadoPanel = null;
+  }
+
+  centrarEnDia(index: number) {
+    if (!this.scrollContainer) return;
+
+    const container = this.scrollContainer.nativeElement;
+    const columnas = container.querySelectorAll('.dia-columna');
+    
+    if (!columnas[index]) return;
+
+    const columna = columnas[index] as HTMLElement;
+    const containerWidth = container.offsetWidth;
+    const columnaWidth = columna.offsetWidth;
+    const columnaLeft = columna.offsetLeft;
+
+    // Calcular posición para centrar
+    const scrollPosition = columnaLeft - (containerWidth / 2) + (columnaWidth / 2);
+    
+    container.scrollTo({
+      left: scrollPosition,
+      behavior: 'smooth'
+    });
+  }
+
+  // Drag and Drop
+  onDragStart(event: DragEvent, tarea: TareaConLista, dia: DiaInfo) {
+    this.tareaDrag = tarea;
+    this.diaOrigenDrag = dia;
+    
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', '');
+    }
+
+    // Añadir clase visual
+    (event.target as HTMLElement).classList.add('dragging');
+    
+    // Iniciar auto-scroll
+    this.iniciarAutoScroll(event);
+  }
+
+  onDragEnd(event: DragEvent) {
+    (event.target as HTMLElement).classList.remove('dragging');
+    this.detenerAutoScroll();
+  }
+
+  // Variables para auto-scroll
+  private autoScrollInterval: any = null;
+  private autoScrollSpeed = 0;
+
+  private iniciarAutoScroll(event: DragEvent) {
+    this.autoScrollInterval = setInterval(() => {
+      if (this.autoScrollSpeed !== 0 && this.scrollContainer) {
+        const container = this.scrollContainer.nativeElement;
+        container.scrollLeft += this.autoScrollSpeed;
+      }
+    }, 16);
+  }
+
+  private detenerAutoScroll() {
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
+      this.autoScrollInterval = null;
+    }
+    this.autoScrollSpeed = 0;
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    // Calcular auto-scroll horizontal
+    if (this.scrollContainer) {
+      const container = this.scrollContainer.nativeElement;
+      const rect = container.getBoundingClientRect();
+      const mouseX = event.clientX;
+      const threshold = 100;
+
+      if (mouseX < rect.left + threshold) {
+        this.autoScrollSpeed = -10;
+      } else if (mouseX > rect.right - threshold) {
+        this.autoScrollSpeed = 10;
+      } else {
+        this.autoScrollSpeed = 0;
+      }
+    }
+  }
+
+  onDragEnter(event: DragEvent, dia: DiaInfo) {
+    event.preventDefault();
+    const target = event.currentTarget as HTMLElement;
+    target.classList.add('drag-over');
+  }
+
+  onDragLeave(event: DragEvent) {
+    const target = event.currentTarget as HTMLElement;
+    target.classList.remove('drag-over');
+  }
+
+  async onDrop(event: DragEvent, diaDestino: DiaInfo) {
+    event.preventDefault();
+    const target = event.currentTarget as HTMLElement;
+    target.classList.remove('drag-over');
+
+    if (!this.tareaDrag || !this.diaOrigenDrag) return;
+
+    // No hacer nada si es el mismo día
+    if (this.diaOrigenDrag.fecha.getTime() === diaDestino.fecha.getTime()) {
+      this.tareaDrag = null;
+      this.diaOrigenDrag = null;
+      return;
+    }
+
+    try {
+      // Actualizar fecha de vencimiento
+      const nuevaFecha = new Date(diaDestino.fecha);
+      const fechaStr = nuevaFecha.toISOString().split('T')[0];
+
+      await this.tareasService.actualizarFechaVencimiento(
+        this.tareaDrag.idTarea!,
+        fechaStr
+      );
+
+      // Mover tarea visualmente
+      const indexOrigen = this.diaOrigenDrag.tareas.findIndex(
+        t => t.idTarea === this.tareaDrag!.idTarea
+      );
+      
+      if (indexOrigen > -1) {
+        this.diaOrigenDrag.tareas.splice(indexOrigen, 1);
+        diaDestino.tareas.push(this.tareaDrag);
+      }
+
+      this.notificacionesService.exito('Tarea movida exitosamente');
+    } catch (error) {
+      console.error('Error al mover tarea:', error);
+      this.notificacionesService.error('Error al mover la tarea');
+    }
+
+    this.tareaDrag = null;
+    this.diaOrigenDrag = null;
+  }
+
+  trackByTarea(index: number, tarea: TareaConLista): number {
+    return tarea.idTarea || index;
+  }
+
+  trackByDia(index: number, dia: DiaInfo): number {
+    return dia.fecha.getTime();
+  }
+
+  obtenerIconoLista(tarea: TareaConLista): string {
+    if (!tarea.iconoLista || tarea.iconoLista === 'null') return '📋';
+    if (tarea.iconoLista.startsWith('fa')) return '📋';
+    return tarea.iconoLista;
+  }
+
+  crearTareaEnDia(dia: DiaInfo) {
+    // Configurar fecha predeterminada
+    const fechaStr = dia.fecha.toISOString().split('T')[0];
+    
+    // Abrir panel con fecha predeterminada
+    this.idTareaSeleccionada = null;
+    this.panelDetallesAbierto = true;
   }
 }

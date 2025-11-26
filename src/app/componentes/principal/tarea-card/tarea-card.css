@@ -579,10 +579,34 @@
   .usuario-nombre-mini {
     max-width: 60px;
   }
-  
+
   .btn-accion-icon {
     width: 26px;
     height: 26px;
     font-size: 10px;
   }
+}
+
+/* Bandera roja para tareas con prioridad alta */
+.bandera-prioridad {
+  color: #ff5630;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.tarea-card.tarea-lista .bandera-prioridad {
+  font-size: 12px;
+}
+
+/* Icono de advertencia para tareas vencidas */
+.icono-vencida {
+  color: #ff991f;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.tarea-card.tarea-lista .icono-vencida {
+  font-size: 12px;
 }
