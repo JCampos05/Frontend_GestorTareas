@@ -9,6 +9,6 @@ bootstrapApplication(AppComponent, appConfig)
     // Inicializar interceptor de notificaciones
     const notifInterceptor = appRef.injector.get(NotificationInterceptorService);
     notifInterceptor.solicitarPermisos();
-    console.log('✅ NotificationInterceptor inicializado');
+    console.log('NotificationInterceptor inicializado');
   })
   .catch((err) => console.error(err));

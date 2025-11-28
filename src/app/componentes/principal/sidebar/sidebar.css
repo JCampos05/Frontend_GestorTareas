@@ -5,10 +5,11 @@
   width: 250px;
   background-color: #302B27;
   padding: 0;
-  height: 100vh;
-  max-height: calc(100vh - 64px); /*NOOO QUITAR*/
+  padding-bottom: 0; 
+  height: 100%;
+  max-height: 100%;
   overflow: hidden;
-  position: sticky;
+  position: relative; 
   top: 0;
   border-right: 1px solid #1a1816;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -26,6 +27,7 @@
   padding: 12px 0;
   flex: 1;
   min-height: 0;
+  padding-bottom: 12px;
 }
 
 .sidebar-content::-webkit-scrollbar {
@@ -49,19 +51,22 @@
    FOOTER CON TOGGLE DE TEMA
    ======================================== */
 .sidebar-footer {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
   padding: 12px;
   border-top: 1px solid #3d3835;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  flex-shrink: 0;
   background-color: #302B27;
-  height: 64px;
-  min-height: 64px;
-  box-sizing: border-box;
   width: 100%;
-  margin-top: auto;
+  box-sizing: border-box;
+  min-height: 64px;
+  flex-shrink: 0;
+  z-index: 1000;
 }
 
 .theme-toggle {
@@ -137,61 +142,91 @@
   width: 60px;
 }
 
+/* Ocultar textos */
 #sidebar.collapsed .sidebar-item span,
 #sidebar.collapsed .sidebar-section h3,
 #sidebar.collapsed .btn-agregar-lista-suelta span,
 #sidebar.collapsed .categoria-nombre-clickeable span,
 #sidebar.collapsed .count,
 #sidebar.collapsed .categoria-actions {
-  opacity: 0;
-  visibility: hidden;
+  display: none;
 }
 
-#sidebar.collapsed .sidebar-listas,
-#sidebar.collapsed .listas-compartir-dropdown {
+/* Ocultar listas expandidas */
+#sidebar.collapsed .sidebar-listas {
   display: none !important;
 }
 
+/* Footer colapsado */
 #sidebar.collapsed .theme-toggle-label {
-  opacity: 0;
-  visibility: hidden;
-  width: 0;
-  margin: 0;
+  display: none;
 }
 
 #sidebar.collapsed .sidebar-footer {
-  padding: 12px 4px;
-  height: 56px;
-  min-height: 56px;
+  padding: 8px 4px;
+  justify-content: center;
+  display: flex !important;
+  min-height: 64px;
 }
 
 #sidebar.collapsed .theme-toggle {
   max-width: 48px;
-  padding: 6px;
-  gap: 4px;
+  padding: 8px 4px;
+  gap: 8px;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  display: flex !important;
 }
 
 #sidebar.collapsed .theme-toggle i {
-  font-size: 16px;
+  font-size: 18px;
   margin: 0;
 }
 
 #sidebar.collapsed .theme-toggle-switch {
-  width: 32px;
-  height: 18px;
+  width: 36px;
+  height: 20px;
 }
 
 #sidebar.collapsed .theme-toggle-switch::after {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   top: 3px;
   left: 3px;
 }
 
 #sidebar.collapsed .theme-toggle-switch.active::after {
-  transform: translateX(14px);
+  transform: translateX(16px);
+}
+
+/* Botón agregar lista colapsado */
+#sidebar.collapsed .btn-agregar-lista-suelta {
+  justify-content: center;
+  padding: 8px;
+}
+
+/* Categorías colapsadas */
+#sidebar.collapsed .sidebar-categoria-header {
+  padding: 8px 4px;
+  justify-content: center;
+}
+
+#sidebar.collapsed .categoria-nombre-clickeable {
+  justify-content: center;
+  width: 100%;
+  padding: 4px;
+}
+
+/* Ocultar la flecha de expandir */
+#sidebar.collapsed .chevron-icon {
+  display: none !important;
+}
+
+/* Mostrar solo el icono de carpeta */
+#sidebar.collapsed .categoria-icon {
+  display: block !important;
+  font-size: 20px;
+  color: #F5F3F5;
 }
 
 /* ========================================
@@ -218,15 +253,15 @@
 }
 
 .sidebar-section:nth-child(1) h3 {
-  font-size: 12px; /* VISTAS */
+  font-size: 12px;
 }
 
 .sidebar-section:nth-child(2) h3 {
-  font-size: 11px; /* TOOLS */
+  font-size: 11px;
 }
 
 .sidebar-section:nth-child(3) h3 {
-  font-size: 10px; /* TABLEROS */
+  font-size: 10px;
 }
 
 .sidebar-section-header {
@@ -321,7 +356,16 @@
   background-color: rgba(245, 243, 245, 0.1);
 }
 
-.categoria-nombre-clickeable i {
+/* Icono de carpeta - oculto por defecto */
+.categoria-icon {
+  display: none;
+  color: #F5F3F5;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Flecha de expandir - visible por defecto */
+.chevron-icon {
   color: #a8a29e;
   font-size: 12px;
   flex-shrink: 0;
@@ -407,158 +451,6 @@
   margin: 0;
   line-height: 1;
   font-size: 11px;
-}
-
-/* ========================================
-   CARD FLOTANTE DE COMPARTIR LISTAS
-   ======================================== */
-.listas-compartir-dropdown {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  margin-left: 8px;
-  width: 280px;
-  background: #3d3835;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1);
-  z-index: 1000;
-  animation: slideInRight 0.2s ease;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.listas-compartir-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid #574f4a;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.listas-compartir-header h4 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #F5F3F5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-}
-
-.btn-close-dropdown {
-  background: transparent;
-  border: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #a8a29e;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  font-size: 14px;
-  flex-shrink: 0;
-  margin-left: 8px;
-}
-
-.btn-close-dropdown:hover {
-  background: #574f4a;
-  color: #F5F3F5;
-}
-
-.listas-compartir-content {
-  padding: 8px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.listas-compartir-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.listas-compartir-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.listas-compartir-content::-webkit-scrollbar-thumb {
-  background: #574f4a;
-  border-radius: 3px;
-}
-
-.listas-compartir-content::-webkit-scrollbar-thumb:hover {
-  background: #78716c;
-}
-
-.lista-compartir-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: #302B27;
-  margin-bottom: 4px;
-  border: 1px solid #574f4a;
-}
-
-.lista-compartir-item:hover {
-  background: #574f4a;
-  border-color: #78716c;
-}
-
-.lista-compartir-item .lista-nombre {
-  flex: 1;
-  font-size: 13px;
-  color: #F5F3F5;
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lista-compartir-item .share-icon {
-  color: #60a5fa;
-  font-size: 14px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.lista-compartir-item:hover .share-icon {
-  opacity: 1;
-}
-
-.sin-listas {
-  text-align: center;
-  padding: 32px 16px;
-  color: #a8a29e;
-}
-
-.sin-listas i {
-  font-size: 36px;
-  margin-bottom: 12px;
-  color: #574f4a;
-}
-
-.sin-listas p {
-  margin: 0;
-  font-size: 13px;
 }
 
 /* ========================================
@@ -653,7 +545,7 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
   color: #a8a29e;
   font-size: 12px;
@@ -690,6 +582,12 @@
   background-color: #3d3835;
 }
 
+.sidebar-lista-suelta.active {
+  background-color: #574f4a;
+  color: #F5F3F5;
+  font-weight: 500;
+}
+
 .sidebar-lista-suelta > span:last-child {
   flex: 1;
   overflow: hidden;
@@ -702,7 +600,7 @@
 /* ========================================
    MODAL DE CONFIRMACIÓN
    ======================================== */
-   .modal-overlay {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -712,7 +610,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000; /*  Asegurar que esté sobre todo */
+  z-index: 10000;
 }
 
 .modal-content {
@@ -722,7 +620,7 @@
   max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: relative;
-  z-index: 10001; /*  Más alto que el overlay */
+  z-index: 10001;
 }
 
 .modal-overlay.categoria-modal {
@@ -896,7 +794,7 @@
   background-color: #e8e5e8;
 }
 
-#sidebar.light-mode .categoria-nombre-clickeable i {
+#sidebar.light-mode .chevron-icon {
   color: #78716c;
 }
 
@@ -938,6 +836,11 @@
 
 #sidebar.light-mode .sidebar-lista-suelta > span:last-child {
   color: #302B27;
+}
+
+#sidebar.light-mode .sidebar-lista-suelta.active {
+  background-color: #302B27;
+  color: #F5F3F5;
 }
 
 #sidebar.light-mode .sidebar-footer {
@@ -984,57 +887,4 @@
 #sidebar.light-mode .btn-add-categoria:hover {
   background: rgba(48, 43, 39, 0.08);
   color: #302B27;
-}
-
-/* Card de compartir en modo claro */
-#sidebar.light-mode .listas-compartir-dropdown {
-  background: #F5F3F5;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.5);
-}
-
-#sidebar.light-mode .listas-compartir-header {
-  border-bottom-color: #d0cdd0;
-}
-
-#sidebar.light-mode .listas-compartir-header h4 {
-  color: #302B27;
-}
-
-#sidebar.light-mode .btn-close-dropdown {
-  color: #78716c;
-}
-
-#sidebar.light-mode .btn-close-dropdown:hover {
-  background: #e8e5e8;
-  color: #302B27;
-}
-
-#sidebar.light-mode .lista-compartir-item {
-  background: white;
-  border-color: #e8e5e8;
-}
-
-#sidebar.light-mode .lista-compartir-item:hover {
-  background: #e8e5e8;
-  border-color: #d0cdd0;
-}
-
-#sidebar.light-mode .lista-compartir-item .lista-nombre {
-  color: #302B27;
-}
-
-#sidebar.light-mode .sin-listas {
-  color: #78716c;
-}
-
-#sidebar.light-mode .sin-listas i {
-  color: #c0bdc0;
-}
-
-#sidebar.light-mode .listas-compartir-content::-webkit-scrollbar-thumb {
-  background: #c0bdc0;
-}
-
-#sidebar.light-mode .listas-compartir-content::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
 }

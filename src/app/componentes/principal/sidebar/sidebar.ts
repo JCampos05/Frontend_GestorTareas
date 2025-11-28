@@ -2,6 +2,8 @@ import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angu
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { CategoriasService } from '../../../core/services/categorias/categorias';
 import { ListasService } from '../../../core/services/listas/listas';
 import { NotificacionesService } from '../../../core/services/notification/notification';
@@ -35,6 +37,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   categoriaCompartirAbierta: any = null;
   itemParaCompartir: any = null;
 
+  rutaActual: string = '';
   // Suscripción para detectar cambios
   private listasSubscription?: Subscription;
 
@@ -47,6 +50,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.cargarCategorias();
+
+    // Detectar cambios de ruta para marcar activos
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.rutaActual = event.url;
+      });
+
+    // Inicializar ruta actual
+    this.rutaActual = this.router.url;
 
     // Suscribirse a los cambios en las listas
     this.listasSubscription = this.listasService.listasCambiadas$.subscribe(() => {
@@ -272,12 +285,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   // ==================== COMPARTIR ====================
-  
+
   // MÉTODO SIMPLE Y DIRECTO para compartir categoría
   compartirCategoria(categoria: any, event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    
+
     this.itemParaCompartir = categoria;
     this.tipoCompartir = 'categoria';
     this.modalCompartirAbierto = true;
@@ -306,7 +319,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.notificacionesService.exito(`Lista compartida con clave: ${evento.clave}`);
       }
     }
-    
+
     this.cerrarModalCompartir();
   }
 
@@ -326,13 +339,25 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.categoriaCompartirAbierta = null;
   }
 
-  // ✅ Compartir lista individual desde el dropdown
+  // Compartir lista individual desde el dropdown
   compartirLista(lista: any) {
 
-    
+
     this.itemParaCompartir = lista;
     this.tipoCompartir = 'lista';
     this.modalCompartirAbierto = true;
     this.categoriaCompartirAbierta = null; // Cerrar el dropdown
+  }
+
+  esRutaActiva(ruta: string): boolean {
+    return this.rutaActual.includes(ruta);
+  }
+
+  esListaActiva(idLista: number): boolean {
+    return this.rutaActual === `/app/lista/${idLista}`;
+  }
+
+  esTableroActivo(idCategoria: number): boolean {
+    return this.rutaActual === `/app/tablero/${idCategoria}`;
   }
 }

@@ -485,8 +485,8 @@ export class MiSemanaComponent implements OnInit {
   }
 
   obtenerIconoLista(tarea: TareaConLista): string {
-    if (!tarea.iconoLista || tarea.iconoLista === 'null') return '📋';
-    if (tarea.iconoLista.startsWith('fa')) return '📋';
+    if (!tarea.iconoLista || tarea.iconoLista === 'null') return '';
+    if (tarea.iconoLista.startsWith('fa')) return ''; //📋
     return tarea.iconoLista;
   }
 
