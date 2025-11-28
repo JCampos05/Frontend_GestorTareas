@@ -36,7 +36,7 @@
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
-                    
+
                     <div class="calendario-dias-semana">
                         <span>Dom</span>
                         <span>Lun</span>
@@ -46,18 +46,16 @@
                         <span>Vie</span>
                         <span>Sab</span>
                     </div>
-                    
+
                     <div class="calendario-grid">
-                        <button *ngFor="let diaCalendario of diasCalendario" 
-                                class="calendario-dia-btn"
-                                [class.otro-mes]="!diaCalendario.delMesActual"
-                                [class.hoy-calendario]="diaCalendario.esHoy"
-                                [class.seleccionado]="diaCalendario.seleccionado"
-                                (click)="seleccionarDiaCalendario(diaCalendario)">
+                        <button *ngFor="let diaCalendario of diasCalendario" class="calendario-dia-btn"
+                            [class.otro-mes]="!diaCalendario.delMesActual" [class.hoy-calendario]="diaCalendario.esHoy"
+                            [class.seleccionado]="diaCalendario.seleccionado"
+                            (click)="seleccionarDiaCalendario(diaCalendario)">
                             {{diaCalendario.numero}}
                         </button>
                     </div>
-                    
+
                     <div class="calendario-footer">
                         <button class="btn-hoy-calendario" (click)="irAHoyCalendario()">
                             Hoy
@@ -110,10 +108,12 @@
 
                         <div class="tarea-info" *ngIf="tarea.nombreLista">
                             <span class="lista-badge" [style.background-color]="tarea.colorLista">
-                                {{obtenerIconoLista(tarea)}} {{tarea.nombreLista}}
+                                <span *ngIf="obtenerIconoLista(tarea)">{{obtenerIconoLista(tarea)}}</span>
+                                <i *ngIf="!obtenerIconoLista(tarea) && tarea.iconoLista && tarea.iconoLista.startsWith('fa')"
+                                    [class]="tarea.iconoLista"></i>
+                                {{tarea.nombreLista}}
                             </span>
                         </div>
-
                         <div class="tarea-meta">
                             <span *ngIf="tarea.pasos && tarea.pasos.length > 0" class="meta-item">
                                 <i class="fas fa-list-ol"></i>
@@ -143,7 +143,8 @@
             </button>
 
             <div class="panel-dia-header">
-                <h3>{{diaSeleccionadoPanel.diaNombre}}, {{diaSeleccionadoPanel.diaNumero}} de {{diaSeleccionadoPanel.mes}}</h3>
+                <h3>{{diaSeleccionadoPanel.diaNombre}}, {{diaSeleccionadoPanel.diaNumero}} de
+                    {{diaSeleccionadoPanel.mes}}</h3>
                 <span class="tareas-total">{{diaSeleccionadoPanel.tareas.length}} tareas</span>
             </div>
 

@@ -13,6 +13,7 @@ export interface RedesSociales {
 export interface Usuario {
   idUsuario: number;
   nombre: string;
+  apellido?: string;
   email: string;
   emailVerificado: boolean;
   bio?: string | null;
@@ -45,6 +46,7 @@ export interface RegisterRequest {
 
 export interface ActualizarPerfilRequest {
   nombre?: string;
+  apellido?: string;
   bio?: string;
   telefono?: string;
   ubicacion?: string;
@@ -83,12 +85,13 @@ export class AuthService {
 
   // Registro de usuario
   registrar(datos: RegisterRequest): Observable<AuthResponse> {
-    const nombreCompleto = datos.apellido
+    /*const nombreCompleto = datos.apellido
       ? `${datos.nombre} ${datos.apellido}`
-      : datos.nombre;
+      : datos.nombre;*/
 
     const body = {
-      nombre: nombreCompleto,
+      nombre: datos.nombre,
+      apellido: datos.apellido || null,
       email: datos.email,
       password: datos.password
     };
@@ -183,7 +186,16 @@ export class AuthService {
   // Obtener usuario almacenado
   private obtenerUsuarioAlmacenado(): Usuario | null {
     const usuarioStr = localStorage.getItem(this.usuarioKey);
-    return usuarioStr ? JSON.parse(usuarioStr) : null;
+    if (!usuarioStr || usuarioStr === 'undefined' || usuarioStr === 'null') {
+      return null;
+    }
+    try {
+      return JSON.parse(usuarioStr);
+    } catch (error) {
+      console.error('Error al parsear usuario del localStorage:', error);
+      localStorage.removeItem(this.usuarioKey); // Limpiar dato corrupto
+      return null;
+    }
   }
 
   // Obtener usuario actual

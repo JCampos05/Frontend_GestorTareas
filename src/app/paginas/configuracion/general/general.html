@@ -13,14 +13,22 @@
             <div class="form-group">
                 <label for="nombre">
                     <i class="fas fa-user"></i>
-                    Nombre completo
+                    Nombre
                 </label>
                 <input type="text" id="nombre" formControlName="nombre" placeholder="Tu nombre completo" />
-                <span class="form-error" *ngIf="formGeneral.get('nombre')?.invalid && formGeneral.get('nombre')?.touched">
+                <span class="form-error"
+                    *ngIf="formGeneral.get('nombre')?.invalid && formGeneral.get('nombre')?.touched">
                     El nombre debe tener al menos 3 caracteres
                 </span>
             </div>
 
+            <div class="form-group">
+                <label for="apellido">
+                    <i class="fas fa-user"></i>
+                    Apellido
+                </label>
+                <input type="text" id="apellido" formControlName="apellido" placeholder="Tu apellido" />
+            </div>
             <!-- Email (readonly) -->
             <div class="form-group">
                 <label for="email">
@@ -54,7 +62,8 @@
 
                 <!-- Sugerencias de ciudades -->
                 <div class="ciudades-sugerencias" *ngIf="mostrarSugerencias">
-                    <div class="sugerencia-item" *ngFor="let ciudad of ciudadesSugeridas" (click)="seleccionarCiudad(ciudad)">
+                    <div class="sugerencia-item" *ngFor="let ciudad of ciudadesSugeridas"
+                        (click)="seleccionarCiudad(ciudad)">
                         <i class="fas fa-location-dot"></i>
                         {{ ciudad.nombreCompleto }}
                     </div>

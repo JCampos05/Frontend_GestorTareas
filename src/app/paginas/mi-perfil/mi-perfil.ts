@@ -257,16 +257,16 @@ export class MiPerfilComponent implements OnInit {
     return colores[nivel] || colores[0];
   }
 
-tieneInformacionPersonal(): boolean {
-  if (!this.usuario) return false;
-  return !!(
-    this.usuario.bio || 
-    this.usuario.cargo || 
-    this.usuario.ubicacion || 
-    this.usuario.telefono || 
-    this.tieneRedesSociales()
-  );
-}
+  tieneInformacionPersonal(): boolean {
+    if (!this.usuario) return false;
+    return !!(
+      this.usuario.bio ||
+      this.usuario.cargo ||
+      this.usuario.ubicacion ||
+      this.usuario.telefono ||
+      this.tieneRedesSociales()
+    );
+  }
 
   tieneRedesSociales(): boolean {
     if (!this.usuario?.redes_sociales) return false;
@@ -275,13 +275,22 @@ tieneInformacionPersonal(): boolean {
   }
 
 
-  abrirConfiguracion() {
+abrirConfiguracion() {
+  console.log('🔧 Navegando a configuración...');
+  
+  // Navegar primero a la ruta padre
+  this.router.navigate(['/app'], { skipLocationChange: true }).then(() => {
+    // Luego a configuración
     this.router.navigate(['/app/configuracion']);
-  }
+  });
+}
 
   cerrar() {
+    console.log('👋 Cerrando modal de perfil');
+    // Limpiar query params también
     this.router.navigate(['/app/mi-dia']);
   }
+
 
   ngOnDestroy() {
     if (this.chartRendimiento) {

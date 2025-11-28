@@ -48,6 +48,7 @@ export class GeneralComponent implements OnInit {
   inicializarFormulario() {
     this.formGeneral = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
+      apellido: [''],
       email: [{ value: '', disabled: true }],
       telefono: [''],
       ubicacion: [''],
@@ -76,6 +77,7 @@ export class GeneralComponent implements OnInit {
   llenarFormulario(usuario: Usuario) {
     this.formGeneral.patchValue({
       nombre: usuario.nombre || '',
+      apellido: usuario.apellido || '',
       email: usuario.email || '',
       telefono: usuario.telefono || '',
       ubicacion: usuario.ubicacion || '',
@@ -162,6 +164,7 @@ export class GeneralComponent implements OnInit {
     try {
       await this.authService.actualizarPerfil({
         nombre: datos.nombre,
+        apellido:datos.apellido,
         bio: datos.bio,
         telefono: datos.telefono,
         ubicacion: datos.ubicacion,

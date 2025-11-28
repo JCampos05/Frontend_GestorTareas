@@ -17,7 +17,8 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="btn-configuracion" (click)="abrirConfiguracion()" title="Configuración">
+                    <button class="btn-configuracion" (click)="abrirConfiguracion(); $event.stopPropagation()"
+                        title="Configuración">
                         <i class="fas fa-cog"></i>
                     </button>
                     <button class="btn-cerrar" (click)="cerrar()" title="Cerrar">
