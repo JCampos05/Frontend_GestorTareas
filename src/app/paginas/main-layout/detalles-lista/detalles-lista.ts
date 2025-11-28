@@ -15,6 +15,7 @@ import { ChatComponent } from '../../../componentes/chat/chat/chat';
 import { NotificationService } from '../../../core/services/notification-user/notification-user';
 import { AuthService } from '../../../core/services/authentication/authentication';
 import { ModalPerfilUsuarioComponent } from '../../../componentes/modales/modal-perfil-usuario/modal-perfil-usuario';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 
 export interface PerfilUsuario {
@@ -90,7 +91,8 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     private chatService: ChatService,
     private socketService: SocketService,
     private notificationService: NotificationService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificacionesService: NotificacionesService 
   ) {
     const authUsuario = localStorage.getItem('auth_usuario');
     if (authUsuario) {
@@ -303,17 +305,17 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
           console.log('   Rol anterior:', notifCambioRol.datos?.rolAnterior);
           console.log('   Modificado por:', notifCambioRol.datos?.modificadoPor);
 
-          // ✅ Mostrar toast/alert al usuario
+          // Mostrar toast/alert al usuario
           this.mostrarAlertaCambioRol(notifCambioRol);
 
-          // ✅ Recargar permisos de la lista
-          console.log('🔄 Recargando información de permisos...');
+          // Recargar permisos de la lista
+          console.log('Recargando información de permisos...');
           this.cargarInfoCompartidos();
 
-          // ✅ Actualizar permisos de columnas después de 1 segundo
+          // Actualizar permisos de columnas después de 1 segundo
           setTimeout(() => {
             this.actualizarPermisosColumnas();
-            console.log('✅ Permisos actualizados sin recargar página');
+            console.log('Permisos actualizados sin recargar página');
             console.log('   esPropietario:', this.esPropietario);
             console.log('   esAdmin:', this.esAdmin);
             console.log('   Puede editar:', this.puedeEditarTareas());
@@ -323,10 +325,10 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
           }, 1000);
         }
 
-        // 3️⃣ INVITACIONES
+        // 3INVITACIONES
         const hayInvitacion = notifsRelevantes.some(n => n.tipo === 'invitacion_lista');
         if (hayInvitacion) {
-          console.log('📬 Invitación detectada, recargando info compartidos...');
+          console.log('Invitación detectada, recargando info compartidos...');
           this.cargarInfoCompartidos();
         }
 
@@ -338,8 +340,9 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
         );
 
         if (hayRevocacion) {
-          console.log('🚫 Acceso revocado, redirigiendo...');
-          alert('Tu acceso a esta lista ha sido revocado');
+          console.log('Acceso revocado, redirigiendo...');
+          this.notificacionesService.advertencia('Su acceso a esta lista ha sido revocado, redirigiendo...');
+          //alert('Tu acceso a esta lista ha sido revocado');
           setTimeout(() => {
             this.router.navigate(['/app/listas']);
           }, 1500);
@@ -479,7 +482,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       this.mensajesNoLeidos = mensajesChat.length;
-      console.log('✅ Badge actualizado desde notificaciones:', this.mensajesNoLeidos);
+      console.log('Badge actualizado desde notificaciones:', this.mensajesNoLeidos);
       console.log('========================================');
     });
   }
@@ -490,7 +493,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     const listaNombre = notif.datos?.listaNombre;
     const modificadoPor = notif.datos?.modificadoPor;
 
-    // ✅ Traducir rol a español
+    // Traducir rol a español
     const rolesES: { [key: string]: string } = {
       'admin': 'Administrador',
       'editor': 'Editor',
@@ -500,36 +503,32 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const rolTraducido = rolesES[nuevoRol] || nuevoRol;
 
-    //  Mostrar alert (puedes reemplazar con un toast más elegante)
     const mensaje = `${modificadoPor} cambió tu rol en "${listaNombre}" a ${rolTraducido}`;
 
-    console.log('📢 Mostrando alerta:', mensaje);
+    console.log('Mostrando alerta:', mensaje);
 
-    // Opción 1: Alert simple
-    alert(mensaje);
-
-    // Opción 2: Crear un toast personalizado (implementar después)
-    // this.toastService.show(mensaje, 'info', 5000);
+    this.notificacionesService.exito(mensaje);
+    //alert(mensaje);
   }
 
   // ACTUALIZADO: Toggle del chat con marcado de leídas
   toggleChat(): void {
     this.chatAbierto = !this.chatAbierto;
-    console.log('💬 Chat', this.chatAbierto ? 'abierto' : 'cerrado');
+    console.log('Chat', this.chatAbierto ? 'abierto' : 'cerrado');
 
     if (this.chatAbierto) {
-      // ✅ Limpiar badge INMEDIATAMENTE al abrir
-      console.log('🔄 Limpiando badge al abrir chat...');
+      // Limpiar badge INMEDIATAMENTE al abrir
+      console.log('Limpiando badge al abrir chat...');
       this.mensajesNoLeidos = 0;
 
-      // ✅ Marcar mensajes como leídos después de 1 segundo
+      // Marcar mensajes como leídos después de 1 segundo
       setTimeout(() => {
-        console.log('✅ Marcando mensajes como leídos...');
+        console.log('Marcando mensajes como leídos...');
 
         // Marcar en la API
         this.chatService.marcarComoLeidos(this.idLista).subscribe({
-          next: () => console.log('✅ Mensajes marcados como leídos en API'),
-          error: (err) => console.error('❌ Error al marcar como leídos:', err)
+          next: () => console.log('Mensajes marcados como leídos en API'),
+          error: (err) => console.error('Error al marcar como leídos:', err)
         });
 
         // Marcar notificaciones de chat como leídas
@@ -542,7 +541,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
             (n.datos?.listaId === this.idLista || n.datos?.listaId === this.idLista)
           );
 
-          console.log(`📬 Marcando ${notifsChat.length} notificaciones de chat como leídas`);
+          console.log(`Marcando ${notifsChat.length} notificaciones de chat como leídas`);
 
           notifsChat.forEach(notif => {
             this.notificationService.marcarComoLeida(notif.idNotificacion).subscribe({
@@ -563,7 +562,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ⭐ Obtener contador para mostrar en el badge
   getMensajesNoLeidosDisplay(): string {
-    console.log('🔢 getMensajesNoLeidosDisplay() llamado:', this.mensajesNoLeidos);
+    console.log('getMensajesNoLeidosDisplay() llamado:', this.mensajesNoLeidos);
     if (this.mensajesNoLeidos === 0) return '';
     if (this.mensajesNoLeidos > 99) return '99+';
     return this.mensajesNoLeidos.toString();
@@ -639,7 +638,8 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleTareaCompletada(tarea: any) {
     if (!this.puedeEditarTareas()) {
-      alert('No tienes permisos para modificar tareas en esta lista. Tu rol es de solo lectura.');
+      this.notificacionesService.advertencia('No tienes permisos para modificar tareas en esta lista. Tu rol es de solo lectura.');
+      //alert('No tienes permisos para modificar tareas en esta lista. Tu rol es de solo lectura.');
       return;
     }
 
@@ -657,25 +657,27 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (error.status === 403) {
           const mensaje = error.error?.detalles || 'No tienes permisos para modificar tareas en esta lista';
+          this.notificacionesService.error(mensaje);
           alert(mensaje);
         } else {
-          alert('Error al actualizar el estado de la tarea');
+          this.notificacionesService.error('Error al actualizar el estado de la tarea')
+          //alert('Error al actualizar el estado de la tarea');
         }
       }
     });
   }
 
   abrirModalAsignarTarea(tarea: Tarea) {
-    console.log('📋 Abriendo modal de asignación para tarea:', tarea);
+    console.log('Abriendo modal de asignación para tarea:', tarea);
     this.tareaSeleccionada = tarea;
     this.modalAsignarAbierto = true;
   }
 
   abrirModalAsignar() {
-    console.log('📋 Usuarios compartidos:', this.usuariosCompartidos.length);
+    console.log('Usuarios compartidos:', this.usuariosCompartidos.length);
     this.tareaSeleccionada = null;
     this.modalAsignarAbierto = true;
-    console.log('📋 Abriendo modal de asignación (sin tarea específica)');
+    console.log('Abriendo modal de asignación (sin tarea específica)');
   }
 
   cerrarModalAsignar() {
@@ -684,7 +686,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async onTareaAsignada() {
-    console.log('✅ Tarea asignada/desasignada exitosamente');
+    console.log('Tarea asignada/desasignada exitosamente');
     this.cerrarModalAsignar();
 
     if (this.columnasComponent) {
@@ -722,9 +724,11 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       await this.listasService.actualizarLista(this.idLista, datosActualizados);
       this.compartible = true;
-      alert('Lista ahora es compartible. ¡Ya puedes gestionar usuarios!');
+      this.notificacionesService.exito('Lista ahora es compartible. ¡Ya puedes gestionar usuarios!');
+      //alert('Lista ahora es compartible. ¡Ya puedes gestionar usuarios!');
     } catch (error) {
-      alert('Error al actualizar lista');
+      this.notificacionesService.error('Error al actualizar lista');
+      //alert('Error al actualizar lista');
     }
   }
 
@@ -766,13 +770,13 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async abrirPerfilUsuario(usuario: UsuarioCompartido) {
-    console.log('👤 Abriendo perfil de usuario:', usuario);
+    console.log('Abriendo perfil de usuario:', usuario);
 
     // Mostrar datos básicos inmediatamente
     this.usuarioSeleccionado = {
       idUsuario: usuario.idUsuario,
       nombre: usuario.nombre,
-      correo: '', // ⚠️ Se cargará del backend
+      correo: '', // Se cargará del backend
       telefono: undefined,
       cargo: undefined,
       bio: undefined,
@@ -783,10 +787,10 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.modalPerfilAbierto = true;
 
-    // 🔄 Cargar perfil completo del backend
+    // Cargar perfil completo del backend
     this.authService.obtenerPerfilPorId(usuario.idUsuario).subscribe({
       next: (perfilCompleto) => {
-        console.log('✅ Perfil completo obtenido:', perfilCompleto);
+        console.log('Perfil completo obtenido:', perfilCompleto);
 
         // Actualizar con datos completos
         if (this.usuarioSeleccionado && this.usuarioSeleccionado.idUsuario === perfilCompleto.idUsuario) {
@@ -804,20 +808,16 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.warn('⚠️ No se pudo cargar perfil completo:', error);
+        console.warn('No se pudo cargar perfil completo:', error);
       }
     });
   }
 
-  // ✅ Método para mostrar todos los usuarios (modal con la lista completa)
+  // Método para mostrar todos los usuarios (modal con la lista completa)
   mostrarTodosUsuarios() {
-    // Opción 1: Abrir el modal de gestión de usuarios
     this.abrirModalUsuarios();
-
-    // Opción 2: Crear un modal específico para ver todos los usuarios (implementar después)
-    // this.modalTodosUsuariosAbierto = true;
   }
-  // ✅ NUEVO: Cerrar modal de perfil
+  // Cerrar modal de perfil
   cerrarPerfilUsuario() {
     this.modalPerfilAbierto = false;
     this.usuarioSeleccionado = null;

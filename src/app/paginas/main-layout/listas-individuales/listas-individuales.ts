@@ -246,7 +246,8 @@ async cargarListas() {
       await this.cargarListas();
     } catch (error) {
       console.error('Error al actualizar lista:', error);
-      alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      this.notificacionesService.error('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      //alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
     }
   }
 
@@ -271,7 +272,8 @@ async cargarListas() {
       await this.cargarListas();
     } catch (error) {
       console.error('Error al eliminar lista:', error);
-      alert('Error al eliminar la lista. Por favor, intenta de nuevo.');
+      this.notificacionesService.error('Error al eliminar la lista. Por favor, intenta de nuevo.');
+      //alert('Error al eliminar la lista. Por favor, intenta de nuevo.');
     }
   }
   // Método para marcar/desmarcar como importante
@@ -293,7 +295,8 @@ async cargarListas() {
       await this.cargarListas();
     } catch (error) {
       console.error('Error al actualizar lista:', error);
-      alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      this.notificacionesService.error('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      //alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
     }
   }
 

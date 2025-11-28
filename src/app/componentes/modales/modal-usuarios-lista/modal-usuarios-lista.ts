@@ -56,7 +56,7 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
       error: (error) => {
         console.error(' Error al cargar usuarios:', error);
         this.notificacionesService.mostrar('error','Error al cargar usuarios');
-        alert('Error al cargar usuarios');
+        //alert('Error al cargar usuarios');
       }
     });
   }

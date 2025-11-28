@@ -245,7 +245,8 @@ export class ModalListaComponent implements OnInit, OnChanges {
   }
 
   mostrarClaveCompartir(clave: string) {
-    alert(`Clave para compartir: ${clave}\n\nGuarda esta clave para compartir la lista con otros usuarios.`);
+    this.notificacionesService.info(`Clave para compartir: ${clave}\n\nGuarda esta clave para compartir la lista con otros usuarios.`);
+    //alert(`Clave para compartir: ${clave}\n\nGuarda esta clave para compartir la lista con otros usuarios.`);
   }
 
   copiarClave() {

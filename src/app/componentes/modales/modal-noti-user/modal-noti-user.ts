@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NotificationService, Notificacion } from '../../../core/services/notification-user/notification-user';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 @Component({
   selector: 'app-modal-notificaciones',
@@ -23,6 +24,7 @@ export class ModalNotificacionesComponent implements OnInit {
 
   constructor(
     private notificationService: NotificationService,
+    private notificacionesService: NotificacionesService,
     private router: Router
   ) { }
 
@@ -79,7 +81,7 @@ export class ModalNotificacionesComponent implements OnInit {
     if (this.procesando) return;
 
     this.procesando = true;
-    this.notificationService.aceptarInvitacion(notificacion.idNotificacion).subscribe({ // ✅ Cambiado
+    this.notificationService.aceptarInvitacion(notificacion.idNotificacion).subscribe({ 
       next: () => {
         this.procesando = false;
         this.cerrar();
@@ -92,7 +94,8 @@ export class ModalNotificacionesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al aceptar invitación:', error);
-        alert('Error al aceptar la invitación');
+        this.notificacionesService.error('Error al aceptar invitación:', error);
+        //alert('Error al aceptar la invitación');
         this.procesando = false;
       }
     });
@@ -106,13 +109,14 @@ export class ModalNotificacionesComponent implements OnInit {
     }
 
     this.procesando = true;
-    this.notificationService.rechazarInvitacion(notificacion.idNotificacion).subscribe({ // ✅ Cambiado
+    this.notificationService.rechazarInvitacion(notificacion.idNotificacion).subscribe({ 
       next: () => {
         this.procesando = false;
       },
       error: (error) => {
         console.error('Error al rechazar invitación:', error);
-        alert('Error al rechazar la invitación');
+        this.notificacionesService.error('Error al rechazar invitación:', error);
+        //alert('Error al rechazar la invitación');
         this.procesando = false;
       }
     });
@@ -121,34 +125,35 @@ export class ModalNotificacionesComponent implements OnInit {
   // En el lugar donde llamas a marcarComoLeida
   marcarComoLeida(notificacion: Notificacion) {
     if (!notificacion) {
-      console.error('❌ Notificación es undefined o null');
+      console.error('Notificación es undefined o null');
       return;
     }
 
     const id = notificacion.idNotificacion || (notificacion as any).id;
 
     if (!id || id === undefined || id === null) {
-      console.error('❌ ID de notificación no encontrado');
-      alert('Esta notificación no puede ser marcada como leída. Será ocultada.');
+      console.error('ID de notificación no encontrado');
+      this.notificacionesService.info('Esta notificación no puede ser marcada como leída. Será ocultada.');
+      //alert('Esta notificación no puede ser marcada como leída. Será ocultada.');
       this.ocultarNotificacion((notificacion as any).id || 0);
       return;
     }
 
-    // ✅ Si ya está leída, solo navegar
+    // Si ya está leída, solo navegar
     if (notificacion.leida) {
       this.navegarSegunTipo(notificacion);
       return;
     }
 
-    // ✅ Marcar como leída y luego navegar
+    // Marcar como leída y luego navegar
     this.notificationService.marcarComoLeida(id)
       .subscribe({
         next: () => {
-          console.log('✅ Notificación marcada como leída exitosamente');
+          console.log('Notificación marcada como leída exitosamente');
           this.navegarSegunTipo(notificacion);
         },
         error: (error) => {
-          console.error('❌ Error al marcar como leída:', error);
+          console.error('Error al marcar como leída:', error);
         }
       });
   }

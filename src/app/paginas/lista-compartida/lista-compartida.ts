@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CompartirService } from '../../core/services/compartir/compartir';
 import { ModalUnirseComponent } from '../../componentes/modales/modal-unirse/modal-unirse';
+import { NotificacionesService } from '../../core/services/notification/notification';
 
 @Component({
   selector: 'app-lista-compartida',
@@ -33,7 +34,8 @@ export class ListaCompartidaComponent implements OnInit, OnDestroy {
   constructor(
     private listasService: ListasService,
     private compartirService: CompartirService,
-    private router: Router
+    private router: Router,
+    private notificacionesService: NotificacionesService 
   ) { }
 
   async ngOnInit() {
@@ -165,7 +167,8 @@ async cargarListasCompartidas() {
       await this.cargarListasCompartidas();
     } catch (error) {
       console.error(`Error al ${this.modalConfirmacion.tipo}:`, error);
-      alert(`Error al ${this.modalConfirmacion.tipo === 'salir' ? 'salir de' : 'descompartir'} la lista. Por favor, intenta de nuevo.`);
+      this.notificacionesService.error(`Error al ${this.modalConfirmacion.tipo === 'salir' ? 'salir de' : 'descompartir'} la lista. Por favor, intenta de nuevo.`);
+      //alert(`Error al ${this.modalConfirmacion.tipo === 'salir' ? 'salir de' : 'descompartir'} la lista. Por favor, intenta de nuevo.`);
     }
   }
 

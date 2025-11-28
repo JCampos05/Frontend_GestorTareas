@@ -6,6 +6,7 @@ import { ListasService } from '../../../core/services/listas/listas';
 import { TareaCardComponent } from '../tarea-card/tarea-card';
 import { PanelDetallesComponent } from '../panel-detalles/panel-detalles';
 import { CdkDrag, CdkDropList, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 @Component({
   selector: 'app-columnas',
@@ -36,7 +37,8 @@ export class ColumnasComponent implements OnInit {
   constructor(
     private tareasService: TareasService,
     private listasService: ListasService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private notificacionesService: NotificacionesService 
   ) { }
 
   ngOnInit() {
@@ -82,20 +84,20 @@ export class ColumnasComponent implements OnInit {
     try {
       const data = await this.listasService.obtenerListaConTareas(idLista);
       if (data && data.tareas) {
-        console.log('📥 Tareas recibidas en columna:', data.tareas.map((t: any) => ({
+        console.log('Tareas recibidas en columna:', data.tareas.map((t: any) => ({
           id: t.idTarea,
           nombre: t.nombre,
           miDia: t.miDia,
           tipo: typeof t.miDia
         })));
 
-        // ✅ CRÍTICO: Crear nuevas referencias para forzar detección de cambios
+        // CRÍTICO: Crear nuevas referencias para forzar detección de cambios
         const tareasNormalizadas = data.tareas.map((t: any) => ({
           ...t,
           miDia: Boolean(t.miDia === 1 || t.miDia === true)
         }));
 
-        console.log('✅ Tareas normalizadas en columna:', tareasNormalizadas.map((t: any) => ({
+        console.log('Tareas normalizadas en columna:', tareasNormalizadas.map((t: any) => ({
           id: t.idTarea,
           nombre: t.nombre,
           miDia: t.miDia,
@@ -205,7 +207,7 @@ export class ColumnasComponent implements OnInit {
     const filtro = this.route.snapshot.queryParams['filtro'];
     const idLista = this.route.snapshot.params['id'];
 
-    console.log('🔄 onEstadoCambiado ejecutado:', { idLista, estado, filtro });
+    console.log('onEstadoCambiado ejecutado:', { idLista, estado, filtro });
 
     if (idLista) {
       await this.cargarTareasDeLista(idLista);
@@ -217,13 +219,14 @@ export class ColumnasComponent implements OnInit {
       await this.cargarTareas();
     }
 
-    console.log('🔄 Tareas recargadas después de cambio de estado');
+    console.log('Tareas recargadas después de cambio de estado');
   }
 
   async onDrop(event: CdkDragDrop<Tarea[]>, nuevoEstado: string) {
     if (!this.puedeEditar) {
       console.warn('No tienes permisos para mover tareas');
-      alert('No tienes permisos para modificar tareas en esta lista');
+      this.notificacionesService.advertencia('No tiene permisos para modificar tareas en esta lista')
+      //alert('No tienes permisos para modificar tareas en esta lista');
       return;
     }
 
@@ -247,7 +250,8 @@ export class ColumnasComponent implements OnInit {
           event.currentIndex,
           event.previousIndex
         );
-        alert('Error: La tarea no tiene un ID válido');
+        this.notificacionesService.error('Se ha presentado un error. Intente más tarde')
+        //alert('Error: La tarea no tiene un ID válido');
         return;
       }
 
@@ -267,13 +271,16 @@ export class ColumnasComponent implements OnInit {
             );
 
             if (error.status === 403) {
-              alert('No tienes permisos para modificar tareas en esta lista');
+              this.notificacionesService.advertencia('No tiene permisos para modificar tareas en esta lista');
+              //alert('No tienes permisos para modificar tareas en esta lista');
             } else if (error.status === 404) {
               console.warn('Tarea no encontrada en el servidor, removiéndola del listado');
-              alert('Esta tarea ya no existe. Se actualizará la lista.');
+              this.notificacionesService.advertencia('Esta tarea ya no existe. Se actualizará la lista.');
+              //alert('Esta tarea ya no existe. Se actualizará la lista.');
               this.onTareaEliminada();
             } else {
-              alert('Error al actualizar la tarea. Intenta de nuevo.');
+              this.notificacionesService.error('Error al actualizar la tarea. Intenta de nuevo.');
+              //alert('Error al actualizar la tarea. Intenta de nuevo.');
             }
           }
         });

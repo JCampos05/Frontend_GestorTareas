@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TareasService, Tarea, UsuarioDisponible } from '../../../core/services/tareas/tareas';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 @Component({
   selector: 'app-modal-asignar-tarea',
@@ -17,7 +18,7 @@ export class ModalAsignarTareaComponent implements OnChanges {
   @Output() close = new EventEmitter<void>();
   @Output() asignado = new EventEmitter<void>();
 
-  // ✅ NUEVO: Listas separadas
+  //Listas separadas
   usuarios: UsuarioDisponible[] = [];
   tareas: Tarea[] = [];
 
@@ -27,11 +28,14 @@ export class ModalAsignarTareaComponent implements OnChanges {
   cargando = false;
   procesando = false;
 
-  constructor(private tareasService: TareasService) { }
+  constructor(
+    private tareasService: TareasService,
+    private notificacionesService: NotificacionesService 
+  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isOpen'] && this.isOpen) {
-      console.log('📄 Modal abierto, idLista:', this.idLista, 'tarea:', this.tarea);
+      console.log('Modal abierto, idLista:', this.idLista, 'tarea:', this.tarea);
 
       // Determinar idLista
       let listaParaCargar = this.idLista;
@@ -43,7 +47,7 @@ export class ModalAsignarTareaComponent implements OnChanges {
         this.idLista = listaParaCargar;
         this.cargarDatos();
       } else {
-        console.warn('⚠️ No hay idLista válido');
+        console.warn('No hay idLista válido');
         this.usuarios = [];
         this.tareas = [];
       }
@@ -63,7 +67,7 @@ export class ModalAsignarTareaComponent implements OnChanges {
 
   async cargarDatos() {
     this.cargando = true;
-    console.log('🔥 Cargando usuarios y tareas para lista:', this.idLista);
+    console.log('Cargando usuarios y tareas para lista:', this.idLista);
 
     try {
       // Cargar usuarios y tareas en paralelo
@@ -75,11 +79,12 @@ export class ModalAsignarTareaComponent implements OnChanges {
       this.usuarios = usuarios;
       this.tareas = tareas;
 
-      console.log('✅ Usuarios cargados:', this.usuarios.length);
-      console.log('✅ Tareas cargadas:', this.tareas.length);
+      console.log('Usuarios cargados:', this.usuarios.length);
+      console.log('Tareas cargadas:', this.tareas.length);
     } catch (error) {
-      console.error('❌ Error al cargar datos:', error);
-      alert('Error al cargar la información');
+      console.error('Error al cargar datos:', error);
+      //alert('Error al cargar la información');
+      this.notificacionesService.error('Error al cargar la información');
     } finally {
       this.cargando = false;
     }
@@ -87,17 +92,18 @@ export class ModalAsignarTareaComponent implements OnChanges {
 
   seleccionarUsuario(usuario: UsuarioDisponible) {
     this.usuarioSeleccionado = usuario.idUsuario;
-    console.log('👤 Usuario seleccionado:', usuario.nombre);
+    console.log('Usuario seleccionado:', usuario.nombre);
   }
 
   seleccionarTarea(tarea: Tarea) {
     this.tareaSeleccionada = tarea;
-    console.log('📋 Tarea seleccionada:', tarea.nombre);
+    console.log('Tarea seleccionada:', tarea.nombre);
   }
 
   async asignar() {
     if (!this.usuarioSeleccionado || !this.tareaSeleccionada?.idTarea) {
-      alert('Debes seleccionar un usuario y una tarea');
+      //alert('Debes seleccionar un usuario y una tarea');
+      this.notificacionesService.info('Debes seleccionar un usuario y una tarea');
       return;
     }
 
@@ -108,13 +114,15 @@ export class ModalAsignarTareaComponent implements OnChanges {
         this.usuarioSeleccionado
       );
 
-      console.log('✅ Tarea asignada exitosamente');
+      console.log('Tarea asignada exitosamente');
+      this.notificacionesService.exito('Tarea asignada exitosamente');
       this.asignado.emit();
       this.cerrar();
     } catch (error: any) {
-      console.error('❌ Error al asignar tarea:', error);
+      console.error('Error al asignar tarea:', error);
       const mensaje = error.error?.message || 'Error al asignar la tarea';
-      alert(mensaje);
+      this.notificacionesService.error(mensaje);
+      //alert(mensaje);
     } finally {
       this.procesando = false;
     }
@@ -132,13 +140,14 @@ export class ModalAsignarTareaComponent implements OnChanges {
     this.procesando = true;
     try {
       await this.tareasService.desasignarTarea(this.tareaSeleccionada.idTarea);
-      console.log('✅ Tarea desasignada exitosamente');
+      console.log('Tarea desasignada exitosamente');
       this.asignado.emit();
       this.cerrar();
     } catch (error: any) {
-      console.error('❌ Error al desasignar tarea:', error);
+      console.error('Error al desasignar tarea:', error);
       const mensaje = error.error?.message || 'Error al desasignar la tarea';
-      alert(mensaje);
+      this.notificacionesService.error(mensaje);
+      //alert(mensaje);
     } finally {
       this.procesando = false;
     }

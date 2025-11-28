@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CompartirService, UsuarioCompartido, InfoCompartidos } from '../../../core/services/compartir/compartir';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 @Component({
   selector: 'app-modal-usuarios-categoria',
@@ -24,7 +25,10 @@ export class ModalUsuariosCategoriaComponent implements OnInit, OnChanges {
   loadingInvitar = false;
   copiado = false;
 
-  constructor(private compartirService: CompartirService) {}
+  constructor(
+    private compartirService: CompartirService,
+    private notificacionesService: NotificacionesService 
+  ) {}
 
   ngOnInit() {
     if (this.isOpen && this.categoriaId) {
@@ -42,10 +46,10 @@ export class ModalUsuariosCategoriaComponent implements OnInit, OnChanges {
     this.compartirService.obtenerInfoCompartidosCategoria(this.categoriaId).subscribe({
       next: (info) => {
         this.infoCompartidos = info;
-        console.log('✅ Info compartidos categoría cargada:', info);
+        console.log('Info compartidos categoría cargada:', info);
       },
       error: (error) => {
-        console.error('❌ Error al cargar usuarios:', error);
+        console.error('Error al cargar usuarios:', error);
         // No mostrar alert, solo silenciar el error
         this.infoCompartidos = {
           usuarios: [],
@@ -58,7 +62,8 @@ export class ModalUsuariosCategoriaComponent implements OnInit, OnChanges {
 
   invitarUsuario() {
     if (!this.emailInvitar || !this.emailInvitar.includes('@')) {
-      alert('Por favor ingresa un email válido');
+      this.notificacionesService.advertencia('Por favor ingresa un email válido');
+      //alert('Por favor ingresa un email válido');
       return;
     }
 
@@ -66,23 +71,25 @@ export class ModalUsuariosCategoriaComponent implements OnInit, OnChanges {
 
     this.compartirService.invitarUsuarioCategoria(this.categoriaId, this.emailInvitar, this.rolInvitar).subscribe({
       next: (response) => {
-        console.log('✅ Usuario invitado:', response);
-        alert(`Invitación enviada a ${this.emailInvitar}`);
+        console.log('Usuario invitado:', response);
+        this.notificacionesService.exito(`Invitación enviada a ${this.emailInvitar}`);
+        //alert(`Invitación enviada a ${this.emailInvitar}`);
         this.emailInvitar = '';
         this.cargarUsuarios();
         this.actualizado.emit();
         this.loadingInvitar = false;
       },
       error: (error) => {
-        console.error('❌ Error al invitar:', error);
-        alert(error.error?.error || 'Error al enviar invitación');
+        console.error('Error al invitar:', error);
+        this.notificacionesService.error(error.error?.error || 'Error al enviar invitación');
+        //alert(error.error?.error || 'Error al enviar invitación');
         this.loadingInvitar = false;
       }
     });
   }
 
   onRolChange(usuario: UsuarioCompartido, nuevoRol: string) {
-    console.log('🔄 Rol cambiado para', usuario.nombre, ':', nuevoRol);
+    console.log('Rol cambiado para', usuario.nombre, ':', nuevoRol);
     this.cambiarRolEnServidor(usuario, nuevoRol);
   }
 
@@ -91,15 +98,16 @@ export class ModalUsuariosCategoriaComponent implements OnInit, OnChanges {
     
     this.compartirService.modificarRolCategoria(this.categoriaId, usuario.idUsuario, nuevoRol).subscribe({
       next: () => {
-        console.log('✅ Rol actualizado exitosamente');
+        console.log('Rol actualizado exitosamente');
         this.cargarUsuarios();
         this.actualizado.emit();
       },
       error: (error) => {
-        console.error('❌ Error al cambiar rol:', error);
+        console.error('Error al cambiar rol:', error);
         usuario.rol = rolAnterior;
         const mensajeError = error.error?.error || error.error?.detalles || 'Error al cambiar el rol';
-        alert(`Error: ${mensajeError}`);
+        this.notificacionesService.error(`Error: ${mensajeError}`);
+        //alert(`Error: ${mensajeError}`);
         this.cargarUsuarios();
       }
     });
@@ -112,14 +120,16 @@ export class ModalUsuariosCategoriaComponent implements OnInit, OnChanges {
 
     this.compartirService.revocarAccesoCategoria(this.categoriaId, usuario.idUsuario).subscribe({
       next: () => {
-        console.log('✅ Acceso revocado');
-        alert(`Acceso revocado para ${usuario.nombre}`);
+        console.log('Acceso revocado');
+        this.notificacionesService.info(`Acceso revocado para ${usuario.nombre}`);
+        //alert(`Acceso revocado para ${usuario.nombre}`);
         this.cargarUsuarios();
         this.actualizado.emit();
       },
       error: (error) => {
-        console.error('❌ Error al revocar:', error);
-        alert('Error al revocar acceso');
+        console.error('Error al revocar:', error);
+        this.notificacionesService.error('Error al revocar acceso');
+        //alert('Error al revocar acceso');
       }
     });
   }

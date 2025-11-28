@@ -33,7 +33,7 @@ export class NotificacionesService {
     if (duracion > 0) {
       setTimeout(() => {
         this.cerrar(notificacion.id);
-      }, duracion);
+      }, duracion);                                                                                                    
     }
   }
 

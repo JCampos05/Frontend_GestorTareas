@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ListasService, Lista } from '../../../core/services/listas/listas';
 import { Router } from '@angular/router';
+import { NotificacionesService } from '../../../core/services/notification/notification';
 
 @Component({
   selector: 'app-listas-importantes',
@@ -92,7 +93,8 @@ export class ListasImportantesComponent implements OnInit, OnDestroy {
 
   constructor(
     private listasService: ListasService,
-    private router: Router
+    private router: Router,
+    private notificacionesService: NotificacionesService 
   ) {}
 
   async ngOnInit() {
@@ -141,7 +143,8 @@ export class ListasImportantesComponent implements OnInit, OnDestroy {
       await this.cargarListasImportantes();
     } catch (error) {
       console.error('Error al actualizar lista:', error);
-      alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      this.notificacionesService.error('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      //alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
     }
   }
 
@@ -177,7 +180,8 @@ export class ListasImportantesComponent implements OnInit, OnDestroy {
       await this.cargarListasImportantes();
     } catch (error) {
       console.error('Error al actualizar lista:', error);
-      alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      this.notificacionesService.error('Error al actualizar la lista. Por favor, intenta de nuevo.');
+      //alert('Error al actualizar la lista. Por favor, intenta de nuevo.');
     }
   }
 
@@ -202,7 +206,8 @@ export class ListasImportantesComponent implements OnInit, OnDestroy {
       await this.cargarListasImportantes();
     } catch (error) {
       console.error('Error al eliminar lista:', error);
-      alert('Error al eliminar la lista. Por favor, intenta de nuevo.');
+      this.notificacionesService.error('Error al eliminar la lista. Por favor, intenta de nuevo.');
+      //alert('Error al eliminar la lista. Por favor, intenta de nuevo.');
     }
   }
 
