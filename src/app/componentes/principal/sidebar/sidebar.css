@@ -888,3 +888,22 @@
   background: rgba(48, 43, 39, 0.08);
   color: #302B27;
 }
+
+/* ========================================
+   MODO CLARO - ICONOS DE CARPETA
+   ======================================== */
+
+/* Agregar estos estilos en la sección de MODO CLARO del archivo sidebar.css */
+
+#sidebar.light-mode .categoria-icon {
+  color: #302B27;
+}
+
+#sidebar.light-mode .categoria-nombre-clickeable:hover .categoria-icon {
+  color: #302B27;
+}
+
+/* Asegurar que el color se mantenga en estados hover */
+#sidebar.light-mode .sidebar-categoria-header:hover .categoria-icon {
+  color: #302B27;
+}
