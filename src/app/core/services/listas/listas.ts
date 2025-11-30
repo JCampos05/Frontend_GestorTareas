@@ -24,7 +24,7 @@ export interface Lista {
   esCompartidaConmigo?: boolean;
   fechaCreacion?: Date;
   fechaActualizacion?: Date;
-  rol?: string; // Rol del usuario en lista compartida
+  rol?: string; 
   nombrePropietario?: string;
   emailPropietario?: string;
 }
@@ -75,7 +75,7 @@ export class ListasService {
         esCompartidaConmigo: Boolean(lista.esCompartidaConmigo)
       }));
     } catch (error) {
-      console.error('Error al obtener listas:', error);
+      //console.error('Error al obtener listas:', error);
       return [];
     }
   }
@@ -84,7 +84,6 @@ export class ListasService {
     try {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/${id}`));
       if (response.success && response.data) {
-        //  AGREGAR: Transformar booleanos
         return {
           ...response.data,
           importante: Boolean(response.data.importante === 1 || response.data.importante === true),
@@ -93,7 +92,7 @@ export class ListasService {
       }
       return null;
     } catch (error) {
-      console.error('Error al obtener lista:', error);
+      //console.error('Error al obtener lista:', error);
       return null;
     }
   }
@@ -117,7 +116,6 @@ export class ListasService {
       if (response.success && response.data) {
         if (response.data.tareas && Array.isArray(response.data.tareas)) {
 
-          //CRÍTICO: Normalización explícita para forzar detección de cambios
           response.data.tareas = response.data.tareas.map((tarea: any) => {
             const normalizada = {
               ...tarea,
@@ -132,7 +130,7 @@ export class ListasService {
       }
       return null;
     } catch (error) {
-      console.error('Error al obtener lista con tareas:', error);
+      //console.error('Error al obtener lista con tareas:', error);
       return null;
     }
   }
@@ -144,7 +142,7 @@ export class ListasService {
       );
       return response.success ? response.data : [];
     } catch (error) {
-      console.error('Error al obtener listas sin categoría:', error);
+      //console.error('Error al obtener listas sin categoría:', error);
       const listas = await this.obtenerListas();
       return listas.filter(lista => lista.idCategoria === null || lista.idCategoria === undefined);
     }
@@ -157,7 +155,7 @@ export class ListasService {
       );
       return response.success ? response.data : [];
     } catch (error) {
-      console.error('Error al obtener listas importantes:', error);
+      //console.error('Error al obtener listas importantes:', error);
       return [];
     }
   }
@@ -173,7 +171,7 @@ export class ListasService {
       }
       return [];
     } catch (error) {
-      console.error('Error al obtener listas propias:', error);
+      //console.error('Error al obtener listas propias:', error);
       throw error;
     }
   }
@@ -185,7 +183,6 @@ export class ListasService {
       );
 
       if (response && response.listas) {
-        //  AGREGAR: Transformar booleanos
         return response.listas.map((lista: any) => ({
           ...lista,
           importante: Boolean(lista.importante === 1 || lista.importante === true),
@@ -196,32 +193,30 @@ export class ListasService {
       }
       return [];
     } catch (error) {
-      console.error('Error al obtener listas compartidas:', error);
+      //console.error('Error al obtener listas compartidas:', error);
       throw error;
     }
   }
 
-  // Generar clave para compartir
   async hacerCompartible(id: number): Promise<any> {
     try {
-      console.log('🔵 Generando clave para lista, ID:', id);
+      //console.log('Generando clave para lista, ID:', id);
 
       // Usar el nuevo endpoint de compartir
       const result: any = await firstValueFrom(
         this.http.post(`${this.COMPARTIR_URL}/lista/${id}/generar-clave`, {})
       );
 
-      console.log('✅ Clave generada exitosamente:', result);
+      //console.log('Clave generada exitosamente:', result);
       this.notificarCambio();
       return result;
 
     } catch (error) {
-      console.error('❌ Error al generar clave:', error);
+      //console.error('Error al generar clave:', error);
       throw error;
     }
   }
-
-  // ✅ ACTUALIZADO: Descompartir lista (revocar todos los accesos)
+  // Descompartir lista (revocar todos los accesos)
   async quitarCompartir(id: number): Promise<any> {
     try {
       const result: any = await firstValueFrom(
@@ -234,8 +229,7 @@ export class ListasService {
       throw error;
     }
   }
-
-  // ✅ NUEVO: Obtener información de usuarios con acceso
+  //  Obtener información de usuarios con acceso
   async obtenerUsuariosConAcceso(id: number): Promise<any[]> {
     try {
       const response: any = await firstValueFrom(
@@ -247,8 +241,7 @@ export class ListasService {
       return [];
     }
   }
-
-  // ✅ NUEVO: Obtener información completa de compartidos
+  //  Obtener información completa de compartidos
   async obtenerInfoCompartidos(id: number): Promise<any> {
     try {
       const response: any = await firstValueFrom(

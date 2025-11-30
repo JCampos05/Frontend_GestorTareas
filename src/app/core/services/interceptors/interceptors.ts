@@ -21,13 +21,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       catchError((error) => {
         // Manejar errores de autenticación
         if (error.status === 401) {
-          console.error('🔒 Token inválido o expirado');
+          //console.error('Token inválido o expirado');
           localStorage.removeItem('auth_token');
           router.navigate(['/login']);
         }
         
         if (error.status === 403) {
-          console.error('⛔ Acceso prohibido');
+          //console.error('Acceso prohibido');
         }
         
         return throwError(() => error);

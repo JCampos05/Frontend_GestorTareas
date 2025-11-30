@@ -59,31 +59,31 @@ async cargarListasCompartidas() {
   this.errorMessage = '';
 
   try {
-    console.log('🔵 Cargando listas compartidas...');
+    //console.log('Cargando listas compartidas...');
     
-    // ✅ CAMBIO: Usar listasService en lugar de compartirService
+    // Usar listasService
     const listasRecibidas = await this.listasService.obtenerListasCompartidas();
     
-    console.log('🟢 Respuesta del backend:', listasRecibidas);
-    console.log('📊 Total listas recibidas:', listasRecibidas.length);
+    //console.log('Respuesta del backend:', listasRecibidas);
+    //console.log('Total listas recibidas:', listasRecibidas.length);
     
     // El backend ya devuelve el array correcto
     this.listas = listasRecibidas;
     
-    console.log('✅ Listas compartidas cargadas:', this.listas.length);
-    console.log('Listas:', this.listas.map(l => ({ 
+    //console.log('Listas compartidas cargadas:', this.listas.length);
+    /*console.log('Listas:', this.listas.map(l => ({ 
       nombre: l.nombre, 
       idLista: l.idLista,
       compartible: l.compartible,
       esPropietario: l.esPropietario,
       idCategoria: l.idCategoria,
       nombreCategoria: l.nombreCategoria
-    })));
+    })));*/
     
     this.isLoading = false;
 
   } catch (error: any) {
-    console.error('❌ Error al cargar listas compartidas:', error);
+    //console.error('Error al cargar listas compartidas:', error);
     
     if (error.status === 401) {
       this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';

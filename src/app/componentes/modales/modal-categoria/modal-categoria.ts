@@ -31,7 +31,6 @@ export class ModalCategoriaComponent implements OnInit, OnChanges {
   modalDescompartirAbierto = false;
   procesandoDescompartir = false;
 
-  // ✅ NUEVO: Para unirse a categoría compartida
   claveUnirse: string = '';
   errorClaveUnirse: string = '';
   procesandoUnirse: boolean = false;
@@ -121,7 +120,6 @@ export class ModalCategoriaComponent implements OnInit, OnChanges {
     }
   }
 
-  // ✅ NUEVO: Unirse a categoría compartida mediante clave
   async unirseCategoria() {
     if (!this.claveUnirse || this.claveUnirse.length < 6) {
       this.errorClaveUnirse = 'La clave debe tener al menos 6 caracteres';
@@ -191,7 +189,6 @@ export class ModalCategoriaComponent implements OnInit, OnChanges {
     this.cerrar();
   }
 
-  // ✅ ACTUALIZADO: Recibir información de listas compartidas
   alCompartir(data: any) {
     // Manejar tanto string (retrocompatibilidad) como objeto
     if (typeof data === 'string') {

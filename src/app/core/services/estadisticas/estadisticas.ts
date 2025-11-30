@@ -26,7 +26,7 @@ export interface ProductividadPeriodo {
 export interface ContribucionDia {
   fecha: string;
   cantidad: number;
-  nivel: number; // 0-4 para el color (como GitHub)
+  nivel: number; // 0-4 para el color -> como GitHub
 }
 
 export interface TareaReciente {
@@ -78,7 +78,7 @@ export class EstadisticasService {
     }
   }
 
-  // Obtener calendario de contribuciones (tipo GitHub)
+  // Obtener calendario de contribuciones -> tipo GitHub
   async obtenerCalendarioContribuciones(dias: number = 365): Promise<ContribucionDia[]> {
     try {
       const response: any = await firstValueFrom(

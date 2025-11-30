@@ -91,7 +91,7 @@ export class ColumnasComponent implements OnInit {
           tipo: typeof t.miDia
         })));
 
-        // CRÍTICO: Crear nuevas referencias para forzar detección de cambios
+        // Crear nuevas referencias para forzar detección de cambios
         const tareasNormalizadas = data.tareas.map((t: any) => ({
           ...t,
           miDia: Boolean(t.miDia === 1 || t.miDia === true)

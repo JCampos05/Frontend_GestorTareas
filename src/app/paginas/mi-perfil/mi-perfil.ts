@@ -275,18 +275,18 @@ export class MiPerfilComponent implements OnInit {
   }
 
 
-abrirConfiguracion() {
-  console.log('🔧 Navegando a configuración...');
-  
-  // Navegar primero a la ruta padre
-  this.router.navigate(['/app'], { skipLocationChange: true }).then(() => {
-    // Luego a configuración
-    this.router.navigate(['/app/configuracion']);
-  });
-}
+  abrirConfiguracion() {
+    //console.log('Navegando a configuración...');
+
+    // Navegar primero a la ruta padre
+    this.router.navigate(['/app'], { skipLocationChange: true }).then(() => {
+      // Luego a configuración
+      this.router.navigate(['/app/configuracion']);
+    });
+  }
 
   cerrar() {
-    console.log('👋 Cerrando modal de perfil');
+    //console.log('Cerrando modal de perfil');
     // Limpiar query params también
     this.router.navigate(['/app/mi-dia']);
   }

@@ -4,7 +4,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 
-// ✅ Interface corregida
 export interface CompartirResponse {
   clave?: string;
   url?: string;
@@ -126,8 +125,6 @@ export class CompartirService {
   // ============================================
   // LISTAS
   // ============================================
-
-  // ✅ CORREGIDO - Cambiar tipo de retorno a Observable<any>
   compartirLista(listaId: number): Observable<any> {
     console.log('compartirService.compartirLista() - ID:', listaId);
 
@@ -167,15 +164,15 @@ export class CompartirService {
   }
 
   modificarRolLista(idLista: number, idUsuario: number, nuevoRol: string): Observable<any> {
-    console.log('🔄 [Service] Modificando rol:', { idLista, idUsuario, nuevoRol });
+    //console.log('[Service] Modificando rol:', { idLista, idUsuario, nuevoRol });
 
     return this.http.put(
       `${this.apiUrl}/lista/${idLista}/usuario/${idUsuario}/rol`,
       { nuevoRol }
     ).pipe(
-      tap(response => console.log('✅ [Service] Rol modificado:', response)),
+      tap(response => console.log('[Service] Rol modificado:', response)),
       catchError(error => {
-        console.error('❌ [Service] Error al modificar rol:', error);
+        console.error('[Service] Error al modificar rol:', error);
         return throwError(() => error);
       })
     );

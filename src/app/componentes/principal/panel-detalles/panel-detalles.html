@@ -88,10 +88,10 @@
           <option value="4">Elegir fecha y hora</option>
         </select>
 
-        <!-- ✅ Campos de fecha y hora para recordatorio personalizado -->
+        <!-- Campos de fecha y hora para recordatorio personalizado -->
         <div class="fecha-hora-group" *ngIf="recordatorio === '4'">
           <div class="input-group">
-            <label for="fechaRecordatorio">📅 Fecha</label>
+            <label for="fechaRecordatorio">Fecha</label>
             <input
               type="date"
               id="fechaRecordatorio"
@@ -101,7 +101,7 @@
             />
           </div>
           <div class="input-group">
-            <label for="horaRecordatorio">🕐 Hora</label>
+            <label for="horaRecordatorio">Hora</label>
             <input
               type="time"
               id="horaRecordatorio"
@@ -112,7 +112,7 @@
           </div>
         </div>
 
-        <!-- ✅ Lista de recordatorios programados -->
+        <!-- Lista de recordatorios programados -->
         <div class="recordatorios-lista" *ngIf="recordatoriosAgregados.length > 0">
           <label><i class="fas fa-list"></i> Recordatorios programados:</label>
           <div class="recordatorio-item" *ngFor="let rec of recordatoriosAgregados; let i = index">

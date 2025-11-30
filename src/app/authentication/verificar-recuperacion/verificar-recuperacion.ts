@@ -35,13 +35,12 @@ export class VerificarRecuperacionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // 🔥 CAMBIO: Leer directamente de queryParams
     this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
       this.emailOfuscado = params['emailOfuscado'] || this.ofuscarEmail(this.email);
       
-      console.log('📧 Email recibido:', this.email); // Debug
-      console.log('🔒 Email ofuscado:', this.emailOfuscado); // Debug
+      //console.log('Email recibido:', this.email); // Debug
+      //console.log('Email ofuscado:', this.emailOfuscado); // Debug
       
       if (!this.email) {
         this.notificacionesService.error('Datos de recuperación no válidos');
@@ -124,7 +123,6 @@ export class VerificarRecuperacionComponent implements OnInit, OnDestroy {
         
         this.notificacionesService.exito('Código verificado correctamente');
         
-        // 🔥 CAMBIO: Usar queryParams también aquí
         setTimeout(() => {
           this.router.navigate(['/nueva-password'], {
             queryParams: {

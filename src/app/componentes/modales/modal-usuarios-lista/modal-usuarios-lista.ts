@@ -25,7 +25,7 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
   loadingInvitar = false;
   copiado = false;
 
-  // ✅ Mantener una copia temporal de los roles antes de confirmar cambios
+  // Mantener una copia temporal de los roles antes de confirmar cambios
   private rolesTemporales = new Map<number, string>();
 
   constructor(
@@ -51,10 +51,10 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
         this.infoCompartidos = info;
         // Limpiar roles temporales al cargar
         this.rolesTemporales.clear();
-        console.log('✅ Info compartidos cargada:', info);
+        //console.log('Info compartidos cargada:', info);
       },
       error: (error) => {
-        console.error(' Error al cargar usuarios:', error);
+        //console.error(' Error al cargar usuarios:', error);
         this.notificacionesService.mostrar('error','Error al cargar usuarios');
         //alert('Error al cargar usuarios');
       }
@@ -74,7 +74,7 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
 
     this.compartirService.invitarUsuarioLista(this.listaId, this.emailInvitar, this.rolInvitar).subscribe({
       next: (response) => {
-        console.log('✅ Usuario invitado:', response);
+        //console.log('Usuario invitado:', response);
         this.notificacionesService.mostrar('exito',`Invitación enviada a ${this.emailInvitar}`)
         //alert(`Invitación enviada a ${this.emailInvitar}`);
         this.emailInvitar = '';
@@ -83,7 +83,7 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
         this.loadingInvitar = false;
       },
       error: (error) => {
-        console.error('❌ Error al invitar:', error);
+        console.error('Error al invitar:', error);
         this.notificacionesService.mostrar('exito',error.error?.error || 'Error al enviar invitación')
         //alert(error.error?.error || 'Error al enviar invitación');
         this.loadingInvitar = false;
@@ -93,7 +93,7 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
 
   // Método que se ejecuta cuando cambia el dropdown
   onRolChange(usuario: UsuarioCompartido, nuevoRol: string) {
-    console.log('🔄 Rol cambiado para', usuario.nombre, ':', nuevoRol);
+    //console.log('Rol cambiado para', usuario.nombre, ':', nuevoRol);
     
     // Guardar temporalmente el cambio
     this.rolesTemporales.set(usuario.idUsuario, nuevoRol);
@@ -102,23 +102,23 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
     this.cambiarRolEnServidor(usuario, nuevoRol);
   }
 
-  // ✅ Método renombrado para evitar confusión
+  // Método renombrado para evitar confusión
   private cambiarRolEnServidor(usuario: UsuarioCompartido, nuevoRol: string) {
     const rolAnterior = usuario.rol;
     
-    console.log('🔄 Cambiando rol de', usuario.nombre, 'de', rolAnterior, 'a', nuevoRol);
+    //console.log('Cambiando rol de', usuario.nombre, 'de', rolAnterior, 'a', nuevoRol);
 
     this.compartirService.modificarRolLista(this.listaId, usuario.idUsuario, nuevoRol).subscribe({
       next: () => {
-        console.log('✅ Rol actualizado exitosamente');
+        //console.log('Rol actualizado exitosamente');
         // Recargar para asegurar consistencia con el servidor
         this.cargarUsuarios();
         this.actualizado.emit();
       },
       error: (error) => {
-        console.error('❌ Error al cambiar rol:', error);
+        //console.error('Error al cambiar rol:', error);
         
-        // ✅ Revertir el cambio local si falla
+        // Revertir el cambio local si falla
         usuario.rol = rolAnterior;
         
         // Mostrar error específico
@@ -138,14 +138,14 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
 
     this.compartirService.revocarAccesoLista(this.listaId, usuario.idUsuario).subscribe({
       next: () => {
-        console.log('✅ Acceso revocado');
+        //console.log('Acceso revocado');
         this.notificacionesService.mostrar('info',`Acceso revocado para ${usuario.nombre}` );
         //alert(`Acceso revocado para ${usuario.nombre}`);
         this.cargarUsuarios();
         this.actualizado.emit();
       },
       error: (error) => {
-        console.error('❌ Error al revocar:', error);
+        //console.error('Error al revocar:', error);
         this.notificacionesService.mostrar('error','Error al revocar acceso' );
         //alert('Error al revocar acceso');
       }
@@ -171,7 +171,7 @@ export class ModalUsuariosListaComponent implements OnInit, OnChanges {
     return (palabras[0][0] + palabras[palabras.length - 1][0]).toUpperCase();
   }
 
-  // ✅ Método helper para traducir roles a español
+  // Método helper para traducir roles a español
   traducirRol(rol: string): string {
     const traducciones: {[key: string]: string} = {
       'admin': 'Administrador',

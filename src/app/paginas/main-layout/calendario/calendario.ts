@@ -243,7 +243,6 @@ export class CalendarioComponent implements OnInit {
   abrirNuevaTareaDesdeModal() {
     this.idTareaSeleccionada = null;
     this.panelAbierto = true;
-    // NO cerramos el modal
   }
 
   obtenerNombreDia(fecha: Date): string {
@@ -376,7 +375,6 @@ export class CalendarioComponent implements OnInit {
 
   obtenerIconoLista(tarea: Tarea): string {
     if (tarea.iconoLista && tarea.iconoLista !== 'null' && tarea.iconoLista !== '') {
-      // Si es un icono de Font Awesome, devolverlo
       if (tarea.iconoLista.includes('fa-')) {
         return tarea.iconoLista;
       }

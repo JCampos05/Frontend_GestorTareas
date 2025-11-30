@@ -9,6 +9,5 @@ import { ColumnasComponent } from '../../../componentes/principal/columna/column
   styleUrl: './todas-tareas.css'
 })
 export class TodasTareasComponent {
-  // Este componente solo renderiza las columnas
-  // El ColumnasComponent se encargará de cargar todas las tareas
+
 }

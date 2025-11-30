@@ -46,7 +46,6 @@ export class RecuperarPasswordComponent {
         this.successMessage = '¡Código enviado! Revisa tu email.';
         this.notificacionesService.exito('Código enviado a tu email');
 
-        // 🔥 CAMBIO: Usar queryParams en lugar de state
         setTimeout(() => {
           this.router.navigate(['/verificar-recuperacion'], {
             queryParams: {

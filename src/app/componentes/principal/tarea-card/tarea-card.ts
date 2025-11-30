@@ -35,13 +35,13 @@ export class TareaCardComponent implements OnChanges {
 
   ngOnChanges(changes: any) {
     if (changes['tarea'] && changes['tarea'].currentValue) {
-      console.log('🔄 Tarea actualizada en tarea-card:', {
+      /*console.log('Tarea actualizada en tarea-card:', {
         id: this.tarea.idTarea,
         nombre: this.tarea.nombre,
         miDia: this.tarea.miDia,
         anterior: changes['tarea'].previousValue?.miDia,
         nuevo: changes['tarea'].currentValue?.miDia
-      });
+      });*/
     }
   }
 
@@ -102,7 +102,7 @@ export class TareaCardComponent implements OnChanges {
       this.mostrarModalEliminar = false;
       this.tareaAEliminar = null;
     } catch (error) {
-      console.error('Error al eliminar tarea:', error);
+      //console.error('Error al eliminar tarea:', error);
       this.notificacionesService.error('Error al eliminar la tarea. Por favor, intenta nuevamente.');
 
       this.mostrarModalEliminar = false;
@@ -121,7 +121,7 @@ export class TareaCardComponent implements OnChanges {
 
   abrirModalAsignar(event: Event) {
     event.stopPropagation();
-    console.log('tarea-card: Emitiendo evento asignarClick para tarea:', this.tarea.idTarea, this.tarea.nombre);
+    //console.log('tarea-card: Emitiendo evento asignarClick para tarea:', this.tarea.idTarea, this.tarea.nombre);
     this.asignarClick.emit();
   }
 
@@ -176,17 +176,16 @@ export class TareaCardComponent implements OnChanges {
 
     const estadoAnterior = this.tarea.miDia;
 
-    console.log('🌞 alternarMiDia - Estado ANTES:', {
+    /*console.log('alternarMiDia - Estado ANTES:', {
       idTarea: this.tarea.idTarea,
       nombre: this.tarea.nombre,
       miDiaAnterior: estadoAnterior,
       tipo: typeof estadoAnterior
-    });
+    });*/
 
     try {
       const nuevoValor = !estadoAnterior;
 
-      // ✅ CREAR NUEVA REFERENCIA del objeto tarea
       this.tarea = { ...this.tarea, miDia: nuevoValor };
 
       const response = await this.tareasService.alternarMiDia(
@@ -194,10 +193,10 @@ export class TareaCardComponent implements OnChanges {
         nuevoValor
       );
 
-      console.log('✅ Respuesta del servidor:', response);
+      //console.log('Respuesta del servidor:', response);
 
       if (response.success && response.data) {
-        // ✅ Actualizar con nueva referencia y conversión explícita
+        // Actualizar con nueva referencia y conversión explícita
         const miDiaActualizado = Boolean(response.data.miDia === 1 || response.data.miDia === true);
 
         this.tarea = {
@@ -205,16 +204,16 @@ export class TareaCardComponent implements OnChanges {
           miDia: miDiaActualizado
         };
 
-        console.log('✅ Tarea actualizada con miDia:', {
+        /*console.log('Tarea actualizada con miDia:', {
           idTarea: this.tarea.idTarea,
           nombre: this.tarea.nombre,
           miDia: this.tarea.miDia,
           tipo: typeof this.tarea.miDia,
           valorOriginal: response.data.miDia
-        });
+        });*/
       }
 
-      // ✅ Emitir evento para recargar
+      // Emitir evento para recargar
       this.estadoCambiado.emit();
 
       if (nuevoValor) {
@@ -224,11 +223,9 @@ export class TareaCardComponent implements OnChanges {
       }
 
     } catch (error) {
-      console.error('❌ Error al actualizar Mi Día:', error);
-
-      // ✅ Revertir con nueva referencia
+      //console.error('Error al actualizar Mi Día:', error);
+      // Revertir con nueva referencia
       this.tarea = { ...this.tarea, miDia: estadoAnterior };
-
       this.notificacionesService.error(
         'Error al actualizar Mi Día. Por favor, intenta nuevamente.'
       );
@@ -247,7 +244,7 @@ export class TareaCardComponent implements OnChanges {
       return; // No abrir el panel si se clickeó un botón o checkbox
     }
 
-    console.log('🖱️ Click en card:', this.tarea.idTarea, this.tarea.nombre);
+    //console.log('Click en card:', this.tarea.idTarea, this.tarea.nombre);
     this.tareaClick.emit();
   }
 

@@ -49,10 +49,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) { }
 
   ngOnInit(): void {
-    console.log('🎨 Chat Component Init - Lista:', this.idLista);
+    //console.log('Chat Component Init - Lista:', this.idLista);
 
     if (!this.idLista) {
-      console.error('❌ No se proporcionó idLista al componente de chat');
+      //console.error('No se proporcionó idLista al componente de chat');
       return;
     }
 
@@ -61,10 +61,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.usuarioActual = this.authService.obtenerUsuarioActual();
 
       if (this.usuarioActual) {
-        console.log('👤 Usuario actual cargado desde AuthService:', this.usuarioActual);
+        //console.log('Usuario actual cargado desde AuthService:', this.usuarioActual);
       } else {
-        console.error('❌ No se encontró usuario autenticado');
-        alert('No estás autenticado. Por favor, inicia sesión nuevamente.');
+        //console.error('No se encontró usuario autenticado');
+        this.notificacionesService.error('No estás autenticado. Por favor, inicia sesión nuevamente.');
+        //alert('No estás autenticado. Por favor, inicia sesión nuevamente.');
         return;
       }
     }
@@ -82,36 +83,35 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
-    console.log('👋 Chat Component Destroy');
+    //console.log('Chat Component Destroy');
     this.salirDelChat();
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   private inicializarChat(): void {
-    // ✅ Usar el servicio de auth para obtener el token
     const token = this.authService.obtenerToken();
 
     if (!token) {
-      console.error('❌ No se encontró token de autenticación');
-      console.log('   Detalles de depuración:');
-      console.log('   - localStorage.token:', localStorage.getItem('token') ? 'Existe' : 'NO existe');
-      console.log('   - localStorage.auth_usuario:', localStorage.getItem('auth_usuario') ? 'Existe' : 'NO existe');
-      console.log('   - Contenido auth_usuario:', localStorage.getItem('auth_usuario'));
+      //console.error('No se encontró token de autenticación');
+      //console.log('   Detalles de depuración:');
+      //console.log('   - localStorage.token:', localStorage.getItem('token') ? 'Existe' : 'NO existe');
+      //console.log('   - localStorage.auth_usuario:', localStorage.getItem('auth_usuario') ? 'Existe' : 'NO existe');
+      //console.log('   - Contenido auth_usuario:', localStorage.getItem('auth_usuario'));
       this.notificacionesService.mostrar('advertencia','Datos actualizados correctamente');
       //alert('No estás autenticado. Por favor, cierra sesión e inicia sesión nuevamente.');
       return;
     }
 
-    console.log('✅ Token encontrado, iniciando conexión...');
-    console.log('   Token (primeros 30 chars):', token.substring(0, 30) + '...');
-    console.log('   Token (últimos 10 chars): ...' + token.substring(token.length - 10));
+    //console.log('Token encontrado, iniciando conexión...');
+    //console.log('   Token (primeros 30 chars):', token.substring(0, 30) + '...');
+    //console.log('   Token (últimos 10 chars): ...' + token.substring(token.length - 10));
 
     // Conectar socket si no está conectado
     if (!this.socketService.isConnected) {
-      console.log('🔌 Conectando socket...');
+      //console.log('Conectando socket...');
       this.socketService.connect(token);
     } else {
-      console.log('✅ Socket ya está conectado');
+      //console.log('Socket ya está conectado');
     }
 
     // Configurar listeners de eventos
@@ -124,7 +124,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         take(1)
       )
       .subscribe(() => {
-        console.log('✅ Socket conectado, uniéndose a lista', this.idLista);
+        //console.log('Socket conectado, uniéndose a lista', this.idLista);
         this.isConnected = true;
 
         // Pequeño delay para asegurar que el servidor está listo
@@ -140,11 +140,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private configurarEventListeners(): void {
     // Monitorear estado de conexión
     const connectSub = this.socketService.onConnect().subscribe(connected => {
-      console.log('🔌 Estado de conexión actualizado:', connected);
+      //console.log('Estado de conexión actualizado:', connected);
       this.isConnected = connected;
 
       if (!connected) {
-        console.warn('⚠️ Conexión perdida, limpiando usuarios online');
+        //console.warn('Conexión perdida, limpiando usuarios online');
         this.usuariosOnline = [];
       }
     });
@@ -152,7 +152,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // Nuevo mensaje
     const messageSub = this.socketService.onMessage().subscribe(mensaje => {
-      console.log('📨 Nuevo mensaje recibido:', mensaje);
+      //console.log('Nuevo mensaje recibido:', mensaje);
       this.agregarMensaje(mensaje);
       this.shouldScrollToBottom = this.isScrolledNearBottom();
     });
@@ -160,20 +160,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // Usuarios online
     const onlineSub = this.socketService.onUsersOnline().subscribe(usuarios => {
-      console.log('👥 Usuarios online actualizados:', usuarios.length, usuarios);
+      //console.log('Usuarios online actualizados:', usuarios.length, usuarios);
       this.usuariosOnline = usuarios;
     });
     this.subscriptions.push(onlineSub);
 
     // Usuario se unió
     const joinedSub = this.socketService.onUserJoined().subscribe(usuario => {
-      console.log('👤 Usuario se unió:', usuario.email);
+      //console.log('Usuario se unió:', usuario.email);
     });
     this.subscriptions.push(joinedSub);
 
     // Usuario salió
     const leftSub = this.socketService.onUserLeft().subscribe(usuario => {
-      console.log('👤 Usuario salió:', usuario.email);
+      //console.log('Usuario salió:', usuario.email);
     });
     this.subscriptions.push(leftSub);
 
@@ -217,7 +217,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // Errores
     const errorSub = this.socketService.onError().subscribe(error => {
-      console.error('❌ Error del socket:', error);
+      //console.error('Error del socket:', error);
       this.notificacionesService.mostrar('error',`Error en el chat: ${error.message}`);
       //alert(`Error en el chat: ${error.message}`);
     });
@@ -225,7 +225,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // Join exitoso
     const joinSuccessSub = this.socketService.onJoinSuccess().subscribe(data => {
-      console.log('✅ Unido exitosamente a la sala:', data);
+      //console.log('Unido exitosamente a la sala:', data);
     });
     this.subscriptions.push(joinSuccessSub);
   }
@@ -237,12 +237,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const currentScrollHeight = this.messagesContainer?.nativeElement.scrollHeight || 0;
     this.lastScrollHeight = currentScrollHeight;
 
-    console.log('📜 Cargando historial de mensajes...');
+    //console.log('Cargando historial de mensajes...');
 
     this.chatService.obtenerHistorial(this.idLista, this.limite, this.offset)
       .subscribe({
         next: (mensajes) => {
-          console.log('📜 Historial cargado:', mensajes.length, 'mensajes');
+          //console.log('Historial cargado:', mensajes.length, 'mensajes');
 
           if (mensajes.length < this.limite) {
             this.hasMoreMessages = false;
@@ -265,7 +265,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         },
         error: (error) => {
-          console.error('❌ Error al cargar historial:', error);
+          //console.error('Error al cargar historial:', error);
           this.isLoading = false;
           this.notificacionesService.mostrar('error','Error al cargar mensajes. Intenta recargar la página.');
           //alert('Error al cargar mensajes. Intenta recargar la página.');
@@ -277,7 +277,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const element = event.target as HTMLElement;
 
     if (element.scrollTop === 0 && this.hasMoreMessages && !this.isLoading) {
-      console.log('📜 Cargando más mensajes antiguos...');
+      //console.log('Cargando más mensajes antiguos...');
       this.cargarHistorial();
     }
   }
@@ -303,11 +303,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   onInputChange(): void {
     if (this.nuevoMensaje.trim() && this.idLista && this.isConnected) {
-      console.log('⌨️ Usuario empezó a escribir');
+      //console.log('Usuario empezó a escribir');
       this.socketService.startTyping(this.idLista);
       this.typingSubject.next(this.nuevoMensaje);
     } else if (this.idLista && this.isConnected && this.nuevoMensaje.length === 0) {
-      console.log('⌨️ Usuario dejó de escribir');
+      //console.log('Usuario dejó de escribir');
       this.socketService.stopTyping(this.idLista);
     }
   }
@@ -326,17 +326,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     if (!contenido || this.isSending || !this.isConnected) {
       if (!this.isConnected) {
-        console.error('❌ No se puede enviar mensaje: socket no conectado');
+        console.error('No se puede enviar mensaje: socket no conectado');
         this.notificacionesService.mostrar('advertencia','No estás conectado al chat. Intenta recargar la página.');
         //alert('No estás conectado al chat. Intenta recargar la página.');
       }
       return;
     }
 
-    console.log('📤 Enviando mensaje:', contenido.substring(0, 50) + '...');
+    //console.log('Enviando mensaje:', contenido.substring(0, 50) + '...');
     this.isSending = true;
 
-    // ✅ Detener indicador ANTES de enviar
+    // Detener indicador ANTES de enviar
     this.socketService.stopTyping(this.idLista);
 
     this.socketService.sendMessage(this.idLista, contenido);
@@ -363,7 +363,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.messagesContainer.nativeElement.scrollHeight;
       }
     } catch (err) {
-      console.error('Error al hacer scroll:', err);
+      //console.error('Error al hacer scroll:', err);
     }
   }
 
@@ -390,7 +390,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const diff = ahora.getTime() - date.getTime();
     const minutos = Math.floor(diff / 60000);
 
-    // Si es de hoy, mostrar hora
+    //mostrar hora hoy
     const esHoy = date.toDateString() === ahora.toDateString();
 
     if (minutos < 1) {
@@ -462,6 +462,4 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   trackByMensajeId(index: number, mensaje: Mensaje): number {
     return mensaje.idMensaje;
   }
-
-
 }

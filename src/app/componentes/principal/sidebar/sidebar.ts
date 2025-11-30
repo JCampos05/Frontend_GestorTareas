@@ -105,8 +105,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (icono.trim().startsWith('fa')) {
       return false;
     }
-
-    // Si es otra cosa (emoji), devolver true
     return true;
   }
 
@@ -119,16 +117,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
     // Limpiar espacios
     const iconoLimpio = icono.trim();
 
-    // Si ya tiene el prefijo 'fas ' o 'far '
     if (iconoLimpio.startsWith('fas ') || iconoLimpio.startsWith('far ')) {
       return iconoLimpio;
     }
 
-    // Si empieza con 'fa-', agregar prefijo 'fas'
     if (iconoLimpio.startsWith('fa-')) {
       return `fas ${iconoLimpio}`;
     }
-
     // Default
     return 'fas fa-clipboard-list';
   }
@@ -147,7 +142,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.categorias = categorias;
 
     } catch (error) {
-      console.error('Error al cargar categorías:', error);
+      //console.error('Error al cargar categorías:', error);
     }
   }
 
@@ -209,7 +204,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   cargarTareasVencidas() {
     this.router.navigate(['/app/vencidas']);
   }
-
   // Método legacy para compatibilidad
   filtrarPorEstado(estado: string) {
     switch (estado) {
@@ -279,14 +273,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.categoriaAEliminar = null;
       await this.cargarCategorias();
     } catch (error) {
-      console.error('Error al eliminar categoría:', error);
+      //console.error('Error al eliminar categoría:', error);
       this.notificacionesService.error('Error al eliminar la categoría. Por favor, intenta de nuevo.');
     }
   }
 
   // ==================== COMPARTIR ====================
-
-  // MÉTODO SIMPLE Y DIRECTO para compartir categoría
   compartirCategoria(categoria: any, event: Event) {
     event.stopPropagation();
     event.preventDefault();
@@ -303,7 +295,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.cargarCategorias();
   }
 
-  // ✅ Manejar el evento compartido correctamente
+  // Manejar el evento compartido 
   alCompartir(evento: any) {
     if (evento && evento.clave) {
       // Mensaje según el tipo

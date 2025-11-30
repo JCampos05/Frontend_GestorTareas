@@ -43,9 +43,6 @@ export class ChatService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Obtener historial de mensajes de una lista
-   */
   obtenerHistorial(
     idLista: number, 
     limite: number = 50, 
@@ -69,9 +66,6 @@ export class ChatService {
       );
   }
 
-  /**
-   * Obtener mensajes no leídos del usuario
-   */
   obtenerNoLeidos(idLista?: number): Observable<MensajeNoLeido[]> {
     let params = new HttpParams();
     if (idLista) {
@@ -83,9 +77,6 @@ export class ChatService {
       .pipe(map(response => response.data));
   }
 
-  /**
-   * Marcar todos los mensajes de una lista como leídos
-   */
   marcarComoLeidos(idLista: number): Observable<{ mensajesMarcados: number }> {
     return this.http
       .post<ApiResponse<{ mensajesMarcados: number }>>(
@@ -95,9 +86,6 @@ export class ChatService {
       .pipe(map(response => response.data));
   }
 
-  /**
-   * Obtener estadísticas del chat de una lista
-   */
   obtenerEstadisticas(idLista: number): Observable<EstadisticasChat> {
     return this.http
       .get<ApiResponse<EstadisticasChat>>(`${this.API_URL}/lista/${idLista}/estadisticas`)
@@ -113,9 +101,6 @@ export class ChatService {
       );
   }
 
-  /**
-   * Editar un mensaje
-   */
   editarMensaje(idMensaje: number, contenido: string): Observable<Mensaje> {
     return this.http
       .put<ApiResponse<Mensaje>>(`${this.API_URL}/mensaje/${idMensaje}`, { contenido })
@@ -128,17 +113,11 @@ export class ChatService {
       );
   }
 
-  /**
-   * Eliminar un mensaje
-   */
   eliminarMensaje(idMensaje: number): Observable<{ success: boolean; message: string }> {
     return this.http
       .delete<{ success: boolean; message: string }>(`${this.API_URL}/mensaje/${idMensaje}`);
   }
 
-  /**
-   * Obtener usuarios online en una lista
-   */
   obtenerUsuariosOnline(idLista: number): Observable<UsuarioOnline[]> {
     return this.http
       .get<ApiResponse<UsuarioOnline[]>>(`${this.API_URL}/lista/${idLista}/usuarios-online`)

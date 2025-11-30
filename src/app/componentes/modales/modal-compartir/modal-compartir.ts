@@ -16,7 +16,6 @@ export class ModalCompartirComponent implements OnChanges {
   @Input() itemNombre: string = '';
   @Input() claveExistente: string | null = null;
   @Output() close = new EventEmitter<void>();
-  // ✅ ACTUALIZADO: Emitir objeto completo con información de listas compartidas
   @Output() compartido = new EventEmitter<any>();
 
   claveGenerada: string = '';
@@ -24,7 +23,6 @@ export class ModalCompartirComponent implements OnChanges {
   loading = false;
   copiado = false;
   
-  // ✅ NUEVO: Información adicional para categorías
   listasCompartidas: number = 0;
 
   constructor(private compartirService: CompartirService) { }
@@ -42,7 +40,6 @@ export class ModalCompartirComponent implements OnChanges {
     }
   }
 
-  // ✅ ACTUALIZADO: Generar NUEVA clave (actualiza BD)
   confirmarCompartir() {
     this.loading = true;
 
@@ -52,20 +49,20 @@ export class ModalCompartirComponent implements OnChanges {
 
     compartir$.subscribe({
       next: (response) => {
-        console.log('✅ Respuesta completa del servidor:', response);
+        //console.log('Respuesta completa del servidor:', response);
         
         // Para CATEGORÍAS
         if (this.tipo === 'categoria') {
           if (response.categoria?.claveCompartir) {
             this.claveGenerada = response.categoria.claveCompartir;
-            console.log('✅ Clave de categoría:', this.claveGenerada);
+            //console.log('Clave de categoría:', this.claveGenerada);
           } else if (response.clave) {
             this.claveGenerada = response.clave;
           }
           
           // Guardar información de listas compartidas
           this.listasCompartidas = response.listasCompartidas || 0;
-          console.log('✅ Listas compartidas:', this.listasCompartidas);
+          //console.log('Listas compartidas:', this.listasCompartidas);
           
           // Emitir objeto completo
           this.compartido.emit({
@@ -78,7 +75,7 @@ export class ModalCompartirComponent implements OnChanges {
         else {
           if (response.lista?.claveCompartir) {
             this.claveGenerada = response.lista.claveCompartir;
-            console.log('✅ Clave de lista:', this.claveGenerada);
+            //console.log('Clave de lista:', this.claveGenerada);
           } else if (response.clave) {
             this.claveGenerada = response.clave;
           }
@@ -94,7 +91,7 @@ export class ModalCompartirComponent implements OnChanges {
         this.loading = false;
       },
       error: (error) => {
-        console.error('❌ Error al compartir:', error);
+        //console.error('Error al compartir:', error);
         this.loading = false;
       }
     });

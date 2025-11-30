@@ -71,7 +71,7 @@ export interface MensajeLeido {
   providedIn: 'root'
 })
 export class SocketService {
-  // ✅ URL del backend - VERIFICA QUE COINCIDA CON TU PUERTO
+  // URL del backend 
   private readonly API_URL = 'http://localhost:3000';
   
   private socket: Socket | null = null;
@@ -91,29 +91,29 @@ export class SocketService {
 
   private currentListId: number | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 10; // ✅ Aumentado para más intentos
+  private maxReconnectAttempts = 10; 
 
   constructor() {
-    console.log('🔌 SocketService inicializado');
+    //console.log('SocketService inicializado');
   }
 
   connect(token: string): void {
     if (this.socket?.connected) {
-      console.log('✅ Socket ya está conectado');
+      //console.log('Socket ya está conectado');
       return;
     }
 
-    console.log('🔌 Intentando conectar a Socket.IO...');
-    console.log(`   URL: ${this.API_URL}/chat`);
+    //console.log('Intentando conectar a Socket.IO...');
+    //console.log(`   URL: ${this.API_URL}/chat`);
 
     this.socket = io(`${this.API_URL}/chat`, {
       auth: { token },
-      transports: ['websocket', 'polling'], // ✅ Priorizar websocket
+      transports: ['websocket', 'polling'], // Priorizar websocket
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: this.maxReconnectAttempts,
-      timeout: 20000 // ✅ Timeout de 20 segundos
+      timeout: 20000 // Timeout de 20 segundos
     });
 
     this.setupEventListeners();
@@ -122,61 +122,59 @@ export class SocketService {
   private setupEventListeners(): void {
     if (!this.socket) return;
 
-    // ✅ CONEXIÓN EXITOSA
     this.socket.on('connect', () => {
-      console.log('✅ Socket conectado exitosamente!');
-      console.log(`   Socket ID: ${this.socket?.id}`);
+      console.log('Socket conectado exitosamente!');
+      console.log(`Socket ID: ${this.socket?.id}`);
       this.connected$.next(true);
       this.reconnectAttempts = 0;
 
       // Reconectar a la lista si estábamos en una
       if (this.currentListId) {
-        console.log(`🔄 Reconectando a lista ${this.currentListId}`);
+        console.log(`Reconectando a lista ${this.currentListId}`);
         this.joinList(this.currentListId);
       }
     });
 
-    // ✅ DESCONEXIÓN
+    // Desconexión
     this.socket.on('disconnect', (reason) => {
-      console.log('🔌 Socket desconectado:', reason);
+      console.log('Socket desconectado:', reason);
       this.connected$.next(false);
       
       if (reason === 'io server disconnect') {
-        console.log('⚠️ Servidor desconectó el socket, reconectando manualmente...');
+        console.log('Servidor desconectó el socket, reconectando manualmente...');
         this.socket?.connect();
       }
     });
 
-    // ✅ ERROR DE CONEXIÓN
     this.socket.on('connect_error', (error) => {
-      console.error('❌ Error de conexión al socket:', error.message);
+      console.error('Error de conexión al socket:', error.message);
       this.reconnectAttempts++;
       
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-        console.error('❌ Máximo de intentos de reconexión alcanzado');
+        console.error('Máximo de intentos de reconexión alcanzado');
         this.errors$.next({
           event: 'connect_error',
           message: 'No se pudo conectar al servidor de chat después de varios intentos'
         });
       } else {
-        console.log(`🔄 Intento de reconexión ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+        //console.log(`Intento de reconexión ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
       }
     });
 
     // Eventos de sala
     this.socket.on('join:success', (data: RespuestaJoinList) => {
-      console.log('✅ Unido exitosamente a la lista:', data);
+      //console.log('Unido exitosamente a la lista:', data);
       this.currentListId = data.idLista;
       this.joinSuccess$.next(data);
     });
 
     this.socket.on('users:online', (data: { usuarios: UsuarioOnline[] }) => {
-      console.log('👥 Usuarios online actualizados:', data.usuarios.length);
+      //console.log('Usuarios online actualizados:', data.usuarios.length);
       this.usersOnline$.next(data.usuarios);
     });
 
     this.socket.on('user:joined', (data: UsuarioOnline) => {
-      console.log('👤 Usuario se unió:', data.email);
+      //console.log('Usuario se unió:', data.email);
       this.userJoined$.next(data);
       
       const currentUsers = this.usersOnline$.value;
@@ -186,7 +184,7 @@ export class SocketService {
     });
 
     this.socket.on('user:left', (data: UsuarioOnline) => {
-      console.log('👤 Usuario salió:', data.email);
+      //console.log('Usuario salió:', data.email);
       this.userLeft$.next(data);
       
       const currentUsers = this.usersOnline$.value;
@@ -197,22 +195,22 @@ export class SocketService {
 
     // Eventos de mensajes
     this.socket.on('message:new', (data: Mensaje) => {
-      console.log('💬 Nuevo mensaje recibido:', data);
+      //console.log('Nuevo mensaje recibido:', data);
       this.messages$.next(data);
     });
 
     this.socket.on('message:edited', (data: MensajeEditado) => {
-      console.log('✏️ Mensaje editado:', data);
+      //console.log('Mensaje editado:', data);
       this.messageEdited$.next(data);
     });
 
     this.socket.on('message:deleted', (data: MensajeEliminado) => {
-      console.log('🗑️ Mensaje eliminado:', data);
+      //console.log('Mensaje eliminado:', data);
       this.messageDeleted$.next(data);
     });
 
     this.socket.on('message:read', (data: MensajeLeido) => {
-      console.log('👁️ Mensaje leído:', data);
+      //console.log('Mensaje leído:', data);
       this.messageRead$.next(data);
     });
 
@@ -227,14 +225,14 @@ export class SocketService {
 
     // Eventos de error
     this.socket.on('error', (error: EventoSocket) => {
-      console.error('❌ Error del servidor:', error);
+      //console.error('Error del servidor:', error);
       this.errors$.next(error);
     });
   }
 
   disconnect(): void {
     if (this.socket) {
-      console.log('👋 Desconectando socket...');
+      //console.log('Desconectando socket...');
       this.socket.disconnect();
       this.socket = null;
       this.connected$.next(false);
@@ -245,18 +243,18 @@ export class SocketService {
 
   joinList(idLista: number): void {
     if (!this.socket) {
-      console.error('❌ Socket no conectado, no se puede unir a lista');
+      //console.error('Socket no conectado, no se puede unir a lista');
       return;
     }
 
     if (!this.socket.connected) {
-      console.error('❌ Socket no está conectado, esperando conexión...');
+      //console.error('Socket no está conectado, esperando conexión...');
       
       // Esperar a que se conecte
       const checkConnection = setInterval(() => {
         if (this.socket?.connected) {
           clearInterval(checkConnection);
-          console.log('✅ Socket conectado, intentando unirse a lista...');
+          //console.log('Socket conectado, intentando unirse a lista...');
           this.socket.emit('join:list', { idLista });
         }
       }, 500);
@@ -265,21 +263,21 @@ export class SocketService {
       setTimeout(() => {
         clearInterval(checkConnection);
         if (!this.socket?.connected) {
-          console.error('❌ Timeout al esperar conexión del socket');
+          //console.error('Timeout al esperar conexión del socket');
         }
       }, 10000);
       
       return;
     }
 
-    console.log(`📥 Uniéndose a lista ${idLista}...`);
+    //console.log(`Uniéndose a lista ${idLista}...`);
     this.socket.emit('join:list', { idLista });
   }
 
   leaveList(idLista: number): void {
     if (!this.socket) return;
 
-    console.log(`📤 Saliendo de lista ${idLista}`);
+    //console.log(`Saliendo de lista ${idLista}`);
     this.socket.emit('leave:list', { idLista });
     
     if (this.currentListId === idLista) {
@@ -290,16 +288,16 @@ export class SocketService {
 
   sendMessage(idLista: number, contenido: string): void {
     if (!this.socket) {
-      console.error('❌ Socket no conectado');
+      //console.error('Socket no conectado');
       return;
     }
 
     if (!contenido.trim()) {
-      console.warn('⚠️ Mensaje vacío, no se envía');
+      //console.warn('Mensaje vacío, no se envía');
       return;
     }
 
-    console.log(`💬 Enviando mensaje a lista ${idLista}:`, contenido.substring(0, 50));
+    //console.log(`Enviando mensaje a lista ${idLista}:`, contenido.substring(0, 50));
     this.socket.emit('message:send', { idLista, contenido: contenido.trim() });
   }
 

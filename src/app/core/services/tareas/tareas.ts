@@ -23,7 +23,6 @@ export interface Tarea {
   colorLista?: string;
   importante?: boolean;
   fechaCreacion?: string;
-  // ✅ NUEVOS campos
   idUsuarioAsignado?: number;
   nombreUsuarioAsignado?: string;
   emailUsuarioAsignado?: string;
@@ -133,7 +132,7 @@ export class TareasService {
   async alternarMiDia(idTarea: number, miDia: boolean): Promise<any> {
     const url = `${this.API_URL}/${idTarea}/mi-dia`;
 
-    console.log('📡 alternarMiDia service:', {
+    console.log('alternarMiDia service:', {
       url,
       idTarea,
       miDia
@@ -159,7 +158,7 @@ export class TareasService {
       const response: any = await firstValueFrom(this.http.get(`${this.API_URL}/filtros/mi-dia`));
       const tareas = response.success ? response.data : [];
 
-      console.log('🌞 Tareas Mi Día obtenidas:', tareas.map((t: any) => ({
+      console.log('Tareas Mi Día obtenidas:', tareas.map((t: any) => ({
         id: t.idTarea,
         nombre: t.nombre,
         miDia: t.miDia

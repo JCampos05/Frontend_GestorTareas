@@ -139,14 +139,14 @@ export class ModalListaComponent implements OnInit, OnChanges {
 
   inicializarFormulario() {
     if (this.listaEditando) {
-      console.log('📝 Lista a editar:', this.listaEditando);
-      console.log('⭐ Importante valor:', this.listaEditando.importante);
+      //console.log('Lista a editar:', this.listaEditando);
+      //console.log('Importante valor:', this.listaEditando.importante);
 
       this.nombreLista = this.listaEditando.nombre;
       this.colorLista = this.listaEditando.color || '#0052CC';
       this.iconoLista = this.listaEditando.icono || 'fa-list';
 
-      // ✅ CORRECCIÓN: Convertir explícitamente a booleano
+      // Convertir explícitamente a booleano
       const valorImportante = this.listaEditando.importante;
       this.importanteLista = valorImportante === true ||
         Number(valorImportante) === 1 ||
@@ -157,10 +157,10 @@ export class ModalListaComponent implements OnInit, OnChanges {
       this.claveCompartir = this.listaEditando.claveCompartir || '';
       this.idCategoriaSeleccionada = this.listaEditando.idCategoria;
 
-      console.log('✅ importanteLista asignado:', this.importanteLista);
-      console.log('🔍 Tipo:', typeof this.importanteLista);
+      //console.log('importanteLista asignado:', this.importanteLista);
+      //console.log('Tipo:', typeof this.importanteLista);
     } else {
-      // ✅ CORRECCIÓN: Al crear nueva lista, valores por defecto
+      // Al crear nueva lista, valores por defecto
       this.nombreLista = '';
       this.colorLista = '#0052CC';
       this.iconoLista = 'fa-list';
@@ -175,13 +175,13 @@ export class ModalListaComponent implements OnInit, OnChanges {
     }
 
     setTimeout(() => {
-      console.log('🔄 Estado final de importanteLista:', this.importanteLista);
+      //console.log('Estado final de importanteLista:', this.importanteLista);
       // Disparar detección de cambios si es necesario
       if (this.listaEditando) {
         const checkboxElement = document.querySelector('input[name="importanteLista"]') as HTMLInputElement;
         if (checkboxElement) {
           checkboxElement.checked = this.importanteLista;
-          console.log('✅ Checkbox forzado a:', checkboxElement.checked);
+          //console.log('Checkbox forzado a:', checkboxElement.checked);
         }
       }
     }, 50);

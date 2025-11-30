@@ -9,12 +9,12 @@
 .mi-dia-header {
   padding: 16px 32px 16px 32px;
   background: #f4f5f7;
-  flex-shrink: 0; /* ✅ Header fijo, no se encoge */
+  flex-shrink: 0; 
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 24px;
-  z-index: 10; /* ✅ Mantener header sobre el contenido */
+  z-index: 10; 
 }
 
 .header-left {
@@ -48,16 +48,15 @@
   padding-left: 44px;
 }
 
-/* ✅ CRÍTICO: Área de contenido con scroll */
+
 .mi-dia-content {
-  flex: 1; /* ✅ Ocupa todo el espacio disponible */
-  overflow-y: auto; /* ✅ Scroll vertical */
-  overflow-x: hidden; /* ✅ Sin scroll horizontal */
-  padding: 0 16px 16px 16px; /* ✅ Padding interno */
-  min-height: 0; /* ✅ Importante para que flex funcione */
+  flex: 1;
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  padding: 0 16px 16px 16px; 
+  min-height: 0; 
 }
 
-/* ✅ Estilo de scrollbar (opcional, para que se vea mejor) */
 .mi-dia-content::-webkit-scrollbar {
   width: 8px;
 }

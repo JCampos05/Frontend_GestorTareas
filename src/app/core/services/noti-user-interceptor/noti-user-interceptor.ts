@@ -69,7 +69,7 @@ export class NotificationInterceptorService {
     const tareaId = notif.datos?.tareaId;
     const listaId = notif.datos?.listaId;
 
-    let mensaje = `"${tareaNombre}"`;  // ← Quité "Recordatorio:"
+    let mensaje = `"${tareaNombre}"`;  
 
     if (fechaVencimiento) {
       const fecha = new Date(fechaVencimiento);
@@ -117,7 +117,7 @@ export class NotificationInterceptorService {
     const listaNombre = notif.datos?.listaNombre;
     const modificadoPor = notif.datos?.modificadoPor;
 
-    console.log('🔄 Cambio de rol detectado:', {
+    console.log('Cambio de rol detectado:', {
       listaId,
       nuevoRol,
       rolAnterior,
@@ -125,10 +125,6 @@ export class NotificationInterceptorService {
       modificadoPor
     });
 
-    // ✅ Determinar emoji según el nuevo rol
-    //const emojiRol = this.obtenerEmojiRol(nuevoRol);
-
-    // ✅ Mostrar notificación visual del navegador
     this.mostrarNotificacionVisual(
       //`${emojiRol} Cambio de permisos`,
       `Cambio de permisos`,
@@ -140,15 +136,10 @@ export class NotificationInterceptorService {
       }
     );
 
-    // ✅ Reproducir sonido diferente para cambio de rol
-    //this.reproducirSonidoNotificacion(900); // Tono más alto
-
-    // ✅ Si el usuario está viendo esa lista, recargar permisos
     const currentUrl = this.router.url;
     if (currentUrl.includes(`/app/lista/${listaId}`)) {
-      console.log('🔄 Usuario está en la lista, recargando página para actualizar permisos...');
+      //console.log('Usuario está en la lista, recargando página para actualizar permisos...');
 
-      // Esperar 2 segundos para que el usuario vea la notificación
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -210,7 +201,7 @@ export class NotificationInterceptorService {
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
     } catch (error) {
-      console.log('⚠️ No se pudo reproducir sonido:', error);
+      console.log('No se pudo reproducir sonido:', error);
     }
   }*/
 

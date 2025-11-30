@@ -71,7 +71,6 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
   modalAsignarAbierto = false;
   tareaSeleccionada: Tarea | null = null;
 
-  // ⭐ NUEVO: Chat
   chatAbierto = false;
   mensajesNoLeidos = 0;
   usuarioActual: any;
@@ -100,7 +99,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.idUsuarioActual = usuarioData.idUsuario || 0;
       this.usuarioActual = usuarioData;
     } else {
-      console.error('⚠️ No se encontró auth_usuario en localStorage');
+      //console.error('No se encontró auth_usuario en localStorage');
     }
   }
 
@@ -122,32 +121,31 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    console.log('🎯 DetalleListaComponent ngOnInit iniciando...');
+    //console.log('DetalleListaComponent ngOnInit iniciando...');
 
     this.route.params.subscribe(async params => {
       this.idLista = +params['id'];
-      console.log('🎯 ID Lista cargado:', this.idLista);
+      //console.log('ID Lista cargado:', this.idLista);
 
       await this.cargarInfoLista();
       this.cargarInfoCompartidos();
     });
 
-    // ✅ CRÍTICO: Verificar conexión SSE
+    //  Verificar conexión SSE
     this.verificarConexionSSE();
 
-    // ✅ Conectar socket si no está conectado
+    // Conectar socket si no está conectado
     this.conectarSocket();
 
-    // ✅ Escuchar nuevos mensajes para actualizar contador
+    // Escuchar nuevos mensajes para actualizar contador
     this.suscribirseAMensajes();
 
-    // ✅ Escuchar notificaciones de tareas
+    // Escuchar notificaciones de tareas
     this.suscribirseANotificacionesTareas();
 
-    // ✅ NUEVO: Escuchar cambios en notificaciones para actualizar badge del chat
+    // Escuchar cambios en notificaciones para actualizar badge del chat
     this.suscribirseAMensajesChat();
-
-    console.log('🎯 Mensajes no leídos inicial:', this.mensajesNoLeidos);
+    //console.log('Mensajes no leídos inicial:', this.mensajesNoLeidos);
   }
 
   private verificarConexionSSE(): void {
@@ -156,7 +154,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
       // Si hay token pero no hay notificaciones cargándose, reconectar
       const token = localStorage.getItem('token');
       if (token) {
-        console.log('🔍 Verificando conexión SSE...');
+        //console.log('Verificando conexión SSE...');
         this.notificationService.reconectar();
       }
     }, 10000);
@@ -167,7 +165,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     } as Subscription);
   }
 
-  // ⭐ NUEVO: Conectar socket al iniciar
+  // Conectar socket al iniciar
   private conectarSocket(): void {
     if (!this.socketService.isConnected) {
       const token = localStorage.getItem('token');
@@ -180,11 +178,11 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private suscribirseAMensajes(): void {
     const messageSub = this.socketService.onMessage().subscribe(mensaje => {
-      console.log('📨 [WebSocket] Nuevo mensaje recibido:', mensaje);
+      //console.log('[WebSocket] Nuevo mensaje recibido:', mensaje);
 
       if (mensaje.idLista === this.idLista && !this.chatAbierto && mensaje.idUsuario !== this.idUsuarioActual) {
         this.mensajesNoLeidos++;
-        console.log('🔔 Badge actualizado desde WebSocket:', this.mensajesNoLeidos);
+        //console.log('Badge actualizado desde WebSocket:', this.mensajesNoLeidos);
       }
     });
 
@@ -198,7 +196,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
       );
 
       if (mensajesChat.length > 0 && !this.chatAbierto) {
-        console.log(`🔔 [SSE] Badge actualizado a ${mensajesChat.length}`);
+        //console.log(`[SSE] Badge actualizado a ${mensajesChat.length}`);
         this.mensajesNoLeidos = mensajesChat.length;
       }
     });
@@ -208,14 +206,14 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private suscribirseAMensajesChat(): void {
-    console.log('📬 Iniciando suscripción a mensajes de chat...');
+    //console.log('Iniciando suscripción a mensajes de chat...');
 
     const chatNotifSub = this.notificationService
       .obtenerMensajesNoLeidosLista(this.idLista)
       .subscribe(cantidad => {
         // Solo actualizar si el chat está cerrado
         if (!this.chatAbierto) {
-          console.log(`🔔 Badge del chat actualizado: ${this.mensajesNoLeidos} -> ${cantidad}`);
+          //console.log(`Badge del chat actualizado: ${this.mensajesNoLeidos} -> ${cantidad}`);
           this.mensajesNoLeidos = cantidad;
         }
       });
@@ -224,10 +222,10 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private suscribirseANotificacionesTareas(): void {
-    console.log('📡 Suscribiéndose a notificaciones de tareas...');
+    //console.log('Suscribiéndose a notificaciones de tareas...');
 
     const notifSub = this.notificationService.notificaciones$.subscribe(notificaciones => {
-      // ✅ Filtrar notificaciones relevantes para esta lista
+      // Filtrar notificaciones relevantes para esta lista
       const notifsRelevantes = notificaciones.filter(n => {
         if (n.leida) return false;
 
@@ -245,29 +243,29 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
           return false;
         }
 
-        // ✅ MENSAJE DE CHAT - Solo actualizar badge
+        //Solo actualizar badge
         if (n.tipo === 'mensaje_chat') {
           const esDeLista = listaIdNotif === this.idLista;
 
           if (esDeLista && !this.chatAbierto) {
             this.mensajesNoLeidos++;
-            console.log('💬 Badge chat actualizado:', this.mensajesNoLeidos);
+            console.log('Badge chat actualizado:', this.mensajesNoLeidos);
           }
 
           return false; // No procesar más
         }
 
-        // ✅ CAMBIO DE ROL - CRÍTICO: Solo si es para mí y de esta lista
+        // Solo si es para mí y de esta lista
         if (n.tipo === 'cambio_rol_lista') {
           const esParaMi = n.idUsuario === this.idUsuarioActual;
           const esDeLista = listaIdNotif === this.idLista;
 
           if (esParaMi && esDeLista) {
-            console.log('🔄 CAMBIO DE ROL DETECTADO:');
-            console.log('   Lista:', n.datos?.listaNombre);
-            console.log('   Nuevo rol:', n.datos?.nuevoRol);
-            console.log('   Rol anterior:', n.datos?.rolAnterior);
-            return true; // ✅ Procesar esta notificación
+            console.log('CAMBIO DE ROL DETECTADO:');
+            console.log('Lista:', n.datos?.listaNombre);
+            console.log('Nuevo rol:', n.datos?.nuevoRol);
+            console.log('Rol anterior:', n.datos?.rolAnterior);
+            return true; 
           }
 
           return false;
@@ -285,25 +283,24 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
         return true;
       });
 
-      // ✅ Si hay notificaciones relevantes, procesar
+      // Si hay notificaciones relevantes, procesar
       if (notifsRelevantes.length > 0) {
-        console.log(`📋 ${notifsRelevantes.length} notificaciones relevantes detectadas`);
+        console.log(`${notifsRelevantes.length} notificaciones relevantes detectadas`);
 
-        // 1️⃣ TAREAS ASIGNADAS
         const hayTareasAsignadas = notifsRelevantes.some(n => n.tipo === 'tarea_asignada');
         if (hayTareasAsignadas && this.columnasComponent) {
-          console.log('🔄 Recargando tareas por asignación...');
+          console.log('Recargando tareas por asignación...');
           this.columnasComponent.cargarTareasDeLista(this.idLista);
         }
 
-        // 2️⃣ CAMBIO DE ROL - RECARGAR PERMISOS SIN RECARGAR PÁGINA
+        // CAMBIO DE ROL - RECARGAR PERMISOS SIN RECARGAR PÁGINA
         const notifCambioRol = notifsRelevantes.find(n => n.tipo === 'cambio_rol_lista');
         if (notifCambioRol) {
-          console.log('🔄 ===== CAMBIO DE ROL DETECTADO =====');
-          console.log('   Lista:', notifCambioRol.datos?.listaNombre);
-          console.log('   Nuevo rol:', notifCambioRol.datos?.nuevoRol);
-          console.log('   Rol anterior:', notifCambioRol.datos?.rolAnterior);
-          console.log('   Modificado por:', notifCambioRol.datos?.modificadoPor);
+          console.log('===== CAMBIO DE ROL DETECTADO =====');
+          console.log('Lista:', notifCambioRol.datos?.listaNombre);
+          console.log('Nuevo rol:', notifCambioRol.datos?.nuevoRol);
+          console.log('Rol anterior:', notifCambioRol.datos?.rolAnterior);
+          console.log('Modificado por:', notifCambioRol.datos?.modificadoPor);
 
           // Mostrar toast/alert al usuario
           this.mostrarAlertaCambioRol(notifCambioRol);
@@ -332,7 +329,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cargarInfoCompartidos();
         }
 
-        // 4️⃣ REVOCACIONES
+        // REVOCACIONES
         const hayRevocacion = notifsRelevantes.some(n =>
           n.tipo === 'otro' &&
           n.datos?.revocadoPor &&
@@ -386,29 +383,29 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
           const tuRol = infoCompartidos.lista?.tuRol;
           this.esAdmin = tuRol === 'admin' || this.esPropietario;
 
-          console.log('👥 Usuarios compartidos cargados:', this.usuariosCompartidos.length);
+          //console.log('Usuarios compartidos cargados:', this.usuariosCompartidos.length);
 
-          // ✅ Determinar si mostrar botón de chat
+          // Determinar si mostrar botón de chat
           this.mostrarBotonChat = this.usuariosCompartidos.length > 1;
-          console.log('👁️ Mostrar botón chat:', this.mostrarBotonChat);
+          //console.log('Mostrar botón chat:', this.mostrarBotonChat);
 
-          // ✅ CRÍTICO: Cargar mensajes no leídos INMEDIATAMENTE
+          // CRÍTICO: Cargar mensajes no leídos INMEDIATAMENTE
           if (this.mostrarBotonChat) {
-            console.log('🔄 CARGA INMEDIATA de mensajes no leídos...');
+            //console.log('CARGA INMEDIATA de mensajes no leídos...');
 
-            // ✅ Cargar desde notificaciones primero (más rápido)
+            // Cargar desde notificaciones primero (más rápido)
             this.cargarDesdeNotificaciones();
 
-            // ✅ Luego confirmar con la API
+            // Luego confirmar con la API
             setTimeout(() => this.cargarMensajesNoLeidos(), 500);
           } else {
-            console.log('⚠️ No se muestra chat (usuarios compartidos <= 1)');
+            console.log('No se muestra chat (usuarios compartidos <= 1)');
             this.mensajesNoLeidos = 0;
           }
         }
       },
       error: (error) => {
-        console.error('❌ Error al cargar info compartidos:', error);
+        //console.error('Error al cargar info compartidos:', error);
         this.compartible = false;
         this.usuariosCompartidos = [];
         this.mostrarBotonChat = false;
@@ -419,23 +416,19 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.actualizarPermisosColumnas(), 100);
   }
 
-  // ⭐ NUEVO: Cargar mensajes no leídos - MEJORADO
-  /**
-   * Cargar mensajes no leídos - VERSIÓN MEJORADA
-   */
   private cargarMensajesNoLeidos(): void {
-    console.log('📊 ===== CARGANDO MENSAJES NO LEÍDOS =====');
-    console.log('📊 ID Lista:', this.idLista);
+    //console.log('===== CARGANDO MENSAJES NO LEÍDOS =====');
+    //console.log('ID Lista:', this.idLista);
 
     if (!this.mostrarBotonChat) {
-      console.log('⚠️ No se debe mostrar chat, abortando carga');
+      //console.log('No se debe mostrar chat, abortando carga');
       return;
     }
 
-    // ✅ Método combinado: API + Notificaciones
+    // Método combinado: API + Notificaciones
     this.chatService.obtenerNoLeidos(this.idLista).subscribe({
       next: (data) => {
-        console.log('📊 Respuesta de obtenerNoLeidos (API):', data);
+        //console.log('Respuesta de obtenerNoLeidos (API):', data);
         if (data && data.length > 0) {
           const noLeidosAPI = data[0].mensajesNoLeidos || 0;
 
@@ -445,7 +438,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
             .subscribe(noLeidosNotif => {
               // Tomar el máximo entre ambos
               this.mensajesNoLeidos = Math.max(noLeidosAPI, noLeidosNotif);
-              console.log(`✅ Badge actualizado: API=${noLeidosAPI}, Notif=${noLeidosNotif}, Final=${this.mensajesNoLeidos}`);
+              //console.log(`Badge actualizado: API=${noLeidosAPI}, Notif=${noLeidosNotif}, Final=${this.mensajesNoLeidos}`);
             });
         } else {
           // Fallback a notificaciones
@@ -453,30 +446,30 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('❌ Error al cargar desde API:', error);
+        //console.error('Error al cargar desde API:', error);
         this.cargarDesdeNotificaciones();
       }
     });
   }
 
-  // ✅ NUEVO: Cargar desde notificaciones como fallback
+  // Cargar desde notificaciones como fallback
   private cargarDesdeNotificaciones(): void {
-    console.log('📊 Cargando mensajes no leídos desde notificaciones...');
+    //console.log('Cargando mensajes no leídos desde notificaciones...');
 
     this.notificationService.notificaciones$.pipe(take(1)).subscribe(notificaciones => {
-      console.log('📊 Total notificaciones:', notificaciones.length);
+      //console.log('Total notificaciones:', notificaciones.length);
 
       const mensajesChat = notificaciones.filter(n => {
         const esNoLeida = !n.leida;
         const esMensajeChat = n.tipo === 'mensaje_chat';
         const esDeLista = n.datos?.listaId === this.idLista || n.datos?.listaId === this.idLista;
 
-        console.log(`   - Notif ${n.idNotificacion}:`, {
+        /*console.log(`   - Notif ${n.idNotificacion}:`, {
           tipo: n.tipo,
           leida: n.leida,
           listaId: n.datos?.listaId,
           coincide: esNoLeida && esMensajeChat && esDeLista
-        });
+        });*/
 
         return esNoLeida && esMensajeChat && esDeLista;
       });
@@ -511,7 +504,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     //alert(mensaje);
   }
 
-  // ACTUALIZADO: Toggle del chat con marcado de leídas
+  // Toggle del chat con marcado de leídas
   toggleChat(): void {
     this.chatAbierto = !this.chatAbierto;
     console.log('Chat', this.chatAbierto ? 'abierto' : 'cerrado');
@@ -545,22 +538,22 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
 
           notifsChat.forEach(notif => {
             this.notificationService.marcarComoLeida(notif.idNotificacion).subscribe({
-              next: () => console.log(`✅ Notificación ${notif.idNotificacion} marcada como leída`),
-              error: (err) => console.error(`❌ Error al marcar notificación ${notif.idNotificacion}:`, err)
+              next: () => console.log(`Notificación ${notif.idNotificacion} marcada como leída`),
+              error: (err) => console.error(`Error al marcar notificación ${notif.idNotificacion}:`, err)
             });
           });
         });
       }, 1000);
     } else {
-      // ✅ Al cerrar, recargar el contador
-      console.log('🔄 Recargando contador de mensajes no leídos...');
+      // Al cerrar, recargar el contador
+      //console.log('Recargando contador de mensajes no leídos...');
       setTimeout(() => {
         this.cargarMensajesNoLeidos();
       }, 500);
     }
   }
 
-  // ⭐ Obtener contador para mostrar en el badge
+  // Obtener contador para mostrar en el badge
   getMensajesNoLeidosDisplay(): string {
     console.log('getMensajesNoLeidosDisplay() llamado:', this.mensajesNoLeidos);
     if (this.mensajesNoLeidos === 0) return '';
@@ -776,7 +769,7 @@ export class DetalleListaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.usuarioSeleccionado = {
       idUsuario: usuario.idUsuario,
       nombre: usuario.nombre,
-      correo: '', // Se cargará del backend
+      correo: '', 
       telefono: undefined,
       cargo: undefined,
       bio: undefined,

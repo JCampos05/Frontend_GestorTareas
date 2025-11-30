@@ -42,9 +42,9 @@ export class ColumnaTableroComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.distribuirTareas();
-    console.log('🔍 TEST Lista:', this.lista.nombre);
-    console.log('⭐ Valor importante:', this.lista.importante);
-    console.log('✅ Es importante?:', this.esListaImportante());
+    //console.log('TEST Lista:', this.lista.nombre);
+    //console.log('Valor importante:', this.lista.importante);
+    //console.log('Es importante?:', this.esListaImportante());
   }
 
   ngOnChanges() {
@@ -131,7 +131,7 @@ export class ColumnaTableroComponent implements OnInit, OnChanges {
   }
 
   abrirDetalleTarea(tarea: Tarea) {
-    console.log('🔵 Click en tarea:', tarea.idTarea, tarea.nombre);
+    //console.log('Click en tarea:', tarea.idTarea, tarea.nombre);
   }
 
   trackByTareaId(index: number, tarea: Tarea): number {

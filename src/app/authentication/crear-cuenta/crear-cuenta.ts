@@ -73,10 +73,10 @@ export class Registrate {
       password: this.password
     }).subscribe({
       next: (response: any) => {
-        console.log('✅ Registro exitoso:', response);
+        //console.log('Registro exitoso:', response);
         this.isLoading = false;
 
-        // ✅ Verificar si requiere verificación de email
+        // Verificar si requiere verificación de email
         if (response.requiereVerificacion) {
           this.notificacionesService.exito('¡Cuenta creada! Revisa tu email para el código de verificación.');
 
@@ -84,7 +84,7 @@ export class Registrate {
           const userId = response.idUsuario;
           const userEmail = response.email || this.email;
 
-          console.log('📧 Redirigiendo a verificación:', { userId, userEmail });
+          //console.log('Redirigiendo a verificación:', { userId, userEmail });
 
           // Redirigir a la página de verificación con los datos necesarios
           this.router.navigate(['/verificar-email'], {
@@ -106,7 +106,7 @@ export class Registrate {
         }
       },
       error: (error) => {
-        console.error('❌ Error en el registro:', error);
+        //console.error('Error en el registro:', error);
         this.isLoading = false;
 
         // Manejar caso de email ya registrado pero no verificado
@@ -119,7 +119,7 @@ export class Registrate {
           const userId = error.error.idUsuario;
           const userEmail = this.email;
 
-          console.log('📧 Email ya registrado, redirigiendo a verificación:', { userId, userEmail });
+          //console.log('Email ya registrado, redirigiendo a verificación:', { userId, userEmail });
 
           this.router.navigate(['/verificar-email'], {
             state: {

@@ -38,36 +38,32 @@ export class TableroComponent implements OnInit {
   }
 
   // En tablero.ts, método cargarTareas()
-
   async cargarTareas() {
     try {
       let tareas: Tarea[] = [];
 
       if (this.tipoVista === 'mi-dia') {
-        // ✅ Obtener ID del usuario actual
+        // Obtener ID del usuario actual
         const usuarioActual = this.authService.obtenerUsuarioActual();
         const idUsuarioActual = usuarioActual?.idUsuario;
 
         // Cargar todas las tareas de Mi Día
         const todasLasTareas = await this.tareasService.obtenerTareasMiDia();
 
-        // ✅ FILTRO: Solo mostrar tareas sin asignar O asignadas al usuario actual
+        //Solo mostrar tareas sin asignar O asignadas al usuario actual
         tareas = todasLasTareas.filter(tarea => {
           // Si no tiene usuario asignado, mostrarla
           if (!tarea.idUsuarioAsignado) {
             return true;
           }
-
           // Si tiene usuario asignado, solo mostrarla si es el usuario actual
           return tarea.idUsuarioAsignado === idUsuarioActual;
         });
-
-        console.log('🌞 Tareas Mi Día filtradas:', {
+        /*console.log('Tareas Mi Día filtradas:', {
           total: todasLasTareas.length,
           filtradas: tareas.length,
           usuarioActual: idUsuarioActual
-        });
-
+        });*/
       } else if (this.tipoVista === 'vencidas') {
         tareas = await this.tareasService.obtenerTareasVencidas();
       } else {

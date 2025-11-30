@@ -73,7 +73,6 @@
         </label>
       </div>
 
-      <!-- ✅ Sección de compartir SI YA ESTÁ COMPARTIDA -->
       <div class="compartir-section" *ngIf="listaEditando && compartible">
         <button type="button" class="btn-compartir-accion" (click)="abrirModalCompartir()">
           <i class="fas fa-key"></i>
@@ -89,7 +88,6 @@
         </p>
       </div>
 
-      <!-- Opción de compartir - ✅ CON MARGEN SUPERIOR IGUAL -->
       <div class="form-group" style="margin-top: 32px;">
         <label class="checkbox-label">
           <input type="checkbox" [(ngModel)]="compartible" name="compartible" class="checkbox-input" />
@@ -103,7 +101,6 @@
         </small>
       </div>
 
-      <!-- ✅ Mostrar clave si ya existe (modo edición) - CON NUEVO DISEÑO -->
       <div class="form-group" *ngIf="listaEditando && claveCompartir">
         <label>Clave para compartir</label>
         <div class="clave-compartir-container">

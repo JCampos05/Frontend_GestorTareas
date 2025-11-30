@@ -42,7 +42,6 @@ export class NotasComponent implements OnInit {
   ngOnInit(): void {
     this.cargarNotas();
     
-    // ✅ SUSCRIBIRSE A CAMBIOS EN TIEMPO REAL
     this.notaService.notas$.subscribe(notas => {
       this.notas = notas;
       this.separarNotas();
@@ -103,7 +102,6 @@ export class NotasComponent implements OnInit {
         .subscribe({
           next: () => {
             this.cerrarModal();
-            // ✅ YA NO ES NECESARIO RECARGAR, se actualiza automáticamente por el observable
           },
           error: (error) => console.error('Error al actualizar nota:', error)
         });
@@ -111,7 +109,6 @@ export class NotasComponent implements OnInit {
       this.notaService.crearNota(this.notaActual).subscribe({
         next: () => {
           this.cerrarModal();
-          // ✅ YA NO ES NECESARIO RECARGAR, se actualiza automáticamente por el observable
         },
         error: (error) => console.error('Error al crear nota:', error)
       });

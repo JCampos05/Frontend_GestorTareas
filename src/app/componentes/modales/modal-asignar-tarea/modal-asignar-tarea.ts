@@ -67,7 +67,7 @@ export class ModalAsignarTareaComponent implements OnChanges {
 
   async cargarDatos() {
     this.cargando = true;
-    console.log('Cargando usuarios y tareas para lista:', this.idLista);
+    //console.log('Cargando usuarios y tareas para lista:', this.idLista);
 
     try {
       // Cargar usuarios y tareas en paralelo

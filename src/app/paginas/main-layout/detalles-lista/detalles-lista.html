@@ -9,7 +9,6 @@
       </h2>
 
       <div class="header-actions">
-        <!-- ✅ AVATARES - SIEMPRE VISIBLES si hay usuarios compartidos -->
         <div class="usuarios-avatares" *ngIf="usuariosCompartidos.length > 0">
           <div *ngFor="let usuario of usuariosCompartidos.slice(0, 5)" class="avatar"
             [title]="usuario.nombre + ' (' + usuario.rol + ')'" (click)="abrirPerfilUsuario(usuario)">
@@ -20,7 +19,6 @@
           </div>
         </div>
 
-        <!-- ✅ BOTONES - Solo para propietarios/admins -->
         <ng-container *ngIf="esPropietario || esAdmin">
           <button *ngIf="puedeAsignarTareas()" class="btn-asignar-tareas" (click)="abrirModalAsignar()"
             title="Asignar tareas a usuarios">

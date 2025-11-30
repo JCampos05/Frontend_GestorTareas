@@ -28,7 +28,7 @@ app-header {
   display: flex;
   flex: 1;
   overflow: hidden;
-  min-height: 0; /* ✅ IMPORTANTE */
+  min-height: 0;
 }
 
 app-sidebar {

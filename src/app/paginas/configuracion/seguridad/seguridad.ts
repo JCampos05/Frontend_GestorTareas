@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { AuthService, Usuario } from '../../../core/services/authentication/authentication';
 import { NotificacionesService } from '../../../core/services/notification/notification';
 
-// 🎯 ESTADOS DEL FLUJO
 type EstadoFlujo = 'inicial' | 'validando' | 'esperando_codigo' | 'codigo_verificado' | 'cambiando';
 
 @Component({
@@ -92,24 +91,24 @@ export class SeguridadComponent implements OnInit, OnDestroy {
     this.guardandoPassword = true;
 
     try {
-      // 1️⃣ Validar contraseña actual
-      console.log('🔐 Validando contraseña actual...');
+      //  Validar contraseña actual
+      //console.log('Validando contraseña actual...');
       await this.authService.validarPasswordActual(passwordActual).toPromise();
-      console.log('✅ Contraseña válida');
+      //console.log('Contraseña válida');
 
-      // 2️⃣ Enviar código al email
+      // Enviar código al email
       if (!this.usuario?.idUsuario) {
         throw new Error('No se pudo obtener el ID de usuario');
       }
 
-      console.log('📧 Enviando código de verificación...');
+      //console.log('Enviando código de verificación...');
       await this.authService.solicitarCodigoCambioPassword().toPromise(); 
       
       this.guardandoPassword = false;
       this.estadoFlujo = 'esperando_codigo';
       this.notificacionesService.exito('Código enviado a tu email');
 
-      // 3️⃣ Mostrar modal de verificación
+      // Mostrar modal de verificación
       this.mostrarModalVerificacion = true;
 
       // Focus en el primer input después de un pequeño delay
@@ -228,9 +227,9 @@ export class SeguridadComponent implements OnInit, OnDestroy {
         this.verificandoCodigo = false;
         this.modalSuccessMessage = '¡Código verificado correctamente!';
         
-        console.log('✅ Código verificado, habilitando campos de nueva contraseña');
+        //console.log('Código verificado, habilitando campos de nueva contraseña');
 
-        // 🎉 Cerrar modal y habilitar campos de nueva contraseña
+        // Cerrar modal y habilitar campos de nueva contraseña
         setTimeout(() => {
           this.cerrarModalVerificacion();
           this.estadoFlujo = 'codigo_verificado';
@@ -417,7 +416,7 @@ export class SeguridadComponent implements OnInit, OnDestroy {
     return `${local.slice(0, 3)}***@${domain}`;
   }
 
-  // 🎯 GETTER PARA SABER QUÉ BOTÓN MOSTRAR
+  // GETTER PARA SABER QUÉ BOTÓN MOSTRAR
   get textoBotonPrincipal(): string {
     switch (this.estadoFlujo) {
       case 'inicial':

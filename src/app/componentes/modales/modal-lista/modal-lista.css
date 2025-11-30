@@ -344,7 +344,7 @@ form {
 
 /* ========== SECCIÓN DE COMPARTIR ========== */
 .compartir-section {
-  margin-top: 32px; /* ✅ Más separación de la sección de arriba */
+  margin-top: 32px; 
   padding: 16px;
   background: #f4f5f7;
   border-radius: 8px;
@@ -414,19 +414,19 @@ form {
 .clave-compartir-container {
   display: flex;
   gap: 8px;
-  align-items: stretch; /* ✅ Para que ambos tengan la misma altura */
+  align-items: stretch; 
 }
 
 .input-clave {
   flex: 1;
-  padding: 12px 16px; /* ✅ Más padding como en la imagen 5 */
+  padding: 12px 16px; 
   border: 2px solid #dfe1e6;
-  border-radius: 6px; /* ✅ Bordes más redondeados */
-  font-size: 16px; /* ✅ Texto más grande */
+  border-radius: 6px; 
+  font-size: 16px; 
   font-family: 'Courier New', monospace;
   font-weight: 600;
   color: #172b4d;
-  background: white; /* ✅ Fondo blanco en lugar de gris */
+  background: white; 
   cursor: text;
 }
 
@@ -437,15 +437,15 @@ form {
 }
 
 .btn-copiar {
-  padding: 12px 20px; /* ✅ Más padding */
-  background: #36b37e; /* ✅ Verde como en la imagen */
+  padding: 12px 20px; 
+  background: #36b37e; 
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px; /* ✅ Espacio entre ícono y texto */
+  gap: 8px; 
   font-size: 14px;
   font-weight: 500;
   transition: all 0.2s;

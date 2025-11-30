@@ -78,7 +78,7 @@ export class MainSearchComponent implements OnInit {
         return tarea;
       });
     } catch (error) {
-      console.error('Error al cargar datos:', error);
+      //console.error('Error al cargar datos:', error);
     }
   }
 
@@ -143,7 +143,6 @@ export class MainSearchComponent implements OnInit {
         });
       }
     }
-
     // Ordenar por score descendente
     return resultados.sort((a, b) => b.score - a.score);
   }

@@ -32,7 +32,7 @@ export class MiDiaComponent implements OnInit, OnDestroy {
     
     // Escuchar cambios de ubicación desde configuración
     this.ubicacionListener = (event: any) => {
-      console.log('📍 Ubicación actualizada:', event.detail);
+      //console.log('Ubicación actualizada:', event.detail);
       this.cargarClimaPorCiudad(event.detail.ciudad);
     };
     window.addEventListener('ubicacionActualizada', this.ubicacionListener);
@@ -55,41 +55,41 @@ export class MiDiaComponent implements OnInit, OnDestroy {
       if (usuario?.ubicacion) {
         // Extraer solo el nombre de la ciudad (primera parte antes de la coma)
         const ciudad = usuario.ubicacion.split(',')[0].trim();
-        console.log('🏙️ Usando ciudad del perfil:', ciudad);
+        //console.log('Usando ciudad del perfil:', ciudad);
         
         await this.cargarClimaPorCiudad(ciudad);
         return;
       }
 
       // Si no hay ciudad en el perfil, intentar geolocalización
-      console.log('📍 Solicitando ubicación del dispositivo...');
+      //console.log('Solicitando ubicación del dispositivo...');
       const position = await this.climaService.obtenerUbicacionActual();
       
-      console.log('✅ Ubicación obtenida:', {
+      /*console.log('Ubicación obtenida:', {
         latitud: position.coords.latitude,
         longitud: position.coords.longitude,
         precision: position.coords.accuracy + 'm'
-      });
+      });*/
       
       this.climaService.obtenerClimaPorCoordenadas(
         position.coords.latitude,
         position.coords.longitude
       ).subscribe({
         next: (data) => {
-          console.log('🌤️ Clima obtenido para:', data.ciudad, data.pais);
+          //console.log('Clima obtenido para:', data.ciudad, data.pais);
           this.climaData = data;
           this.cargandoClima = false;
         },
         error: (error) => {
-          console.error('❌ Error al obtener clima:', error);
+          //console.error('Error al obtener clima:', error);
           this.errorClima = true;
           this.cargandoClima = false;
         }
       });
     } catch (error: any) {
       // Si falla todo, usar ciudad por defecto
-      console.warn('⚠️ No se pudo obtener ubicación:', error.message);
-      console.log('🏙️ Usando ubicación por defecto: Mexico City');
+      //console.warn('No se pudo obtener ubicación:', error.message);
+      //console.log('Usando ubicación por defecto: Mexico City');
       
       await this.cargarClimaPorCiudad('Mexico City');
     }
@@ -101,12 +101,12 @@ export class MiDiaComponent implements OnInit, OnDestroy {
     
     this.climaService.obtenerClimaPorCiudad(ciudad).subscribe({
       next: (data) => {
-        console.log('🌤️ Clima obtenido para:', data.ciudad);
+        //console.log('Clima obtenido para:', data.ciudad);
         this.climaData = data;
         this.cargandoClima = false;
       },
       error: (error) => {
-        console.error('❌ Error al obtener clima para', ciudad, ':', error);
+        //console.error('Error al obtener clima para', ciudad, ':', error);
         this.errorClima = true;
         this.cargandoClima = false;
       }

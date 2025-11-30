@@ -45,7 +45,7 @@ export class ZonasService {
     return this.http.put(`${this.apiUrl}/usuario`, { zonaHoraria }).pipe(
       tap(() => {
         this.zonaActualSubject.next(zonaHoraria);
-        console.log('✅ Zona horaria actualizada:', zonaHoraria);
+        //console.log('Zona horaria actualizada:', zonaHoraria);
       })
     );
   }

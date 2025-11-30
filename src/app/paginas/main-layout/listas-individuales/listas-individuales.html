@@ -43,7 +43,6 @@
                     </span>
                 </div>
 
-                <!--  BADGES: Mostrar AMBOS si aplican -->
                 <div class="lista-badges-container">
                     <div class="lista-badge badge-importante" *ngIf="lista.importante">
                         <i class="fas fa-star"></i> Importante
@@ -56,7 +55,6 @@
 
             <!-- Acciones -->
             <div class="lista-acciones">
-                <!-- BotÃ³n compartir (solo si la lista es compartible) -->
                 <button (click)="abrirModalCompartir($event, lista)" class="btn-accion btn-compartir"
                     [class.active]="lista.compartible"
                     [title]="lista.compartible ? 'Gestionar compartir' : 'Compartir lista'">
@@ -113,7 +111,6 @@
     </div>
 </div>
 
-<!-- Modal de ediciÃ³n -->
 <div *ngIf="listaAEditar" class="modal-overlay" (click)="cancelarEdicion()">
     <div class="modal-content modal-editar" (click)="$event.stopPropagation()">
         <div class="modal-header">

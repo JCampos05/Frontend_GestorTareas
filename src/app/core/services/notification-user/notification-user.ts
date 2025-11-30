@@ -66,28 +66,28 @@ export class NotificationService {
   }
 
   private inicializarConToken(): void {
-    // ✅ FIX: Usar el mismo nombre de token que AuthService
+    //Usar el mismo nombre de token que AuthService
     const token = localStorage.getItem('auth_token');
 
     if (token) {
-      console.log('✅ Token encontrado, conectando SSE...');
+      //console.log('Token encontrado, conectando SSE...');
       this.conectarSSE();
       this.cargarNotificaciones();
     } else {
-      console.log('⏳ Esperando token para conectar SSE...');
+      //console.log('Esperando token para conectar SSE...');
 
       let intentos = 0;
       const checkInterval = setInterval(() => {
-        const tokenActual = localStorage.getItem('auth_token'); // ✅ FIX
+        const tokenActual = localStorage.getItem('auth_token'); 
         intentos++;
 
         if (tokenActual) {
-          console.log('✅ Token encontrado en intento', intentos);
+          console.log('Token encontrado en intento', intentos);
           clearInterval(checkInterval);
           this.conectarSSE();
           this.cargarNotificaciones();
         } else if (intentos >= 10) {
-          console.warn('⚠️ No se encontró token después de 10 intentos');
+          console.warn('No se encontró token después de 10 intentos');
           clearInterval(checkInterval);
         }
       }, 1000);
@@ -95,7 +95,7 @@ export class NotificationService {
   }
 
   public reconectar(): void {
-    console.log('🔄 Forzando reconexión SSE...');
+    //console.log('Forzando reconexión SSE...');
     this.desconectarSSE();
     this.conectarSSE();
     this.cargarNotificaciones();
@@ -107,10 +107,10 @@ export class NotificationService {
       if (ocultas) {
         const ids = JSON.parse(ocultas);
         this.notificacionesOcultas = new Set(ids);
-        console.log('📋 Notificaciones ocultas cargadas:', this.notificacionesOcultas.size);
+        //console.log('Notificaciones ocultas cargadas:', this.notificacionesOcultas.size);
       }
     } catch (error) {
-      console.error('❌ Error al cargar notificaciones ocultas:', error);
+      //console.error('Error al cargar notificaciones ocultas:', error);
     }
   }
 
@@ -118,9 +118,9 @@ export class NotificationService {
     try {
       const ids = Array.from(this.notificacionesOcultas);
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(ids));
-      console.log('💾 Notificaciones ocultas guardadas:', ids.length);
+      console.log('Notificaciones ocultas guardadas:', ids.length);
     } catch (error) {
-      console.error('❌ Error al guardar notificaciones ocultas:', error);
+      console.error('Error al guardar notificaciones ocultas:', error);
     }
   }
 
@@ -146,19 +146,19 @@ export class NotificationService {
     const notificaciones = this.notificacionesSubject.value;
     const noLeidas = notificaciones.filter(n => !n.leida).length;
     this.cantidadNoLeidasSubject.next(noLeidas);
-    console.log('🔢 Contador actualizado:', noLeidas);
+    //console.log('Contador actualizado:', noLeidas);
   }
 
   private agregarNotificacion(notificacion: Notificacion): void {
     if (this.notificacionesOcultas.has(notificacion.idNotificacion)) {
-      console.log('🚫 Notificación oculta, no se agrega:', notificacion.idNotificacion);
+      //console.log('Notificación oculta, no se agrega:', notificacion.idNotificacion);
       return;
     }
 
     const notificaciones = this.notificacionesSubject.value;
 
     if (notificaciones.find(n => n.idNotificacion === notificacion.idNotificacion)) {
-      console.log('⚠️ Notificación duplicada, ignorando:', notificacion.idNotificacion);
+      //console.log('Notificación duplicada, ignorando:', notificacion.idNotificacion);
       return;
     }
 
@@ -179,13 +179,13 @@ export class NotificationService {
     this.http.get<NotificacionesResponse>(this.apiUrl)
       .pipe(
         catchError(error => {
-          console.error('❌ Error al cargar notificaciones:', error);
+          //console.error('Error al cargar notificaciones:', error);
           return of({ notificaciones: [] });
         })
       )
       .subscribe({
         next: (response) => {
-          console.log('📨 Notificaciones cargadas desde API:', response.notificaciones?.length || 0);
+          //console.log('Notificaciones cargadas desde API:', response.notificaciones?.length || 0);
 
           const notificaciones = (response.notificaciones || []).map((n: any) => ({
             ...n,
@@ -196,8 +196,8 @@ export class NotificationService {
             n => !this.notificacionesOcultas.has(n.idNotificacion)
           );
 
-          console.log('👁️ Notificaciones visibles:', notificacionesVisibles.length);
-          console.log('🚫 Notificaciones ocultas:', this.notificacionesOcultas.size);
+          //console.log('Notificaciones visibles:', notificacionesVisibles.length);
+          //console.log('Notificaciones ocultas:', this.notificacionesOcultas.size);
 
           this.notificacionesSubject.next(notificacionesVisibles);
           this.actualizarContador();
@@ -253,27 +253,26 @@ export class NotificationService {
   // ========== SECCIÓN SSE ==========
 
   private conectarSSE(): void {
-    // ✅ FIX: Usar el token correcto
     const token = localStorage.getItem('auth_token');
 
     if (!token) {
-      console.error('❌ No se encontró token para SSE');
+      //console.error('No se encontró token para SSE');
       this.programarReconexion(3000);
       return;
     }
 
     if (this.eventSource) {
-      console.log('🔌 Cerrando conexión SSE anterior...');
+      //console.log('Cerrando conexión SSE anterior...');
       this.eventSource.close();
     }
 
     const url = `${this.sseUrl}?token=${token}`;
-    console.log('🔌 Conectando a SSE:', this.sseUrl);
+    //console.log('Conectando a SSE:', this.sseUrl);
 
     this.eventSource = new EventSource(url);
 
     this.eventSource.onopen = () => {
-      console.log('✅ Conexión SSE establecida');
+      //console.log('Conexión SSE establecida');
       this.reconnectAttempts = 0;
     };
 
@@ -281,26 +280,26 @@ export class NotificationService {
     this.eventSource.addEventListener('notificacion_leida', this.manejarNotificacionLeida.bind(this));
 
     this.eventSource.onerror = (error) => {
-      console.error('❌ Error en SSE:', error);
+      //console.error('Error en SSE:', error);
       this.desconectarSSE();
       this.programarReconexion();
     };
   }
 
   private manejarNuevaNotificacion(event: MessageEvent): void {
-    console.log('📨 SSE: Nueva notificación recibida');
-    console.log('📦 Raw data:', event.data);
+    //console.log('SSE: Nueva notificación recibida');
+    //console.log('Raw data:', event.data);
 
     try {
       const data = JSON.parse(event.data);
 
-      // ✅ FILTRAR EVENTOS DE SISTEMA (no son notificaciones reales)
+      // Filtrar eventos del sistema
       if (data.type === 'connected' || data.event === 'connected') {
-        console.log('ℹ️ Evento de conexión SSE, ignorando');
+        //console.log('Evento de conexión SSE, ignorando');
         return;
       }
 
-      // ✅ Validar que tenga tipo de notificación válido
+      // Validar que tenga tipo de notificación válido
       const tiposValidos = [
         'invitacion_lista',
         'tarea_asignada',
@@ -313,15 +312,15 @@ export class NotificationService {
       ];
 
       if (!data.tipo || !tiposValidos.includes(data.tipo)) {
-        console.warn('⚠️ Tipo de notificación inválido:', data.tipo);
+        //console.warn('Tipo de notificación inválido:', data.tipo);
         return;
       }
 
-      // ✅ Validar que tenga ID
+      // Validar que tenga ID
       const id = data.idNotificacion || data.id;
 
       if (!id || id === undefined) {
-        console.error('❌ Notificación sin ID válido:', data);
+        //console.error('Notificación sin ID válido:', data);
         return;
       }
 
@@ -337,11 +336,11 @@ export class NotificationService {
         datos: data.datos || {}
       };
 
-      console.log('✅ Notificación normalizada:', {
+      /*console.log('Notificación normalizada:', {
         id: notificacion.idNotificacion,
         tipo: notificacion.tipo,
         titulo: notificacion.titulo.substring(0, 30)
-      });
+      });*/
 
       // ... resto del código igual
       const notificacionesActuales = this.notificacionesSubject.value;
@@ -350,12 +349,12 @@ export class NotificationService {
       );
 
       if (existe) {
-        console.log('⚠️ Notificación duplicada, ignorando:', notificacion.idNotificacion);
+        //console.log('Notificación duplicada, ignorando:', notificacion.idNotificacion);
         return;
       }
 
       if (this.notificacionesOcultas.has(notificacion.idNotificacion)) {
-        console.log('🚫 Notificación oculta, no se agrega:', notificacion.idNotificacion);
+        //console.log('Notificación oculta, no se agrega:', notificacion.idNotificacion);
         return;
       }
 
@@ -364,17 +363,17 @@ export class NotificationService {
       if (!notificacion.leida) {
         const contadorActual = this.cantidadNoLeidasSubject.value;
         this.cantidadNoLeidasSubject.next(contadorActual + 1);
-        console.log(' Contador actualizado:', contadorActual + 1);
+        //console.log(' Contador actualizado:', contadorActual + 1);
       }
 
-      console.log(' Notificación agregada correctamente');
+      //console.log(' Notificación agregada correctamente');
     } catch (error) {
-      console.error(' Error al procesar notificación SSE:', error);
+      //console.error(' Error al procesar notificación SSE:', error);
     }
   }
 
   private manejarNotificacionLeida(event: MessageEvent): void {
-    console.log('✅ SSE: Notificación marcada como leída');
+    //console.log('SSE: Notificación marcada como leída');
 
     try {
       const data = JSON.parse(event.data);
@@ -390,22 +389,22 @@ export class NotificationService {
       const noLeidas = notificacionesActualizadas.filter(n => !n.leida).length;
       this.cantidadNoLeidasSubject.next(noLeidas);
 
-      console.log('✅ Notificación marcada como leída localmente');
+      //console.log('Notificación marcada como leída localmente');
     } catch (error) {
-      console.error('❌ Error al procesar notificación leída:', error);
+      //console.error('Error al procesar notificación leída:', error);
     }
   }
 
   private programarReconexion(delay?: number): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('❌ Máximo de intentos de reconexión alcanzado');
+      //console.error('Máximo de intentos de reconexión alcanzado');
       return;
     }
 
     this.reconnectAttempts++;
     const backoffDelay = delay || Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
 
-    console.log(`🔄 Reconexión SSE programada en ${backoffDelay}ms (intento ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    //console.log(`Reconexión SSE programada en ${backoffDelay}ms (intento ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
     this.reconnectTimeout = setTimeout(() => {
       this.conectarSSE();
@@ -434,7 +433,7 @@ export class NotificationService {
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
-      console.log('🔌 SSE desconectado');
+      //console.log('SSE desconectado');
     }
   }
 }

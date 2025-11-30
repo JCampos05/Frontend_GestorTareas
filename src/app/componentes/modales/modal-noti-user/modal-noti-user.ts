@@ -36,7 +36,7 @@ export class ModalNotificacionesComponent implements OnInit {
     });
   }
 
-  // NUEVO: Cargar notificaciones ocultas desde localStorage
+  //Cargar notificaciones ocultas desde localStorage
   private cargarNotificacionesOcultas() {
     try {
       const ocultas = localStorage.getItem('notificaciones_ocultas');
@@ -49,7 +49,7 @@ export class ModalNotificacionesComponent implements OnInit {
     }
   }
 
-  // NUEVO: Guardar notificaciones ocultas en localStorage
+  //Guardar notificaciones ocultas en localStorage
   private guardarNotificacionesOcultas() {
     try {
       const ids = Array.from(this.notificacionesOcultas);
@@ -59,7 +59,7 @@ export class ModalNotificacionesComponent implements OnInit {
     }
   }
 
-  // NUEVO: Ocultar notificación visualmente
+  //Ocultar notificación visualmente
   ocultarNotificacion(idNotificacion: number) {
     this.notificacionesOcultas.add(idNotificacion);
     this.guardarNotificacionesOcultas();
@@ -224,10 +224,10 @@ export class ModalNotificacionesComponent implements OnInit {
         return 'fa-tasks';
       case 'comentario':
         return 'fa-comment';
-      case 'tarea_repetir':        //  AGREGAR
-        return 'fa-redo';           //  AGREGAR
-      case 'recordatorio':          //  AGREGAR
-        return 'fa-bell';           //  AGREGAR
+      case 'tarea_repetir':        
+        return 'fa-redo';           
+      case 'recordatorio':          
+        return 'fa-bell';           
       default:
         return 'fa-bell';
     }

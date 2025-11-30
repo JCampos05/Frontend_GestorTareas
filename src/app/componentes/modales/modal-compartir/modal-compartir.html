@@ -11,7 +11,7 @@
             <div class="modal-body">
                 <p>¿Estás seguro que deseas hacer compartible "{{ itemNombre }}"?</p>
                 
-                <!-- ✅ NUEVO: Información adicional para categorías -->
+                <!-- Información adicional para categorías -->
                 <div class="info-box" *ngIf="tipo === 'categoria'">
                     <i class="fas fa-info-circle"></i>
                     <p>
@@ -60,7 +60,7 @@
                     ¡La clave se generó exitosamente!
                 </p>
 
-                <!-- ✅ NUEVO: Mostrar información de listas compartidas -->
+                <!-- Mostrar información de listas compartidas -->
                 <div class="listas-compartidas-info" *ngIf="tipo === 'categoria' && listasCompartidas > 0">
                     <i class="fas fa-list"></i>
                     <span>

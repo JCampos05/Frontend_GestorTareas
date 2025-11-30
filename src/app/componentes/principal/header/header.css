@@ -213,7 +213,6 @@
   }
 }
 
-/* ✅ Para zooms grandes - ajustar ancho */
 @media (min-resolution: 1.5dppx) {
   .user-menu {
     width: 260px;
@@ -394,8 +393,8 @@
 /* Badge con el número de notificaciones - CORREGIDO */
 .badge-notificaciones {
   position: absolute;
-  top: 2px;  /* ✅ Cambiado de 6px a 2px */
-  right: 2px; /* ✅ Cambiado de 8px a 2px */
+  top: 2px; 
+  right: 2px; 
   background: #ef4444;
   color: white;
   font-size: 0.65rem;
@@ -404,20 +403,19 @@
   border-radius: 10px;
   min-width: 18px;
   height: 18px;
-  display: flex !important; /* ✅ Forzar display */
+  display: flex !important; 
   align-items: center;
   justify-content: center;
   line-height: 1;
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
   animation: pulse-badge 2s infinite;
-  z-index: 10; /* ✅ Asegurar que esté encima */
-  pointer-events: none; /* ✅ No interferir con clics */
+  z-index: 10; 
+  pointer-events: none; 
 }
 
-/* Asegurar que el wrapper tenga position relative */
 .notificaciones-wrapper {
   position: relative;
-  display: inline-flex; /* ✅ Cambiar a inline-flex */
+  display: inline-flex; 
   align-items: center;
 }
 
@@ -436,7 +434,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  flex-shrink: 0; /* ✅ Evitar que se comprima */
+  flex-shrink: 0; 
 }
 
 .btn-notificaciones:hover {
@@ -482,7 +480,6 @@
   }
 }
 
-/* ✅ NUEVO: Para zooms grandes */
 @media (min-resolution: 1.5dppx) {
   .badge-notificaciones {
     font-size: 0.7rem;
@@ -515,8 +512,6 @@
 .btn-notificaciones i {
   font-size: 1.1rem;
 }
-
-
 
 
 .modal-overlay {

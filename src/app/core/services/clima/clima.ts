@@ -63,7 +63,6 @@ export class ClimaService {
   }
 
   private obtenerIconoClima(codigo: number, esDia: number): string {
-    // Códigos de WeatherAPI: https://www.weatherapi.com/docs/weather-conditions.xml
     const esDeNoche = esDia === 0;
 
     // Soleado/Despejado (1000)

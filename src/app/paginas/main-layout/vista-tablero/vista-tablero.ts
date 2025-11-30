@@ -138,17 +138,16 @@ export class VistaTableroComponent implements OnInit {
 
       const listasData = await this.categoriasService.obtenerListasPorCategoria(idCategoria);
 
-      console.log('📦 Listas recibidas del backend:', listasData);
-      console.log('📦 Primera lista RAW:', listasData[0]);
-      console.log('📦 Campo importante de primera lista:', {
+      //console.log('Listas recibidas del backend:', listasData);
+      //console.log('Primera lista RAW:', listasData[0]);
+      /*console.log('Campo importante de primera lista:', {
         valor: listasData[0]?.importante,
         tipo: typeof listasData[0]?.importante,
         esUno: listasData[0]?.importante === 1,
         esTrue: listasData[0]?.importante === true,
         esString: listasData[0]?.importante === '1'
-      });
+      });*/
 
-      // ✅ TRANSFORMACIÓN EXPLÍCITA DE BOOLEANOS
       this.listas = await Promise.all(
         listasData.map(async (lista: Lista) => {
           const listaConTareas: ListaConTareas = {
@@ -165,7 +164,7 @@ export class VistaTableroComponent implements OnInit {
               listaConTareas.tareas = data.tareas;
             }
           } catch (error) {
-            console.error(`Error al cargar tareas de lista ${lista.idLista}:`, error);
+            //console.error(`Error al cargar tareas de lista ${lista.idLista}:`, error);
           } finally {
             listaConTareas.cargando = false;
           }
@@ -182,8 +181,6 @@ export class VistaTableroComponent implements OnInit {
       this.cargando = false;
     }
   }
-
-  // REEMPLAZAR el método separarListas en vista-tablero.ts
 
   separarListas() {
     this.listasImportantes = this.listas.filter(lista => Boolean(lista.importante));
@@ -361,7 +358,6 @@ export class VistaTableroComponent implements OnInit {
     }
   }
 
-  //  MÉTODOS ACTUALIZADOS PARA MODAL INLINE
   confirmarEliminarLista(lista: ListaConTareas) {
     this.listaAEliminar = lista;
   }
@@ -382,7 +378,7 @@ export class VistaTableroComponent implements OnInit {
       }
     ).catch(
       (err: any) => {
-        console.error('Error al eliminar lista:', err);
+        //console.error('Error al eliminar lista:', err);
         this.notificacionesService.error('Error al eliminar la lista', 3000);
         this.listaAEliminar = null;
       }
@@ -418,7 +414,7 @@ export class VistaTableroComponent implements OnInit {
   }
 
   async abrirPerfilUsuario(usuario: UsuarioCompartido) {
-    console.log('👤 Abriendo perfil de usuario:', usuario);
+    //console.log('Abriendo perfil de usuario:', usuario);
 
     // Mostrar datos básicos inmediatamente
     this.usuarioSeleccionado = {
@@ -435,10 +431,10 @@ export class VistaTableroComponent implements OnInit {
 
     this.modalPerfilAbierto = true;
 
-    // 🔄 Cargar perfil completo del backend
+    // Cargar perfil completo del backend
     this.authService.obtenerPerfilPorId(usuario.idUsuario).subscribe({
       next: (perfilCompleto) => {
-        console.log('✅ Perfil completo obtenido:', perfilCompleto);
+        //console.log('Perfil completo obtenido:', perfilCompleto);
 
         // Actualizar con datos completos
         if (this.usuarioSeleccionado && this.usuarioSeleccionado.idUsuario === perfilCompleto.idUsuario) {
@@ -456,7 +452,7 @@ export class VistaTableroComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.warn('⚠️ No se pudo cargar perfil completo:', error);
+        //console.warn('No se pudo cargar perfil completo:', error);
         // Mantener datos básicos si falla la carga
       }
     });

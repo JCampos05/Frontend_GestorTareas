@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, HostListener, OnInit, OnDestroy } from
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription, take } from 'rxjs'; // AGREGADO 'take'
+import { Subscription, take } from 'rxjs'; 
 import { AuthService, Usuario } from '../../../core/services/authentication/authentication';
 import { NotificationService } from '../../../core/services/notification-user/notification-user';
 import { ModalNotificacionesComponent } from '../../modales/modal-noti-user/modal-noti-user';
@@ -24,8 +24,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cantidadNoLeidas: number = 0;
   mostrarConfiguracion = false;
 
-
-  // ✅ NUEVO: Subscripciones
   private subscriptions: Subscription[] = [];
 
   usuario: {
@@ -53,35 +51,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
 
-    // ✅ CRÍTICO: Escuchar cambios en notificaciones no leídas
     const notifSub = this.notificationService.cantidadNoLeidas$.subscribe(cantidad => {
-      console.log('🔔 Header: Cantidad no leídas actualizada:', cantidad);
+      //console.log('Header: Cantidad no leídas actualizada:', cantidad);
       this.cantidadNoLeidas = cantidad;
     });
 
     this.subscriptions.push(notifSub);
 
-    // ✅ MEJORADO: También escuchar todas las notificaciones para sincronización
     const allNotifSub = this.notificationService.notificaciones$.subscribe(notificaciones => {
       const noLeidas = notificaciones.filter(n => !n.leida).length;
-      console.log('📋 Header: Total notificaciones:', notificaciones.length);
-      console.log('📋 Header: No leídas calculadas:', noLeidas);
+      //console.log('Header: Total notificaciones:', notificaciones.length);
+      //console.log('Header: No leídas calculadas:', noLeidas);
 
-      // ✅ SINCRONIZAR si hay diferencia
       if (noLeidas !== this.cantidadNoLeidas) {
-        console.log('⚠️ Sincronizando contador:', this.cantidadNoLeidas, '->', noLeidas);
+        console.log('Sincronizando contador:', this.cantidadNoLeidas, '->', noLeidas);
         this.cantidadNoLeidas = noLeidas;
       }
     });
 
     this.subscriptions.push(allNotifSub);
 
-    // ✅ NUEVO: Forzar actualización inicial después de 1 segundo
     setTimeout(() => {
       this.notificationService.notificaciones$.pipe(take(1)).subscribe(notificaciones => {
         const noLeidas = notificaciones.filter(n => !n.leida).length;
         if (this.cantidadNoLeidas !== noLeidas) {
-          console.log('🔄 Sincronización inicial forzada:', noLeidas);
+          console.log('Sincronización inicial forzada:', noLeidas);
           this.cantidadNoLeidas = noLeidas;
         }
       });
@@ -89,7 +83,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // ✅ Limpiar subscripciones
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
@@ -173,20 +166,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     console.log('Ver configuración');
     this.showUserMenu = false;
     this.mostrarConfiguracion = true; // En lugar de navegar
-    // Prevenir scroll del body
     document.body.style.overflow = 'hidden';
   }
 
   cerrarConfiguracion() {
     this.mostrarConfiguracion = false;
-    // Restaurar scroll
     document.body.style.overflow = 'auto';
   }
 
   verIntegracion() {
     console.log('Ver integración');
     this.showUserMenu = false;
-    this.showModalIntegracion = true; // NUEVO
+    this.showModalIntegracion = true;
   }
 
   cerrarModalIntegracion() {

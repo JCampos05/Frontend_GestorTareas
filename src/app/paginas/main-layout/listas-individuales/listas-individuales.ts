@@ -139,14 +139,12 @@ async cargarListas() {
   this.errorMessage = '';
 
   try {
-    console.log('🔵 Cargando MIS listas...');
+    //console.log('Cargando MIS listas...');
     
     // Obtener TODAS las listas
     const todasLasListas = await this.listasService.obtenerListas();
-    console.log('📊 Total de listas obtenidas:', todasLasListas.length);
+    //console.log('Total de listas obtenidas:', todasLasListas.length);
     
-    // ✅ Filtrar: SOLO mis listas propias (que YO creé)
-    // ✅ CONVERTIR compartible a booleano para evitar problemas con 0/1
     this.listas = todasLasListas
       .filter((lista: any) => {
         // Mostrar SOLO si soy el propietario original
@@ -163,29 +161,26 @@ async cargarListas() {
       })
       .map((lista: any) => ({
         ...lista,
-        // ✅ CRÍTICO: Convertir compartible de number (0/1) a boolean
         compartible: !!lista.compartible || lista.compartible === 1 || lista.compartible === true,
-        // ✅ También normalizar esPropietario
         esPropietario: !!lista.esPropietario || lista.esPropietario === 1,
-        // ✅ Normalizar importante
         importante: !!lista.importante || lista.importante === 1
       }));
 
-    console.log('✅ MIS listas filtradas:', this.listas.length);
-    console.log('Listas finales:', this.listas.map(l => ({
+    //console.log('MIS listas filtradas:', this.listas.length);
+    /*console.log('Listas finales:', this.listas.map(l => ({
       id: l.idLista,
       nombre: l.nombre,
       compartible: l.compartible,
       claveCompartir: l.claveCompartir
-    })));
+    })));*/
 
     if (!Array.isArray(this.listas)) {
-      console.warn('obtenerListas() no devolvió un array válido');
+      //console.warn('obtenerListas() no devolvió un array válido');
       this.listas = [];
     }
 
   } catch (error: any) {
-    console.error('❌ Error al cargar listas:', error);
+    //console.error('Error al cargar listas:', error);
 
     if (error.status === 401) {
       this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
@@ -367,19 +362,19 @@ async cargarListas() {
 
 
   alCompartir(clave: string) {
-    //console.log('✅ Clave recibida del modal (de la BD):', clave);
+    //console.log('Clave recibida del modal (de la BD):', clave);
 
     if (!this.listaParaCompartir?.idLista) {
-      console.error('❌ No hay lista seleccionada para compartir');
+      console.error('No hay lista seleccionada para compartir');
       this.notificacionesService.error('Error: No se pudo identificar la lista');
       return;
     }
 
-    // ✅ ACTUALIZAR INMEDIATAMENTE el estado local con la clave que YA viene del modal
+    // Actualizar el estado local con la clave que YA viene del modal
     const listaIndex = this.listas.findIndex(l => l.idLista === this.listaParaCompartir?.idLista);
     if (listaIndex !== -1) {
       this.listas[listaIndex].compartible = true;
-      this.listas[listaIndex].claveCompartir = clave; // ✅ Usar la clave del modal
+      this.listas[listaIndex].claveCompartir = clave; // Usar la clave del modal
     }
 
     this.notificacionesService.exito(`Lista compartida con clave: ${clave}`);

@@ -130,14 +130,13 @@ async cargarTarea(id: number) {
         this.pasos = Array.isArray(tarea.pasos) ? tarea.pasos : JSON.parse(tarea.pasos as any);
       }
 
-      // ✅ MEJORADO: Cargar recordatorios existentes
+      // MEJORADO: Cargar recordatorios existentes
       if (this.modoEdicion) {
         try {
           const recordatoriosResp = await this.tareasService.obtenerRecordatorios(id);
           this.recordatoriosAgregados = recordatoriosResp.recordatorios || [];
-          console.log('📋 Recordatorios cargados:', this.recordatoriosAgregados);
-          
-          // ✅ IMPORTANTE: Resetear los campos del formulario de recordatorio
+          //console.log('Recordatorios cargados:', this.recordatoriosAgregados);
+
           this.recordatorio = '0';
           this.fechaRecordatorio = '';
           this.horaRecordatorio = '';
@@ -281,7 +280,7 @@ async cargarTarea(id: number) {
     this.horaRecordatorio = `${hours}:${minutes}`;
   }
 
-  // NUEVO: Método para programar notificaciones de repetición
+  //  Método para programar notificaciones de repetición
   private programarNotificacionRepeticion(tarea: Tarea) {
     if (!tarea.repetir || !tarea.fechaVencimiento) return;
 
@@ -291,13 +290,10 @@ async cargarTarea(id: number) {
       tarea.tipoRepeticion || 'diario',
       tarea.configRepeticion
     );
-
-    // Aquí podrías hacer una llamada al backend para programar la notificación
-    // Por ahora, lo dejamos preparado para cuando implementes el endpoint
-    console.log('Próxima repetición programada para:', proximaFecha);
+    //console.log('Próxima repetición programada para:', proximaFecha);
   }
 
-  // NUEVO: Calcular próxima fecha de repetición
+  // Calcular próxima fecha de repetición
   private calcularProximaFechaRepeticion(
     fechaBase: string,
     tipoRepeticion: string,
@@ -344,7 +340,6 @@ async cargarTarea(id: number) {
         }
         break;
     }
-
     return fecha;
   }
 
@@ -353,7 +348,6 @@ async cargarTarea(id: number) {
       this.notificacionesService.advertencia('El nombre es requerido');
       return;
     }
-
     // Preparar fecha de vencimiento
     let fechaVencimientoFinal = null;
     if (this.selectFechaVencimiento === '4' && this.fechaVencimiento) {
@@ -362,7 +356,7 @@ async cargarTarea(id: number) {
       fechaVencimientoFinal = this.fechaVencimiento;
     }
 
-    // ✅ MEJORADO: Preparar recordatorios (incluir los existentes + nuevo si hay)
+    // Preparar recordatorios (incluir los existentes + nuevo si hay)
     let recordatorioFinal = null;
 
     if (this.recordatoriosAgregados.length > 0) {
@@ -403,11 +397,11 @@ async cargarTarea(id: number) {
       miDia: this.miDia
     };
 
-    console.log('📝 Guardando tarea:', {
+    /*console.log('Guardando tarea:', {
       nombre: this.nombre,
       recordatoriosExistentes: this.recordatoriosAgregados.length,
       recordatorioFinal: recordatorioFinal ? 'Presente' : 'Null'
-    });
+    });*/
 
     try {
       let tareaId: number;
@@ -417,12 +411,12 @@ async cargarTarea(id: number) {
         tareaId = this.idTarea;
         this.notificacionesService.exito('Tarea actualizada exitosamente');
 
-        // ✅ NUEVO: Si se está agregando un recordatorio desde el select
+        // Si se está agregando un recordatorio desde el select
         if (this.recordatorio === '4' && this.fechaRecordatorio && this.horaRecordatorio) {
           try {
             const fechaHoraCompleta = `${this.fechaRecordatorio}T${this.horaRecordatorio}:00`;
             await this.tareasService.agregarRecordatorio(tareaId, fechaHoraCompleta, 'personalizado');
-            console.log('✅ Recordatorio adicional guardado');
+            //console.log('Recordatorio adicional guardado');
 
             // Recargar recordatorios
             const recordatoriosResp = await this.tareasService.obtenerRecordatorios(tareaId);
@@ -441,18 +435,18 @@ async cargarTarea(id: number) {
           try {
             await this.tareasService.alternarMiDia(tareaId, true);
           } catch (miDiaError) {
-            console.error('❌ Error al activar Mi Día:', miDiaError);
+            //console.error('Error al activar Mi Día:', miDiaError);
           }
         }
 
         this.notificacionesService.exito('Tarea creada exitosamente');
 
-        // ✅ Si se agregó un recordatorio en la creación
+        // Si se agregó un recordatorio en la creación
         if (this.recordatorio === '4' && this.fechaRecordatorio && this.horaRecordatorio && tareaId) {
           try {
             const fechaHoraCompleta = `${this.fechaRecordatorio}T${this.horaRecordatorio}:00`;
             await this.tareasService.agregarRecordatorio(tareaId, fechaHoraCompleta, 'personalizado');
-            console.log('✅ Recordatorio guardado');
+            //console.log('Recordatorio guardado');
           } catch (recordError) {
             console.error('Error al guardar recordatorio:', recordError);
             this.notificacionesService.advertencia('Tarea guardada pero hubo un error al programar el recordatorio');

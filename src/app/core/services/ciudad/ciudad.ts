@@ -16,23 +16,23 @@ export interface Ciudad {
   providedIn: 'root'
 })
 export class CiudadAutocompleteService {
-  private apiKey = '107d3548ebcd48fda1363047251711'; // Tu API key de WeatherAPI
+  private apiKey = '107d3548ebcd48fda1363047251711'; //  API key de WeatherAPI
   private apiUrl = 'https://api.weatherapi.com/v1/search.json';
 
   constructor(private http: HttpClient) {}
 
   buscarCiudades(query: string): Observable<Ciudad[]> {
     if (!query || query.length < 2) {
-      console.log('⚠️ Query muy corto en servicio:', query);
+      //console.log('Query muy corto en servicio:', query);
       return of([]);
     }
 
     const url = `${this.apiUrl}?key=${this.apiKey}&q=${encodeURIComponent(query)}&lang=es`;
-    console.log('🌐 Llamando a API:', url);
+    //console.log('Llamando a API:', url);
     
     return this.http.get<any[]>(url).pipe(
       map(resultados => {
-        console.log('📦 Respuesta de API:', resultados);
+        //console.log('Respuesta de API:', resultados);
         const ciudades = resultados.map(ciudad => ({
           nombre: ciudad.name,
           pais: ciudad.country,
@@ -41,11 +41,11 @@ export class CiudadAutocompleteService {
           lat: ciudad.lat,
           lon: ciudad.lon
         }));
-        console.log('🏙️ Ciudades formateadas:', ciudades);
+        //console.log('Ciudades formateadas:', ciudades);
         return ciudades;
       }),
       catchError(error => {
-        console.error('❌ Error al buscar ciudades:', error);
+        //console.error('Error al buscar ciudades:', error);
         return of([]);
       })
     );

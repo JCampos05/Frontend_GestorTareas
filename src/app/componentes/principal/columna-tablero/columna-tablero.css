@@ -55,7 +55,6 @@
     font-size: 18px;
     font-weight: 600;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    /* ✅ Añadido para los tres puntos */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -66,7 +65,7 @@
 .header-actions {
     display: flex;
     gap: 8px;
-    flex-shrink: 0; /* ✅ Los botones no se comprimen */
+    flex-shrink: 0; 
     position: relative;
 }
 
@@ -243,7 +242,6 @@
 
 .tarea-item.importante {
     border-left: 4px solid #ff9933;
-    /* ✅ ELIMINADO: background: #fffaf5; */
 }
 
 .tarea-item.completada {
@@ -372,23 +370,19 @@
 
 /* ========== BADGE IMPORTANTE ========== */
 .badge-importante {
-    /* ✅ ACTUALIZADO: Estrella sin relleno, solo el borde dorado */
     background: transparent;
-    color: #fbbf24; /* Color dorado suave */
-    padding: 2px 6px; /* ✅ Menos padding */
+    color: #fbbf24; 
+    padding: 2px 6px; 
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
     font-weight: normal;
-    /*  ELIMINADA: animation: pulseImportant 2s ease-in-out infinite; */
     border: none;
     flex-shrink: 0;
-    margin-left: auto; /*  Empuja la estrella a la derecha */
+    margin-left: auto; 
 }
-
-/*  ELIMINADA la animación pulseImportant */
 
 .badge-importante i {
     color: #fbbf24; /* Color dorado más suave, no saturado */

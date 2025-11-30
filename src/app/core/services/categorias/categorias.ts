@@ -90,7 +90,7 @@ export class CategoriasService {
     }
   }
 
-  // ✅ NUEVO: Obtener categorías compartidas
+  // Obtener categorías compartidas
   async obtenerCategoriasCompartidas(): Promise<Categoria[]> {
     try {
       const response: any = await firstValueFrom(
@@ -104,7 +104,7 @@ export class CategoriasService {
     }
   }
 
-  // ✅ NUEVO: Generar clave para compartir categoría
+  // Generar clave para compartir categoría
   async generarClaveCompartir(id: number): Promise<any> {
     try {
       const result: any = await firstValueFrom(
@@ -117,7 +117,7 @@ export class CategoriasService {
     }
   }
 
-  // ✅ NUEVO: Descompartir categoría
+  // Descompartir categoría
   async descompartirCategoria(id: number): Promise<any> {
     try {
       const result: any = await firstValueFrom(
@@ -130,7 +130,7 @@ export class CategoriasService {
     }
   }
 
-  // ✅ NUEVO: Obtener usuarios con acceso a la categoría
+  // Obtener usuarios con acceso a la categoría
   async obtenerUsuariosConAcceso(id: number): Promise<any[]> {
     try {
       const response: any = await firstValueFrom(
@@ -143,7 +143,7 @@ export class CategoriasService {
     }
   }
 
-  // ✅ NUEVO: Obtener información completa de compartidos
+  // Obtener información completa de compartidos
   async obtenerInfoCompartidos(id: number): Promise<any> {
     try {
       const response: any = await firstValueFrom(

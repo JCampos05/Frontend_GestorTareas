@@ -27,18 +27,17 @@ export class NuevaPasswordComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute, // 🔥 Agregar ActivatedRoute
+    private route: ActivatedRoute, 
     private authService: AuthService,
     private notificacionesService: NotificacionesService
   ) {}
 
   ngOnInit() {
-    // 🔥 CAMBIO: Leer de queryParams en lugar de state
     this.route.queryParams.subscribe(params => {
       this.tokenTemporal = params['tokenTemporal'] || '';
       this.email = params['email'] || '';
       
-      console.log('🔑 Token recibido:', this.tokenTemporal ? 'Sí' : 'No'); // Debug
+      console.log('Token recibido:', this.tokenTemporal ? 'Sí' : 'No'); // Debug
       
       if (!this.tokenTemporal) {
         this.notificacionesService.error('Sesión de recuperación inválida');
